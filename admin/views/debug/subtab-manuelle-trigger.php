@@ -26,7 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 	<div class="cts-card" style="margin-top:24px;">
 
-		<h3>�🛠️ Update & Log</h3>
+		<h3>🛠️ Update & Log</h3>
 		<div style="display: flex; gap: 12px; flex-wrap: wrap;">
 			<button type="button" id="cts-manual-update" class="cts-button">
 				<span>🔄</span> Manuelles Update prüfen
@@ -35,6 +35,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<span>🗑️</span> Log löschen
 			</button>
 		</div>
+	</div>
+	
+	<div class="cts-card" style="margin-top:24px;">
+		<h3>🧹 Cronjob-Cleanup</h3>
+		<p>Entfernt verwaiste Cronjobs von alten Plugin-Versionen (z.B. <code>puc_cron_check_updates</code> von der alten YahnisElts/plugin-update-checker Bibliothek).</p>
+		<button type="button" id="cts-cleanup-cronjobs" class="cts-button cts-button-secondary">
+			<span>🧹</span> Verwaiste Cronjobs entfernen
+		</button>
+		<div id="cts-cleanup-result" style="margin-top: 16px;"></div>
 	</div>
 </div>
 
@@ -182,6 +191,68 @@ jQuery(function($) {
 			},
 			complete: function() {
 				$btn.prop('disabled', false).html('<span>🗑️</span> Log löschen');
+			}
+		});
+	});
+	
+	// Cleanup Legacy Cronjobs (v1.0.6.0)
+	$('#cts-cleanup-cronjobs').on('click', function() {
+		if (!confirm('Verwaiste Cronjobs von alten Plugin-Versionen entfernen?\n\nDies betrifft nur nicht mehr verwendete Cronjobs (z.B. puc_cron_check_updates).')) {
+			return;
+		}
+		
+		var $btn = $(this);
+		var $result = $('#cts-cleanup-result');
+		
+		$btn.prop('disabled', true).html('<span>⏳</span> Räume auf...');
+		$result.html('<div style="padding: 12px; background: #f0f9ff; border-radius: 4px;">🧹 Entferne verwaiste Cronjobs...</div>');
+		
+		$.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'cts_cleanup_cronjobs',
+				nonce: '<?php echo wp_create_nonce('churchtools_suite_admin'); ?>'
+			},
+			success: function(response) {
+				if (response.success) {
+					var data = response.data || {};
+					var removed = data.removed || [];
+					var message = data.message || 'Cleanup abgeschlossen';
+					
+					var html = '<div style="padding: 12px; background: #d1fae5; border-radius: 4px; border: 1px solid #10b981;">' +
+						'✅ <strong>' + message + '</strong>';
+					
+					if (removed.length > 0) {
+						html += '<br><br><strong>Entfernte Cronjobs:</strong><ul style="margin: 8px 0 0 20px;">';
+						removed.forEach(function(hook) {
+							html += '<li><code>' + hook + '</code></li>';
+						});
+						html += '</ul>';
+					}
+					
+					html += '</div>';
+					$result.html(html);
+					
+					// Reload nach 2 Sekunden
+					setTimeout(function() { location.reload(); }, 2000);
+				} else {
+					$result.html(
+						'<div style="padding: 12px; background: #fee2e2; border-radius: 4px; border: 1px solid #dc2626;">' +
+						'❌ ' + (response.data.message || 'Fehler beim Cleanup') +
+						'</div>'
+					);
+				}
+			},
+			error: function() {
+				$result.html(
+					'<div style="padding: 12px; background: #fee2e2; border-radius: 4px; border: 1px solid #dc2626;">' +
+					'❌ <strong>Netzwerkfehler</strong>' +
+					'</div>'
+				);
+			},
+			complete: function() {
+				$btn.prop('disabled', false).html('<span>🧹</span> Verwaiste Cronjobs entfernen');
 			}
 		});
 	});
