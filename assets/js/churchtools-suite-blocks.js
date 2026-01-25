@@ -34,7 +34,8 @@
 			{ label: __('Classic', 'churchtools-suite'), value: 'classic' },
 			{ label: __('Classic mit Bildern', 'churchtools-suite'), value: 'classic-with-images' },
 			{ label: __('Minimal', 'churchtools-suite'), value: 'minimal' },
-			{ label: __('Modern', 'churchtools-suite'), value: 'modern' }
+			{ label: __('Modern', 'churchtools-suite'), value: 'modern' },
+			{ label: __('Tabelle', 'churchtools-suite'), value: 'table' }
 		],
 		grid: [
 			{ label: __('Simple', 'churchtools-suite'), value: 'simple' },
