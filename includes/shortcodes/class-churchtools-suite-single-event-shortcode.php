@@ -52,15 +52,10 @@ class ChurchTools_Suite_Single_Event_Shortcode {
 			return '<div class="cts-error">' . __( 'Fehler: Keine Event-ID angegeben.', 'churchtools-suite' ) . '</div>';
 		}
 		
-		// Load repositories
-		require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-repository-base.php';
-		require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-events-repository.php';
-		require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-calendars-repository.php';
-		require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-event-services-repository.php';
-		
-		$events_repo = new ChurchTools_Suite_Events_Repository();
-		$calendars_repo = new ChurchTools_Suite_Calendars_Repository();
-		$event_services_repo = new ChurchTools_Suite_Event_Services_Repository();
+		// Load repositories (v1.0.8.0: Factory - no manual requires needed)
+		$events_repo = churchtools_suite_get_repository( 'events' );
+		$calendars_repo = churchtools_suite_get_repository( 'calendars' );
+		$event_services_repo = churchtools_suite_get_repository( 'event_services' );
 		
 		// Load event
 		$event = $events_repo->get_by_id( $event_id );

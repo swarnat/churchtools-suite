@@ -582,10 +582,8 @@ if ( ! class_exists( 'ChurchTools_Suite_Elementor_Events_Widget' ) ) {
 		 * @return array Calendar options
 		 */
 		private function get_calendars_options() {
-			require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-repository-base.php';
-			require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-calendars-repository.php';
-
-			$repo = new ChurchTools_Suite_Calendars_Repository();
+			// v1.0.8.0: Use factory
+			$repo = churchtools_suite_get_repository( 'calendars' );
 			$calendars = $repo->get_all();
 
 			$options = [];
@@ -602,10 +600,8 @@ if ( ! class_exists( 'ChurchTools_Suite_Elementor_Events_Widget' ) ) {
 		 * @return array Tags options
 		 */
 		private function get_tags_options() {
-			require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-repository-base.php';
-			require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-events-repository.php';
-
-			$repo = new ChurchTools_Suite_Events_Repository();
+			// v1.0.8.0: Use factory
+			$repo = churchtools_suite_get_repository( 'events' );
 
 			// Get all unique tags from database
 			$all_events = $repo->get_all();

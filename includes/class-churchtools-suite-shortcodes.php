@@ -694,9 +694,8 @@ class ChurchTools_Suite_Shortcodes {
 			return $ids;
 		}
 		
-		// If no parameter provided, use selected calendars from admin settings
-		require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-calendars-repository.php';
-		$calendars_repo = new ChurchTools_Suite_Calendars_Repository();
+		// If no parameter provided, use selected calendars from admin settings (v1.0.8.0: Factory)
+		$calendars_repo = churchtools_suite_get_repository( 'calendars' );
 		$selected_ids = $calendars_repo->get_selected_calendar_ids();
 		
 		return ! empty( $selected_ids ) ? $selected_ids : [];
@@ -870,7 +869,7 @@ class ChurchTools_Suite_Shortcodes {
 		require_once CHURCHTOOLS_SUITE_PATH . 'includes/services/class-churchtools-suite-template-data.php';
 		
 		$template_data = new ChurchTools_Suite_Template_Data();
-		$calendars_repo = new ChurchTools_Suite_Calendars_Repository();
+		$calendars_repo = churchtools_suite_get_repository( 'calendars' ); // v1.0.8.0: Factory
 		
 		// Fetch events for date range
 		$calendar_ids = $calendars_repo->get_selected_calendar_ids();

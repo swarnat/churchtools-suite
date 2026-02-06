@@ -47,9 +47,10 @@ class ChurchTools_Suite_Template_Data {
 	 * Constructor
 	 */
 	public function __construct() {
-		$this->events_repo = new ChurchTools_Suite_Events_Repository();
-		$this->calendars_repo = new ChurchTools_Suite_Calendars_Repository();
-		$this->event_services_repo = new ChurchTools_Suite_Event_Services_Repository();
+		// v1.0.8.0: Use factory for extensibility (Demo Plugin, Cache, etc.)
+		$this->events_repo = churchtools_suite_get_repository( 'events' );
+		$this->calendars_repo = churchtools_suite_get_repository( 'calendars' );
+		$this->event_services_repo = churchtools_suite_get_repository( 'event_services' );
 		
 		// v0.9.9.58: Load calendar images from table (with fallback to option for backward compatibility)
 		$this->load_calendar_images();

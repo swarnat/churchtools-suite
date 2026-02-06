@@ -20,12 +20,9 @@ if ( ! $event_id ) {
 	return;
 }
 
-// Load repositories
-require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-events-repository.php';
-require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-calendars-repository.php';
-
-$events_repo = new ChurchTools_Suite_Events_Repository();
-$calendars_repo = new ChurchTools_Suite_Calendars_Repository();
+// Load repositories (v1.0.8.0: Factory)
+$events_repo = churchtools_suite_get_repository( 'events' );
+$calendars_repo = churchtools_suite_get_repository( 'calendars' );
 
 // Get event
 $event = $events_repo->get_by_id( $event_id );
