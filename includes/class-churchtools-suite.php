@@ -73,20 +73,28 @@ class ChurchTools_Suite {
 		require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-blocks.php';
 		
 		// Elementor Integration (v1.0.4.0+) - Load on plugins_loaded hook after plugin.php is available
+		// v1.0.9.0: Only load if sub-plugin is NOT active (backward compatibility)
 		add_action( 'plugins_loaded', function() {
-			error_log( '[ChurchTools Suite] plugins_loaded fired - checking Elementor' );
 			if ( ! function_exists( 'is_plugin_active' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/plugin.php';
-				error_log( '[ChurchTools Suite] plugin.php loaded for is_plugin_active()' );
 			}
 			
+			// Check if Elementor Sub-Plugin is active
+			$subplugin_active = is_plugin_active( 'churchtools-suite-elementor/churchtools-suite-elementor.php' ) 
+			                    || class_exists( 'CTS_Elementor_Integration' );
+			
+			if ( $subplugin_active ) {
+				error_log( '[ChurchTools Suite] Elementor Sub-Plugin detected - skipping built-in integration' );
+				return;
+			}
+			
+			// Load built-in Elementor integration (deprecated, will be removed in v2.0.0)
 			if ( is_plugin_active( 'elementor/elementor.php' ) || did_action( 'elementor/loaded' ) ) {
-				error_log( '[ChurchTools Suite] Loading Elementor Integration' );
-				$error_log_path = CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-elementor-integration.php';
-				error_log( '[ChurchTools Suite] Integration path: ' . $error_log_path . ' exists: ' . ( file_exists( $error_log_path ) ? 'YES' : 'NO' ) );
-				require_once $error_log_path;
-			} else {
-				error_log( '[ChurchTools Suite] Elementor NOT active - skipping integration' );
+				error_log( '[ChurchTools Suite] Loading built-in Elementor Integration (deprecated - use Sub-Plugin!)' );
+				$integration_path = CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-elementor-integration.php';
+				if ( file_exists( $integration_path ) ) {
+					require_once $integration_path;
+				}
 			}
 		}, 20 ); // Priority 20 to ensure Elementor is loaded first
 
