@@ -86,9 +86,14 @@ class ChurchTools_Suite {
 			$subplugin_active = is_plugin_active( 'churchtools-suite-elementor/churchtools-suite-elementor.php' ) 
 			                    || class_exists( 'CTS_Elementor_Integration' );
 			
-			// If Elementor is active but sub-plugin is not, show admin notice
+			// If Elementor is active but sub-plugin is not, show admin notice (except on addons page)
 			if ( $elementor_active && ! $subplugin_active ) {
 				add_action( 'admin_notices', function() {
+					// Don't show on addons page (has its own notice)
+					$screen = get_current_screen();
+					if ( $screen && strpos( $screen->id, 'churchtools-suite-addons' ) !== false ) {
+						return;
+					}
 					?>
 					<div class="notice notice-info is-dismissible">
 						<p>
