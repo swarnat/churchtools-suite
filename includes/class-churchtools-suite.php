@@ -285,6 +285,11 @@ class ChurchTools_Suite {
 			set_transient('churchtools_suite_last_start_log', current_time('timestamp'), DAY_IN_SECONDS);
 		}
 		
+		// v1.0.9.0: Allow sub-plugins to hook in
+		// This action fires AFTER all core dependencies are loaded and hooks are defined
+		// but BEFORE the loader executes the registered hooks
+		do_action( 'churchtools_suite_loaded', $this );
+		
 		$this->loader->run();
 	}
 	

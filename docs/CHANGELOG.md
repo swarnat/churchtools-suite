@@ -1,5 +1,35 @@
 # ChurchTools Suite - Changelog
 
+## v1.0.9.0 - Sub-Plugin Support & Elementor Modularisierung (13. Februar 2026)
+
+### 🏗️ Architektur
+- **Sub-Plugin Hook System** - Neuer Action Hook `churchtools_suite_loaded`
+  - Erlaubt Sub-Plugins nach Core-Initialisierung zu laden
+  - Feuert nach Dependencies und Hook-Definitionen, vor Loader-Ausführung
+  - Basis für modulare Plugin-Architektur (Elementor, WooCommerce, etc.)
+  - Parameter: ChurchTools_Suite Instanz für Zugriff auf Main Plugin API
+
+### ♻️ Deprecations
+- **Elementor Integration** - Wird in v2.0.0 aus Hauptplugin entfernt
+  - Sub-Plugin verfügbar: `churchtools-suite-elementor`
+  - Download: https://github.com/FEGAschaffenburg/churchtools-suite-elementor
+  - Siehe [MIGRATION-ELEMENTOR.md](../MIGRATION-ELEMENTOR.md)
+  - Aktuell noch integriert, aber als deprecated markiert
+
+### 📚 Dokumentation
+- **Migration Guide** - MIGRATION-ELEMENTOR.md erstellt
+  - Timeline: v1.0.9.0 (optional) → v2.0.0 (erforderlich)
+  - Installation & Upgrade-Pfade
+  - FAQ für End-User und Entwickler
+  - Breaking Changes Übersicht
+
+### 🎯 Zukunftssicher
+- Basis für weitere Sub-Plugins (Gravity Forms, Analytics, Multi-Language)
+- Klare API für Third-Party Integrationen
+- Saubere Trennung von Core und Extensions
+
+---
+
 ## v1.0.5.0 - Elementor Integration Fix & System Info (17. Januar 2026)
 
 ### 🔧 Bugfixes
