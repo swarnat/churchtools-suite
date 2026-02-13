@@ -241,6 +241,16 @@ class ChurchTools_Suite_Admin {
 			[ $this, 'display_data_page' ]
 		);
 
+		// Add Addons/Extensions overview page (v1.0.9.0)
+		add_submenu_page(
+			'churchtools-suite',
+			__( 'Addons', 'churchtools-suite' ),
+			__( '🧩 Addons', 'churchtools-suite' ),
+			'manage_churchtools_suite',
+			'churchtools-suite-addons',
+			[ $this, 'display_addons_page' ]
+		);
+
 		// Add Disclaimer subpage (separate admin page for legal information)
 		add_submenu_page(
 			'churchtools-suite',
@@ -337,6 +347,13 @@ class ChurchTools_Suite_Admin {
 	public function display_data_page() {
 		// Reuse existing data subtab view
 		include_once CHURCHTOOLS_SUITE_PATH . 'admin/views/tab-data.php';
+	}
+
+	/**
+	 * Display Addons overview page (v1.0.9.0)
+	 */
+	public function display_addons_page() {
+		include_once CHURCHTOOLS_SUITE_PATH . 'admin/views/addons-page.php';
 	}
 	
 	/**

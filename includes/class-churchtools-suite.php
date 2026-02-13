@@ -72,29 +72,40 @@ class ChurchTools_Suite {
 		// Gutenberg Blocks (v0.5.8.0+)
 		require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-blocks.php';
 		
-		// Elementor Integration (v1.0.4.0+) - Load on plugins_loaded hook after plugin.php is available
-		// v1.0.9.0: Only load if sub-plugin is NOT active (backward compatibility)
+		// Elementor Integration (v1.0.9.0+) - Moved to separate plugin
+		// Check if Elementor is active but sub-plugin is not installed
 		add_action( 'plugins_loaded', function() {
 			if ( ! function_exists( 'is_plugin_active' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/plugin.php';
 			}
 			
-			// Check if Elementor Sub-Plugin is active
+			// Check if Elementor is active
+			$elementor_active = is_plugin_active( 'elementor/elementor.php' ) || did_action( 'elementor/loaded' );
+			
+			// Check if Elementor Sub-Plugin is installed
 			$subplugin_active = is_plugin_active( 'churchtools-suite-elementor/churchtools-suite-elementor.php' ) 
 			                    || class_exists( 'CTS_Elementor_Integration' );
 			
-			if ( $subplugin_active ) {
-				error_log( '[ChurchTools Suite] Elementor Sub-Plugin detected - skipping built-in integration' );
-				return;
-			}
-			
-			// Load built-in Elementor integration (deprecated, will be removed in v2.0.0)
-			if ( is_plugin_active( 'elementor/elementor.php' ) || did_action( 'elementor/loaded' ) ) {
-				error_log( '[ChurchTools Suite] Loading built-in Elementor Integration (deprecated - use Sub-Plugin!)' );
-				$integration_path = CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-elementor-integration.php';
-				if ( file_exists( $integration_path ) ) {
-					require_once $integration_path;
-				}
+			// If Elementor is active but sub-plugin is not, show admin notice
+			if ( $elementor_active && ! $subplugin_active ) {
+				add_action( 'admin_notices', function() {
+					?>
+					<div class="notice notice-info is-dismissible">
+						<p>
+							<strong><?php esc_html_e( 'ChurchTools Suite - Elementor Integration', 'churchtools-suite' ); ?></strong><br>
+							<?php esc_html_e( 'Elementor wurde erkannt! Installiere das ChurchTools Suite - Elementor Integration Plugin für erweiterte Funktionen.', 'churchtools-suite' ); ?>
+						</p>
+						<p>
+							<a href="https://github.com/FEGAschaffenburg/churchtools-suite-elementor/releases" class="button button-primary" target="_blank" rel="noopener noreferrer">
+								<?php esc_html_e( 'Jetzt herunterladen', 'churchtools-suite' ); ?>
+							</a>
+							<a href="<?php echo esc_url( admin_url( 'admin.php?page=churchtools-suite-addons' ) ); ?>" class="button">
+								<?php esc_html_e( 'Zu den Addons', 'churchtools-suite' ); ?>
+							</a>
+						</p>
+					</div>
+					<?php
+				} );
 			}
 		}, 20 ); // Priority 20 to ensure Elementor is loaded first
 
