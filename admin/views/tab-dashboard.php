@@ -24,14 +24,45 @@ $is_configured = ! empty( $ct_url ) && (
 );
 $is_connected = ( $ct_auth_method === 'token' ) ? ! empty( $ct_token ) : ! empty( $ct_cookies );
 
-// Statistiken
+// Statistiken (v1.0.8.0: Use Repository Factory for user_id isolation)
 global $wpdb;
 $prefix = $wpdb->prefix . CHURCHTOOLS_SUITE_DB_PREFIX;
 
+// Check if Repository Factory exists (Demo Plugin support)
+$use_factory = class_exists( 'ChurchTools_Suite_Repository_Factory' );
+$user_id = get_current_user_id();
+
 // v0.9.0.3: Suppress DB errors if tables don't exist yet (first activation)
 $wpdb->suppress_errors();
-$events_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$prefix}events" );
-$calendars_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$prefix}calendars WHERE is_selected = 1" );
+
+if ( $use_factory ) {
+	// v1.0.7.1: Check if demo mode is active (demo data should only show when mode is ON)
+	$demo_mode = false;
+	if ( class_exists( 'ChurchTools_Suite_User_Settings' ) ) {
+		$demo_mode = ChurchTools_Suite_User_Settings::is_demo_mode( $user_id );
+	}
+	
+	if ( ! $demo_mode && current_user_can( 'cts_demo_user' ) ) {
+		// Demo user with demo mode OFF - show 0 (demo data hidden)
+		$events_count = 0;
+		$calendars_count = 0;
+	} else {
+		// Use Repository Factory for isolated counts
+		require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-repository-factory.php';
+		$events_repo = ChurchTools_Suite_Repository_Factory::get_events_repo( $user_id );
+		$calendars_repo = ChurchTools_Suite_Repository_Factory::get_calendars_repo( $user_id );
+		
+		$events_count = $events_repo->count();
+		$calendars_count = count( array_filter( $calendars_repo->get_all(), function( $cal ) {
+			return ! empty( $cal->is_selected );
+		} ) );
+	}
+} else {
+	// Fallback: Direct database queries (backwards compatibility)
+	$events_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$prefix}events" );
+	$calendars_count = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$prefix}calendars WHERE is_selected = 1" );
+}
+
 $wpdb->show_errors();
 
 // Check if tables exist (if queries returned NULL, tables might not exist)
