@@ -89,11 +89,13 @@ $active_addons = array_filter( $addons, fn( $addon ) => $addon['is_active'] );
 $elementor_active = false;
 $elementor_subplugin_active = false;
 
-if ( function_exists( 'is_plugin_active' ) || ( require_once ABSPATH . 'wp-admin/includes/plugin.php' ) ) {
-	$elementor_active = is_plugin_active( 'elementor/elementor.php' ) || did_action( 'elementor/loaded' );
-	$elementor_subplugin_active = is_plugin_active( 'churchtools-suite-elementor/churchtools-suite-elementor.php' ) 
-	                               || class_exists( 'CTS_Elementor_Integration' );
+if ( ! function_exists( 'is_plugin_active' ) ) {
+	require_once ABSPATH . 'wp-admin/includes/plugin.php';
 }
+
+$elementor_active = is_plugin_active( 'elementor/elementor.php' ) || did_action( 'elementor/loaded' );
+$elementor_subplugin_active = is_plugin_active( 'churchtools-suite-elementor/churchtools-suite-elementor.php' ) 
+                               || class_exists( 'CTS_Elementor_Integration' );
 
 ?>
 <div class="wrap cts-wrap">
