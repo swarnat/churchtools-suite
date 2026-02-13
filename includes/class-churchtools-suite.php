@@ -73,46 +73,7 @@ class ChurchTools_Suite {
 		require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-blocks.php';
 		
 		// Elementor Integration (v1.0.9.0+) - Moved to separate plugin
-		// Check if Elementor is active but sub-plugin is not installed
-		add_action( 'plugins_loaded', function() {
-			if ( ! function_exists( 'is_plugin_active' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
-			}
-			
-			// Check if Elementor is active
-			$elementor_active = is_plugin_active( 'elementor/elementor.php' ) || did_action( 'elementor/loaded' );
-			
-			// Check if Elementor Sub-Plugin is installed
-			$subplugin_active = is_plugin_active( 'churchtools-suite-elementor/churchtools-suite-elementor.php' ) 
-			                    || class_exists( 'CTS_Elementor_Integration' );
-			
-			// If Elementor is active but sub-plugin is not, show admin notice (except on addons page)
-			if ( $elementor_active && ! $subplugin_active ) {
-				add_action( 'admin_notices', function() {
-					// Don't show on addons page (has its own notice)
-					$screen = get_current_screen();
-					if ( $screen && strpos( $screen->id, 'churchtools-suite-addons' ) !== false ) {
-						return;
-					}
-					?>
-					<div class="notice notice-info is-dismissible">
-						<p>
-							<strong><?php esc_html_e( 'ChurchTools Suite - Elementor Integration', 'churchtools-suite' ); ?></strong><br>
-							<?php esc_html_e( 'Elementor wurde erkannt! Installiere das ChurchTools Suite - Elementor Integration Plugin für erweiterte Funktionen.', 'churchtools-suite' ); ?>
-						</p>
-						<p>
-							<a href="https://github.com/FEGAschaffenburg/churchtools-suite-elementor/releases" class="button button-primary" target="_blank" rel="noopener noreferrer">
-								<?php esc_html_e( 'Jetzt herunterladen', 'churchtools-suite' ); ?>
-							</a>
-							<a href="<?php echo esc_url( admin_url( 'admin.php?page=churchtools-suite-addons' ) ); ?>" class="button">
-								<?php esc_html_e( 'Zu den Addons', 'churchtools-suite' ); ?>
-							</a>
-						</p>
-					</div>
-					<?php
-				} );
-			}
-		}, 20 ); // Priority 20 to ensure Elementor is loaded first
+		// Notice is shown on the Addons page (admin/views/addons-page.php) only
 
 		// Auto updater (checks GitHub releases and installs ZIP)
 		require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-auto-updater.php';
