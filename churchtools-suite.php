@@ -63,6 +63,11 @@ register_deactivation_hook( __FILE__, 'deactivate_churchtools_suite' );
 function run_churchtools_suite() {
 	require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite.php';
 	$plugin = new ChurchTools_Suite();
+	
+	// Store instance globally for sub-plugins (v1.0.9.0)
+	global $churchtools_suite_plugin_instance;
+	$churchtools_suite_plugin_instance = $plugin;
+	
 	$plugin->run();
 }
 run_churchtools_suite();
