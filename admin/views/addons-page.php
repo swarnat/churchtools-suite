@@ -97,14 +97,6 @@ $elementor_active = is_plugin_active( 'elementor/elementor.php' ) || did_action(
 $elementor_subplugin_active = is_plugin_active( 'churchtools-suite-elementor/churchtools-suite-elementor.php' ) 
                                || class_exists( 'CTS_Elementor_Integration' );
 
-// Debug output (remove after testing)
-if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	error_log( 'Addons Page Debug:' );
-	error_log( '- Elementor Active: ' . ( $elementor_active ? 'YES' : 'NO' ) );
-	error_log( '- Elementor Subplugin Active: ' . ( $elementor_subplugin_active ? 'YES' : 'NO' ) );
-	error_log( '- Show Notice: ' . ( ( $elementor_active && ! $elementor_subplugin_active ) ? 'YES' : 'NO' ) );
-}
-
 ?>
 <div class="wrap cts-wrap">
 	
@@ -115,8 +107,6 @@ if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 		</h1>
 		<p class="cts-subtitle"><?php esc_html_e( 'Erweitere ChurchTools Suite mit zusätzlichen Plugins', 'churchtools-suite' ); ?></p>
 	</div>
-	
-	<!-- Debug: Elementor=<?php echo $elementor_active ? 'YES' : 'NO'; ?>, Subplugin=<?php echo $elementor_subplugin_active ? 'YES' : 'NO'; ?>, Show=<?php echo ( $elementor_active && ! $elementor_subplugin_active ) ? 'YES' : 'NO'; ?> -->
 	
 	<?php if ( $elementor_active && ! $elementor_subplugin_active ) : ?>
 		<div class="notice notice-info" style="margin: 20px 0;">
