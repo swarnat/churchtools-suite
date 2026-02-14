@@ -22,6 +22,74 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
+/* === WordPress Admin Notices === */
+/* Fix readability of all admin notices on ChurchTools Suite pages */
+.cts-wrap .notice,
+.cts-wrap .updated,
+.cts-wrap .error,
+.cts-wrap div.notice,
+.cts-wrap div.updated,
+.cts-wrap div.error {
+	position: relative;
+	z-index: 100;
+	margin: 15px 0 !important;
+	padding: 12px !important;
+	background: #fff !important;
+	border-left: 4px solid #72aee6 !important;
+	box-shadow: 0 1px 3px rgba(0,0,0,0.13) !important;
+	color: #1d2327 !important;
+	font-size: 14px;
+	line-height: 1.6;
+}
+
+/* Override WordPress default notice colors for better visibility */
+.cts-wrap .notice-success,
+.cts-wrap .updated {
+	border-left-color: #00a32a !important;
+	background: #fff !important;
+}
+
+.cts-wrap .notice-warning {
+	border-left-color: #dba617 !important;
+	background: #fff !important;
+}
+
+.cts-wrap .notice-error,
+.cts-wrap .error {
+	border-left-color: #d63638 !important;
+	background: #fff !important;
+}
+
+.cts-wrap .notice-info {
+	border-left-color: #72aee6 !important;
+	background: #fff !important;
+}
+
+/* Ensure notice text is always readable */
+.cts-wrap .notice p,
+.cts-wrap .updated p,
+.cts-wrap .error p {
+	color: #1d2327 !important;
+	margin: 0.5em 0 !important;
+	font-size: 14px;
+	line-height: 1.6;
+}
+
+/* Ensure buttons in notices are visible */
+.cts-wrap .notice .button,
+.cts-wrap .updated .button,
+.cts-wrap .error .button {
+	margin-top: 8px;
+}
+
+/* Ensure notices appear BEFORE the header */
+.cts-wrap > .notice:first-child,
+.cts-wrap > .updated:first-child,
+.cts-wrap > .error:first-child {
+	margin-top: 20px !important;
+	margin-bottom: 15px !important;
+}
+
 /* === Header === */
 .cts-header {
 	background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
