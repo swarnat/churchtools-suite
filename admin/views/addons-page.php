@@ -88,14 +88,22 @@ $active_addons = array_filter( $addons, fn( $addon ) => $addon['is_active'] );
 // Check if Elementor is active but sub-plugin is not
 $elementor_active = false;
 $elementor_subplugin_active = false;
+$elementor_subplugin_installed = false;
 
 if ( ! function_exists( 'is_plugin_active' ) ) {
+	require_once ABSPATH . 'wp-admin/includes/plugin.php';
+}
+if ( ! function_exists( 'get_plugins' ) ) {
 	require_once ABSPATH . 'wp-admin/includes/plugin.php';
 }
 
 $elementor_active = is_plugin_active( 'elementor/elementor.php' ) || did_action( 'elementor/loaded' );
 $elementor_subplugin_active = is_plugin_active( 'churchtools-suite-elementor/churchtools-suite-elementor.php' ) 
                                || class_exists( 'CTS_Elementor_Integration' );
+
+// Check if Elementor sub-plugin is installed (but possibly inactive)
+$all_plugins = get_plugins();
+$elementor_subplugin_installed = isset( $all_plugins['churchtools-suite-elementor/churchtools-suite-elementor.php'] );
 
 ?>
 <div class="wrap cts-wrap">
@@ -112,17 +120,31 @@ $elementor_subplugin_active = is_plugin_active( 'churchtools-suite-elementor/chu
 		<div class="notice notice-info" style="margin: 20px 0;">
 			<p>
 				<strong><?php esc_html_e( 'ChurchTools Suite - Elementor Integration', 'churchtools-suite' ); ?></strong><br>
-				<?php esc_html_e( 'Elementor wurde erkannt! Installiere das ChurchTools Suite - Elementor Integration Plugin für erweiterte Funktionen.', 'churchtools-suite' ); ?>
+				<?php 
+				if ( $elementor_subplugin_installed ) {
+					esc_html_e( 'Das ChurchTools Suite - Elementor Integration Plugin ist installiert aber nicht aktiv.', 'churchtools-suite' );
+				} else {
+					esc_html_e( 'Elementor wurde erkannt! Installiere das ChurchTools Suite - Elementor Integration Plugin für erweiterte Funktionen.', 'churchtools-suite' );
+				}
+				?>
 			</p>
 			<p>
-				<button type="button" class="button button-primary cts-install-addon" data-addon-slug="churchtools-suite-elementor">
-					<?php esc_html_e( '⚡ Jetzt installieren', 'churchtools-suite' ); ?>
-				</button>
+				<?php if ( $elementor_subplugin_installed ) : ?>
+					<a href="<?php echo esc_url( wp_nonce_url( 'plugins.php?action=activate&plugin=' . urlencode( 'churchtools-suite-elementor/churchtools-suite-elementor.php' ), 'activate-plugin_churchtools-suite-elementor/churchtools-suite-elementor.php' ) ); ?>" class="button button-primary">
+						<?php esc_html_e( '✅ Aktivieren', 'churchtools-suite' ); ?>
+					</a>
+				<?php else : ?>
+					<button type="button" class="button button-primary cts-install-addon" data-addon-slug="churchtools-suite-elementor">
+						<?php esc_html_e( '⚡ Jetzt installieren', 'churchtools-suite' ); ?>
+					</button>
+				<?php endif; ?>
 				<a href="https://github.com/FEGAschaffenburg/churchtools-suite-elementor/releases" class="button" target="_blank" rel="noopener noreferrer">
 					<?php esc_html_e( 'Auf GitHub ansehen', 'churchtools-suite' ); ?>
 				</a>
 			</p>
-			<div class="cts-install-result" style="display:none; margin-top:10px;"></div>
+			<?php if ( ! $elementor_subplugin_installed ) : ?>
+				<div class="cts-install-result" style="display:none; margin-top:10px;"></div>
+			<?php endif; ?>
 		</div>
 	<?php endif; ?>
 	
@@ -153,14 +175,26 @@ $elementor_subplugin_active = is_plugin_active( 'churchtools-suite-elementor/chu
 					<li><?php esc_html_e( 'Filter, Gruppierung und erweiterte Optionen', 'churchtools-suite' ); ?></li>
 				</ul>
 				<p>
-					<button type="button" class="button button-primary cts-install-addon" data-addon-slug="churchtools-suite-elementor">
-						<?php esc_html_e( '⚡ Jetzt installieren', 'churchtools-suite' ); ?>
-					</button>
+					<?php if ( $elementor_subplugin_installed && ! $elementor_subplugin_active ) : ?>
+						<a href="<?php echo esc_url( wp_nonce_url( 'plugins.php?action=activate&plugin=' . urlencode( 'churchtools-suite-elementor/churchtools-suite-elementor.php' ), 'activate-plugin_churchtools-suite-elementor/churchtools-suite-elementor.php' ) ); ?>" class="button button-primary">
+							<?php esc_html_e( '✅ Aktivieren', 'churchtools-suite' ); ?>
+						</a>
+					<?php elseif ( ! $elementor_subplugin_installed ) : ?>
+						<button type="button" class="button button-primary cts-install-addon" data-addon-slug="churchtools-suite-elementor">
+							<?php esc_html_e( '⚡ Jetzt installieren', 'churchtools-suite' ); ?>
+						</button>
+					<?php else : ?>
+						<span class="button button-primary" disabled style="opacity: 0.5; cursor: not-allowed;">
+							<?php esc_html_e( '✅ Installiert & Aktiv', 'churchtools-suite' ); ?>
+						</span>
+					<?php endif; ?>
 					<a href="https://github.com/FEGAschaffenburg/churchtools-suite-elementor" class="button" target="_blank" rel="noopener noreferrer">
 						<?php esc_html_e( 'Dokumentation', 'churchtools-suite' ); ?>
 					</a>
 				</p>
-				<div class="cts-install-result" style="display:none; margin-top:10px;"></div>
+				<?php if ( ! $elementor_subplugin_installed ) : ?>
+					<div class="cts-install-result" style="display:none; margin-top:10px;"></div>
+				<?php endif; ?>
 			</div>
 		</div>
 		

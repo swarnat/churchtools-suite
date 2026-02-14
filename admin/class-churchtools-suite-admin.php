@@ -3042,14 +3042,33 @@ class ChurchTools_Suite_Admin {
 			// Get installed plugin path
 			$plugin_file = $upgrader->plugin_info();
 			
-			wp_send_json_success( [
-				'message' => sprintf(
-					__( '%s erfolgreich installiert! Bitte Seite neu laden um das Plugin zu aktivieren.', 'churchtools-suite' ),
-					$data['name'] ?? $addon_slug
-				),
-				'plugin_file' => $plugin_file,
-				'version' => $data['tag_name'] ?? 'unknown',
-			] );
+			// Auto-activate the plugin
+			$activation_result = activate_plugin( $plugin_file );
+			
+			if ( is_wp_error( $activation_result ) ) {
+				// Installation successful but activation failed
+				wp_send_json_success( [
+					'message' => sprintf(
+						__( '%s erfolgreich installiert! Aktivierung fehlgeschlagen: %s. Bitte aktiviere das Plugin manuell.', 'churchtools-suite' ),
+						$data['name'] ?? $addon_slug,
+						$activation_result->get_error_message()
+					),
+					'plugin_file' => $plugin_file,
+					'version' => $data['tag_name'] ?? 'unknown',
+					'activated' => false,
+				] );
+			} else {
+				// Installation and activation successful
+				wp_send_json_success( [
+					'message' => sprintf(
+						__( '✅ %s erfolgreich installiert und aktiviert!', 'churchtools-suite' ),
+						$data['name'] ?? $addon_slug
+					),
+					'plugin_file' => $plugin_file,
+					'version' => $data['tag_name'] ?? 'unknown',
+					'activated' => true,
+				] );
+			}
 			
 		} catch ( Exception $e ) {
 			wp_send_json_error( [
