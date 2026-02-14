@@ -3021,6 +3021,17 @@ class ChurchTools_Suite_Admin {
 				throw new Exception( $temp_file->get_error_message() );
 			}
 			
+			// Verify temp file exists and is readable
+			if ( ! file_exists( $temp_file ) ) {
+				throw new Exception( __( 'Download-Datei wurde nicht erstellt.', 'churchtools-suite' ) );
+			}
+			
+			$file_size = filesize( $temp_file );
+			if ( $file_size === 0 ) {
+				@unlink( $temp_file );
+				throw new Exception( __( 'Download-Datei ist leer (0 Bytes).', 'churchtools-suite' ) );
+			}
+			
 			// Install plugin
 			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 			require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
@@ -3036,11 +3047,36 @@ class ChurchTools_Suite_Admin {
 			}
 			
 			if ( ! $result ) {
-				throw new Exception( __( 'Installation fehlgeschlagen.', 'churchtools-suite' ) );
+				// Get more details from upgrader
+				$error_details = '';
+				if ( ! empty( $upgrader->skin->result ) ) {
+					if ( is_wp_error( $upgrader->skin->result ) ) {
+						$error_details = ': ' . $upgrader->skin->result->get_error_message();
+					}
+				}
+				throw new Exception( __( 'Installation fehlgeschlagen', 'churchtools-suite' ) . $error_details . __( '. Mögliche Ursache: ZIP-Struktur oder Berechtigungen.', 'churchtools-suite' ) );
 			}
 			
 			// Get installed plugin path
 			$plugin_file = $upgrader->plugin_info();
+			
+			if ( empty( $plugin_file ) ) {
+				// Try to find the plugin manually
+				if ( ! function_exists( 'get_plugins' ) ) {
+					require_once ABSPATH . 'wp-admin/includes/plugin.php';
+				}
+				$all_plugins = get_plugins();
+				foreach ( $all_plugins as $plugin_path => $plugin_data ) {
+					if ( strpos( $plugin_path, $addon_slug ) !== false ) {
+						$plugin_file = $plugin_path;
+						break;
+					}
+				}
+				
+				if ( empty( $plugin_file ) ) {
+					throw new Exception( __( 'Plugin wurde installiert, aber die Plugin-Datei konnte nicht gefunden werden.', 'churchtools-suite' ) );
+				}
+			}
 			
 			// Auto-activate the plugin
 			$activation_result = activate_plugin( $plugin_file );
