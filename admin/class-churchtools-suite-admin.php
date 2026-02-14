@@ -3032,6 +3032,15 @@ class ChurchTools_Suite_Admin {
 				throw new Exception( __( 'Download-Datei ist leer (0 Bytes).', 'churchtools-suite' ) );
 			}
 			
+			// Check if file is suspiciously small (< 10 KB) - might be an error page
+			if ( $file_size < 10240 ) {
+				$content = file_get_contents( $temp_file );
+				if ( strpos( $content, '<html' ) !== false || strpos( $content, '<!DOCTYPE' ) !== false ) {
+					@unlink( $temp_file );
+					throw new Exception( __( 'Download lieferte HTML-Fehlerseite statt ZIP-Datei. GitHub-Asset möglicherweise nicht verfügbar.', 'churchtools-suite' ) );
+				}
+			}
+			
 			// Install plugin
 			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 			require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
