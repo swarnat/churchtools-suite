@@ -115,10 +115,14 @@ $elementor_subplugin_active = is_plugin_active( 'churchtools-suite-elementor/chu
 				<?php esc_html_e( 'Elementor wurde erkannt! Installiere das ChurchTools Suite - Elementor Integration Plugin für erweiterte Funktionen.', 'churchtools-suite' ); ?>
 			</p>
 			<p>
-				<a href="https://github.com/FEGAschaffenburg/churchtools-suite-elementor/releases" class="button button-primary" target="_blank" rel="noopener noreferrer">
-					<?php esc_html_e( 'Jetzt herunterladen', 'churchtools-suite' ); ?>
+				<button type="button" class="button button-primary cts-install-addon" data-addon-slug="churchtools-suite-elementor">
+					<?php esc_html_e( '⚡ Jetzt installieren', 'churchtools-suite' ); ?>
+				</button>
+				<a href="https://github.com/FEGAschaffenburg/churchtools-suite-elementor/releases" class="button" target="_blank" rel="noopener noreferrer">
+					<?php esc_html_e( 'Auf GitHub ansehen', 'churchtools-suite' ); ?>
 				</a>
 			</p>
+			<div class="cts-install-result" style="display:none; margin-top:10px;"></div>
 		</div>
 	<?php endif; ?>
 	
@@ -149,13 +153,14 @@ $elementor_subplugin_active = is_plugin_active( 'churchtools-suite-elementor/chu
 					<li><?php esc_html_e( 'Filter, Gruppierung und erweiterte Optionen', 'churchtools-suite' ); ?></li>
 				</ul>
 				<p>
-					<a href="https://github.com/FEGAschaffenburg/churchtools-suite-elementor/releases" class="button button-primary" target="_blank" rel="noopener noreferrer">
-						<?php esc_html_e( 'Download auf GitHub', 'churchtools-suite' ); ?>
-					</a>
+					<button type="button" class="button button-primary cts-install-addon" data-addon-slug="churchtools-suite-elementor">
+						<?php esc_html_e( '⚡ Jetzt installieren', 'churchtools-suite' ); ?>
+					</button>
 					<a href="https://github.com/FEGAschaffenburg/churchtools-suite-elementor" class="button" target="_blank" rel="noopener noreferrer">
 						<?php esc_html_e( 'Dokumentation', 'churchtools-suite' ); ?>
 					</a>
 				</p>
+				<div class="cts-install-result" style="display:none; margin-top:10px;"></div>
 			</div>
 		</div>
 		
@@ -255,3 +260,92 @@ $elementor_subplugin_active = is_plugin_active( 'churchtools-suite-elementor/chu
 	<?php endif; ?>
 	
 </div>
+
+<script>
+jQuery(document).ready(function($) {
+	$('.cts-install-addon').on('click', function(e) {
+		e.preventDefault();
+		
+		const $btn = $(this);
+		const addonSlug = $btn.data('addon-slug');
+		const $resultDiv = $btn.closest('.cts-addon-card, .notice').find('.cts-install-result');
+		
+		// Disable button and show loading
+		$btn.prop('disabled', true);
+		const originalText = $btn.html();
+		$btn.html('<span class="dashicons dashicons-update spin"></span> <?php esc_html_e( 'Installiere...', 'churchtools-suite' ); ?>');
+		
+		// Hide previous result
+		$resultDiv.hide().removeClass('notice-success notice-error');
+		
+		// AJAX request
+		$.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'cts_install_addon',
+				nonce: '<?php echo wp_create_nonce( 'churchtools_suite_admin' ); ?>',
+				addon_slug: addonSlug
+			},
+			success: function(response) {
+				if (response.success) {
+					$resultDiv
+						.addClass('notice notice-success')
+						.html('<p>' + response.data.message + '</p>')
+						.show();
+					
+					// Reload page after 2 seconds
+					setTimeout(function() {
+						location.reload();
+					}, 2000);
+				} else {
+					$resultDiv
+						.addClass('notice notice-error')
+						.html('<p>' + (response.data.message || '<?php esc_html_e( 'Unbekannter Fehler', 'churchtools-suite' ); ?>') + '</p>')
+						.show();
+					
+					// Re-enable button
+					$btn.prop('disabled', false).html(originalText);
+				}
+			},
+			error: function(xhr, status, error) {
+				$resultDiv
+					.addClass('notice notice-error')
+					.html('<p><?php esc_html_e( 'Netzwerkfehler bei der Installation', 'churchtools-suite' ); ?>: ' + error + '</p>')
+					.show();
+				
+				// Re-enable button
+				$btn.prop('disabled', false).html(originalText);
+			}
+		});
+	});
+});
+</script>
+
+<style>
+.cts-install-addon .dashicons.spin {
+	animation: rotation 1s infinite linear;
+}
+
+@keyframes rotation {
+	from { transform: rotate(0deg); }
+	to { transform: rotate(359deg); }
+}
+
+.cts-install-result {
+	margin-top: 10px;
+}
+
+.cts-install-result.notice {
+	padding: 10px;
+	border-left: 4px solid #00a32a;
+}
+
+.cts-install-result.notice-error {
+	border-left-color: #d63638;
+}
+
+.cts-install-result p {
+	margin: 0;
+}
+</style>

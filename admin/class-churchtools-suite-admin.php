@@ -413,6 +413,9 @@ class ChurchTools_Suite_Admin {
 		add_action( 'wp_ajax_nopriv_cts_get_modal_template', [ $this, 'ajax_get_modal_template' ] );
 		add_action( 'wp_ajax_cts_get_event_details', [ $this, 'ajax_get_event_details' ] );
 		add_action( 'wp_ajax_nopriv_cts_get_event_details', [ $this, 'ajax_get_event_details' ] );
+		
+		// Addon Management (v1.0.9.1)
+		add_action( 'wp_ajax_cts_install_addon', [ $this, 'ajax_install_addon' ] );
 	}
 	
 	/**
@@ -2934,6 +2937,125 @@ class ChurchTools_Suite_Admin {
 			</div>
 		</div>
 		<?php
+	}
+	
+	/**
+	 * AJAX Handler: Install Addon from GitHub
+	 * 
+	 * Downloads and installs a sub-plugin from GitHub releases
+	 * 
+	 * @since 1.0.9.1
+	 */
+	public function ajax_install_addon() {
+		// Clean output buffer
+		while ( ob_get_level() ) {
+			ob_end_clean();
+		}
+		
+		// Check nonce
+		check_ajax_referer( 'churchtools_suite_admin', 'nonce' );
+		
+		// Check permissions
+		if ( ! current_user_can( 'install_plugins' ) ) {
+			wp_send_json_error( [ 'message' => __( 'Keine Berechtigung zum Installieren von Plugins.', 'churchtools-suite' ) ] );
+			return;
+		}
+		
+		$addon_slug = isset( $_POST['addon_slug'] ) ? sanitize_text_field( $_POST['addon_slug'] ) : '';
+		
+		if ( empty( $addon_slug ) ) {
+			wp_send_json_error( [ 'message' => __( 'Addon-Slug fehlt.', 'churchtools-suite' ) ] );
+			return;
+		}
+		
+		// Map known addons to their GitHub repos
+		$addon_repos = [
+			'churchtools-suite-elementor' => 'FEGAschaffenburg/churchtools-suite-elementor',
+		];
+		
+		if ( ! isset( $addon_repos[ $addon_slug ] ) ) {
+			wp_send_json_error( [ 'message' => __( 'Unbekanntes Addon.', 'churchtools-suite' ) ] );
+			return;
+		}
+		
+		$repo = $addon_repos[ $addon_slug ];
+		
+		try {
+			// Get latest release from GitHub
+			$api_url = "https://api.github.com/repos/{$repo}/releases/latest";
+			$response = wp_remote_get( $api_url, [
+				'timeout' => 15,
+				'headers' => [
+					'User-Agent' => 'ChurchTools-Suite-WordPress-Plugin',
+				],
+			] );
+			
+			if ( is_wp_error( $response ) ) {
+				throw new Exception( $response->get_error_message() );
+			}
+			
+			$body = wp_remote_retrieve_body( $response );
+			$data = json_decode( $body, true );
+			
+			if ( empty( $data['assets'] ) ) {
+				throw new Exception( __( 'Keine Download-Dateien gefunden.', 'churchtools-suite' ) );
+			}
+			
+			// Find ZIP asset
+			$zip_url = null;
+			foreach ( $data['assets'] as $asset ) {
+				if ( str_ends_with( $asset['name'], '.zip' ) ) {
+					$zip_url = $asset['browser_download_url'];
+					break;
+				}
+			}
+			
+			if ( ! $zip_url ) {
+				throw new Exception( __( 'Keine ZIP-Datei im Release gefunden.', 'churchtools-suite' ) );
+			}
+			
+			// Download ZIP
+			$temp_file = download_url( $zip_url );
+			
+			if ( is_wp_error( $temp_file ) ) {
+				throw new Exception( $temp_file->get_error_message() );
+			}
+			
+			// Install plugin
+			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+			require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+			
+			$upgrader = new Plugin_Upgrader( new WP_Ajax_Upgrader_Skin() );
+			$result = $upgrader->install( $temp_file );
+			
+			// Clean up temp file
+			@unlink( $temp_file );
+			
+			if ( is_wp_error( $result ) ) {
+				throw new Exception( $result->get_error_message() );
+			}
+			
+			if ( ! $result ) {
+				throw new Exception( __( 'Installation fehlgeschlagen.', 'churchtools-suite' ) );
+			}
+			
+			// Get installed plugin path
+			$plugin_file = $upgrader->plugin_info();
+			
+			wp_send_json_success( [
+				'message' => sprintf(
+					__( '%s erfolgreich installiert! Bitte Seite neu laden um das Plugin zu aktivieren.', 'churchtools-suite' ),
+					$data['name'] ?? $addon_slug
+				),
+				'plugin_file' => $plugin_file,
+				'version' => $data['tag_name'] ?? 'unknown',
+			] );
+			
+		} catch ( Exception $e ) {
+			wp_send_json_error( [
+				'message' => __( 'Fehler bei der Installation: ', 'churchtools-suite' ) . $e->getMessage()
+			] );
+		}
 	}
 	
 }
