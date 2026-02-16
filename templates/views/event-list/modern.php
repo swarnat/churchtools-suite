@@ -34,6 +34,10 @@ $show_time = isset( $args['show_time'] ) ? ChurchTools_Suite_Shortcodes::parse_b
 $show_tags = isset( $args['show_tags'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_tags'] ) : false;
 $show_month_separator = isset( $args['show_month_separator'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_month_separator'] ) : true;
 
+// v1.1.0.2: Image support
+$show_images = isset( $args['show_images'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_images'] ) : true;
+$image_style = $args['image_style'] ?? 'thumbnail'; // 'thumbnail' or 'hero'
+
 // Parse use_calendar_colors option
 $use_calendar_colors = isset( $args['use_calendar_colors'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['use_calendar_colors'] ) : false;
 
@@ -95,7 +99,9 @@ $current_month = null;
 		data-show-services="<?php echo esc_attr( $show_services ? '1' : '0' ); ?>"
 		data-show-time="<?php echo esc_attr( $show_time ? '1' : '0' ); ?>"
 		data-show-tags="<?php echo esc_attr( $show_tags ? '1' : '0' ); ?>"
-		data-show-calendar-name="<?php echo esc_attr( $show_calendar_name ? '1' : '0' ); ?>">
+		data-show-calendar-name="<?php echo esc_attr( $show_calendar_name ? '1' : '0' ); ?>"
+		data-show-images="<?php echo esc_attr( $show_images ? '1' : '0' ); ?>"
+		data-image-style="<?php echo esc_attr( $image_style ); ?>">
 	
 	<?php if ( empty( $events ) ) : ?>
 		
@@ -191,6 +197,53 @@ $current_month = null;
 					<span class="cts-list--modern-rows__date-day"><?php echo esc_html( $event['start_day'] ); ?></span>
 					<span class="cts-list--modern-rows__date-weekday"><?php echo esc_html( strtoupper( $event['start_weekday'] ) ); ?></span>
 				</div>
+				
+				<!-- Image (Thumbnail or Hero) - v1.1.0.2 -->
+				<?php if ( $show_images ) : ?>
+					<?php 
+					// Convert to array format for Image Helper
+					$event_arr = (array) $event;
+					$calendar_for_image = $event_arr['calendar'] ?? null;
+					
+					if ( $image_style === 'hero' ) :
+						// Hero style: Large cover image with title overlay
+						?>
+						<div class="cts-list--modern-rows__hero">
+							<?php 
+							echo ChurchTools_Suite_Image_Helper::get_image(
+								$event_arr,
+								$calendar_for_image,
+								false,
+								array(
+									'class' => 'cts-list--modern-rows__hero-img',
+									'alt' => esc_attr( $event_arr['title'] ?? 'Event' ),
+									'loading' => 'lazy',
+									'width' => 400,
+									'height' => 180,
+								)
+							);
+							?>
+						</div>
+					<?php else : ?>
+						<!-- Thumbnail style: Round 60x60px inline -->
+						<div class="cts-list--modern-rows__thumb">
+							<?php 
+							echo ChurchTools_Suite_Image_Helper::get_image(
+								$event_arr,
+								$calendar_for_image,
+								false,
+								array(
+									'class' => 'cts-list--modern-rows__thumb-img',
+									'alt' => esc_attr( $event_arr['title'] ?? 'Event' ),
+									'loading' => 'lazy',
+									'width' => 60,
+									'height' => 60,
+								)
+							);
+							?>
+						</div>
+					<?php endif; ?>
+				<?php endif; ?>
 				
 				<!-- Time (From-To) -->
 				<?php if ( $show_time ) : ?>

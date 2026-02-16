@@ -92,7 +92,8 @@ $current_month = null;
 		data-show-time="<?php echo esc_attr( $show_time ? '1' : '0' ); ?>"
 		data-show-tags="<?php echo esc_attr( $show_tags ? '1' : '0' ); ?>"
 		data-show-calendar-name="<?php echo esc_attr( $show_calendar_name ? '1' : '0' ); ?>"
-		data-show-images="<?php echo esc_attr( $show_images ? '1' : '0' ); ?>">
+		data-show-images="<?php echo esc_attr( $show_images ? '1' : '0' ); ?>"
+		data-show-month-separator="<?php echo esc_attr( $show_month_separator ? '1' : '0' ); ?>">
 	
 	<?php if ( empty( $events ) ) : ?>
 		
@@ -172,7 +173,9 @@ $current_month = null;
 	}
 	?>
 	<div class="cts-date-box"<?php echo $date_box_style ? ' style="' . $date_box_style . '"' : ''; ?>>
-		<div class="cts-date-month"><?php echo esc_html( $event['start_month'] ); ?></div>
+		<?php if ( ! $show_month_separator ) : ?>
+			<div class="cts-date-month"><?php echo esc_html( $event['start_month'] ); ?></div>
+		<?php endif; ?>
 		<div class="cts-date-day"><?php echo esc_html( $event['start_day'] ); ?></div>
 		<div class="cts-date-weekday"><?php echo esc_html( strtoupper( $event['start_weekday'] ) ); ?></div>
 	</div>
@@ -203,12 +206,12 @@ $current_month = null;
 		</div>
 	<?php endif; ?>
 	
-	<!-- Uhrzeit (Von-Bis) -->
+	<!-- Uhrzeit (Von-Bis) - v1.1.0.2: 2-zeilig -->
 	<?php if ( $show_time ) : ?>
 		<div class="cts-time">
-			<?php echo esc_html( $event['start_time'] ); ?>
+			<span class="cts-time-start"><?php echo esc_html( $event['start_time'] ); ?></span>
 			<?php if ( ! empty( $event['end_time'] ) ) : ?>
-				- <?php echo esc_html( $event['end_time'] ); ?>
+				<span class="cts-time-end"><?php echo esc_html( $event['end_time'] ); ?></span>
 			<?php endif; ?>
 		</div>
 	<?php endif; ?>

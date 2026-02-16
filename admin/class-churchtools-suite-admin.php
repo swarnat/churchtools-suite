@@ -143,14 +143,6 @@ class ChurchTools_Suite_Admin {
 			$this->version
 		);
 		
-		// Load modernized list CSS (v1.0.6.0 - needed for Gutenberg preview)
-		wp_enqueue_style(
-			'churchtools-suite-list-modern',
-			CHURCHTOOLS_SUITE_URL . 'assets/css/churchtools-suite-list-modern.css',
-			[ 'churchtools-suite-public' ],
-			$this->version
-		);
-		
 		// Load admin CSS after (depends on public CSS)
 		wp_enqueue_style(
 			'churchtools-suite-admin',
