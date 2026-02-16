@@ -472,8 +472,8 @@ class ChurchTools_Suite_Auto_Updater {
 
         $plugin_file = plugin_basename( CHURCHTOOLS_SUITE_PATH . 'churchtools-suite.php' );
 
-        // If response already set, don't overwrite
-        if ( isset( $transient->response ) && isset( $transient->response[ $plugin_file ] ) ) {
+        // If response already set for this plugin, don't overwrite (allows other sources to take precedence)
+        if ( isset( $transient->response ) && is_object( $transient->response ) && isset( $transient->response->{$plugin_file} ) ) {
             return $transient;
         }
 
@@ -485,11 +485,12 @@ class ChurchTools_Suite_Auto_Updater {
         $update->package = $info['zip_url'];
         $update->url = $info['html_url'] ?? '';
 
-        if ( ! isset( $transient->response ) || ! is_array( $transient->response ) ) {
-            $transient->response = [];
+        // Ensure response property exists as object (WordPress expects an object, not array)
+        if ( ! isset( $transient->response ) || ! is_object( $transient->response ) ) {
+            $transient->response = new stdClass();
         }
 
-        $transient->response[ $plugin_file ] = $update;
+        $transient->response->{$plugin_file} = $update;
 
         return $transient;
     }
