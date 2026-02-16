@@ -210,12 +210,16 @@
 }
 
 .cts-event-classic .cts-calendar-name {
-	flex-shrink: 0;
+	flex-shrink: 1;
 	font-size: 12px;
 	font-weight: 600;
 	padding: 2px 8px;
 	border-radius: 4px;
 	background: rgba(0, 0, 0, 0.05);
+	max-width: 180px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .cts-event-classic .cts-services {
@@ -539,12 +543,16 @@
 }
 
 .cts-event-classic .cts-calendar-name {
-	flex-shrink: 0;
+	flex-shrink: 1;
 	font-size: 12px;
 	font-weight: 600;
 	padding: 2px 8px;
 	border-radius: 4px;
 	background: rgba(0, 0, 0, 0.05);
+	max-width: 180px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
 }
 
 .cts-event-description,
@@ -3868,24 +3876,73 @@
 }
 
 /**
- * Date (Inline, Compact)
+ * Date Box (Compact visual style like Classic - v1.1.0.3)
  */
 .cts-list--modern-rows__date {
 	flex-shrink: 0;
-	font-weight: 600;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	padding: 6px 4px;
+	background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 	color: var(--modern-rows-text);
+	font-weight: 600;
+	text-align: center;
+	line-height: 1.1;
 	white-space: nowrap;
-	min-width: clamp(50px, 10vw, 65px);
+}
+
+/* Date Child Elements - Responsive Sizing (v1.1.0.3) */
+.cts-list--modern-rows__date-month {
+	font-size: 8px;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+.cts-list--modern-rows__date-day {
+	display: block;
+	font-size: 11px;
+	font-weight: 700;
+	line-height: 1.2;
+}
+
+.cts-list--modern-rows__date-weekday {
+	font-size: 9px;
+	font-weight: 600;
+	text-transform: uppercase;
+}
+
+/* Responsive sizing when month separator is disabled */
+.cts-list--modern-rows[data-show-month-separator="0"] .cts-list--modern-rows__date-month {
+	font-size: 9px;
+}
+
+.cts-list--modern-rows[data-show-month-separator="0"] .cts-list--modern-rows__date-day {
+	font-size: 9px;
+	font-weight: 700;
+}
+
+.cts-list--modern-rows[data-show-month-separator="0"] .cts-list--modern-rows__date-weekday {
+	font-size: 9px;
 }
 
 /**
- * Time (Inline with Bullet Separator)
+ * Time (2-line display - v1.1.0.3)
  */
 .cts-list--modern-rows__time {
 	flex-shrink: 0;
 	color: var(--modern-rows-text-secondary);
 	white-space: nowrap;
 	font-size: calc(var(--modern-rows-font-size) * 0.95);
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+	line-height: 1.3;
 }
 
 /**

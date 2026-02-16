@@ -101,18 +101,20 @@ $current_month = null;
 		data-show-tags="<?php echo esc_attr( $show_tags ? '1' : '0' ); ?>"
 		data-show-calendar-name="<?php echo esc_attr( $show_calendar_name ? '1' : '0' ); ?>"
 		data-show-images="<?php echo esc_attr( $show_images ? '1' : '0' ); ?>"
-		data-image-style="<?php echo esc_attr( $image_style ); ?>">
+		data-image-style="<?php echo esc_attr( $image_style ); ?>"
+		data-show-month-separator="<?php echo esc_attr( $show_month_separator ? '1' : '0' ); ?>">
 	
-	<?php if ( empty( $events ) ) : ?>
-		
-		<div class="cts-list--modern-rows__empty">
-			<span class="cts-list--modern-rows__empty-icon">📅</span>
-			<h3 class="cts-list--modern-rows__empty-title"><?php esc_html_e( 'Keine Termine gefunden', 'churchtools-suite' ); ?></h3>
-			<p class="cts-list--modern-rows__empty-text"><?php esc_html_e( 'Es gibt aktuell keine Termine in diesem Zeitraum.', 'churchtools-suite' ); ?></p>
-		</div>
-		
-	<?php else : ?>
-		
+	<!-- Modern List - In Entwicklung -->
+	<div class="cts-list--modern-rows__development-notice" style="padding: 2rem; text-align: center; background: #f0f9ff; border: 2px dashed #0284c7; border-radius: 8px; margin: 2rem 0;">
+		<svg style="width: 48px; height: 48px; margin: 0 auto 1rem; fill: #0284c7;" viewBox="0 0 24 24">
+			<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+		</svg>
+		<h3 style="margin: 0 0 0.5rem; font-size: 1.25rem; color: #0c4a6e;">Moderne Listenansicht</h3>
+		<p style="margin: 0; color: #075985; font-size: 1rem;">Diese Ansicht wird noch entwickelt.</p>
+		<p style="margin: 0.5rem 0 0; color: #0369a1; font-size: 0.875rem;">Bitte verwenden Sie die Classic-Ansicht: <code style="background: #fff; padding: 2px 6px; border-radius: 3px;">view="classic"</code></p>
+	</div>
+	
+	<?php if ( false ) : // Deaktiviert für Entwicklung ?>
 		<?php foreach ( $events as $event ) : ?>
 			<?php 
 			// Month separator logic (fixed)
@@ -193,37 +195,40 @@ $current_month = null;
 				}
 				?>
 				<div class="cts-list--modern-rows__date"<?php echo $date_box_style; ?>>
-					<span class="cts-list--modern-rows__date-month"><?php echo esc_html( $event['start_month'] ); ?></span>
+					<?php if ( ! $show_month_separator ) : ?>
+						<span class="cts-list--modern-rows__date-month"><?php echo esc_html( $event['start_month'] ); ?></span>
+					<?php endif; ?>
 					<span class="cts-list--modern-rows__date-day"><?php echo esc_html( $event['start_day'] ); ?></span>
 					<span class="cts-list--modern-rows__date-weekday"><?php echo esc_html( strtoupper( $event['start_weekday'] ) ); ?></span>
 				</div>
-				
+			
 				<!-- Image (Thumbnail or Hero) - v1.1.0.2 -->
 				<?php if ( $show_images ) : ?>
 					<?php 
-					// Convert to array format for Image Helper
+					// Build calendar array with calendar_image_id for fallback (v1.1.0.3)
 					$event_arr = (array) $event;
-					$calendar_for_image = $event_arr['calendar'] ?? null;
+					$calendar_for_image = ! empty( $event_arr['calendar_image_id'] ) ? [
+						'calendar_image_id' => $event_arr['calendar_image_id'],
+					] : null;
 					
 					if ( $image_style === 'hero' ) :
 						// Hero style: Large cover image with title overlay
-						?>
+					?>
 						<div class="cts-list--modern-rows__hero">
 							<?php 
-							echo ChurchTools_Suite_Image_Helper::get_image(
-								$event_arr,
-								$calendar_for_image,
-								false,
-								array(
-									'class' => 'cts-list--modern-rows__hero-img',
-									'alt' => esc_attr( $event_arr['title'] ?? 'Event' ),
-									'loading' => 'lazy',
-									'width' => 400,
-									'height' => 180,
-								)
-							);
-							?>
-						</div>
+					echo ChurchTools_Suite_Image_Helper::get_image(
+						$event_arr,
+						$calendar_for_image,
+						false,
+						array(
+							'class' => 'cts-list--modern-rows__hero-img',
+							'alt' => esc_attr( $event_arr['title'] ?? 'Event' ),
+							'loading' => 'lazy',
+							'width' => 400,
+							'height' => 180,
+						)
+					);
+					?>
 					<?php else : ?>
 						<!-- Thumbnail style: Round 60x60px inline -->
 						<div class="cts-list--modern-rows__thumb">
@@ -245,28 +250,25 @@ $current_month = null;
 					<?php endif; ?>
 				<?php endif; ?>
 				
-				<!-- Time (From-To) -->
-				<?php if ( $show_time ) : ?>
-					<time class="cts-list--modern-rows__time" datetime="<?php echo esc_attr( $event['start_datetime'] ); ?>">
-						<?php echo esc_html( $event['start_time'] ); ?>
-						<?php if ( ! empty( $event['end_time'] ) ) : ?>
-							<span class="cts-list--modern-rows__time-separator">-</span>
-							<span class="cts-list--modern-rows__time-end"><?php echo esc_html( $event['end_time'] ); ?></span>
-						<?php endif; ?>
-					</time>
-				<?php endif; ?>
-				
-				<!-- Calendar Name (colored when use_calendar_colors=true) -->
-				<?php if ( $show_calendar_name && ! empty( $event['calendar_name'] ) ) : 
-					$calendar_name_style = '';
-					if ( $use_calendar_colors ) {
-						$calendar_name_style = sprintf( ' style="color: %s; font-weight: 600;"', esc_attr( $calendar_color ) );
-					}
-				?>
-					<span class="cts-list--modern-rows__calendar"<?php echo $calendar_name_style; ?>>
-						<?php echo esc_html( $event['calendar_name'] ); ?>
-					</span>
-				<?php endif; ?>
+			<!-- Time (From-To) - 2-line display -->
+			<?php if ( $show_time ) : ?>
+				<time class="cts-list--modern-rows__time" datetime="<?php echo esc_attr( $event['start_datetime'] ); ?>">
+					<span class="cts-list--modern-rows__time-start"><?php echo esc_html( $event['start_time'] ); ?></span>
+					<?php if ( ! empty( $event['end_time'] ) ) : ?>
+						<span class="cts-list--modern-rows__time-end"><?php echo esc_html( $event['end_time'] ); ?></span>
+					<?php endif; ?>
+				</time>
+			<?php endif; ?>
+			<?php if ( $show_calendar_name && ! empty( $event['calendar_name'] ) ) : 
+				$calendar_name_style = '';
+				if ( $use_calendar_colors ) {
+					$calendar_name_style = sprintf( ' style="color: %s; font-weight: 600;"', esc_attr( $calendar_color ) );
+				}
+			?>
+				<span class="cts-list--modern-rows__calendar"<?php echo $calendar_name_style; ?>>
+					<?php echo esc_html( $event['calendar_name'] ); ?>
+				</span>
+			<?php endif; ?>
 				
 				<!-- Title & Descriptions -->
 				<div class="cts-list--modern-rows__content">
@@ -359,7 +361,7 @@ $current_month = null;
 		
 		<?php endforeach; ?>
 		
-	<?php endif; ?>
+	<?php endif; // Ende: Entwicklungsmodus ?>
 	
 	</div>
 </div>
