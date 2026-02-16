@@ -18,6 +18,81 @@ if ( ! function_exists( 'get_plugins' ) ) {
 }
 
 /**
+ * Check for addon updates via GitHub API
+ * 
+ * @param string $github_repo Repository in format 'owner/repo'
+ * @param string $current_version Current plugin version
+ * @return array|false Update info or false if no update
+ */
+function cts_check_addon_update( $github_repo, $current_version ) {
+	if ( empty( $github_repo ) || empty( $current_version ) ) {
+		return false;
+	}
+	
+	// Check transient cache first (1 hour)
+	$cache_key = 'cts_addon_update_' . sanitize_key( $github_repo );
+	$cached = get_transient( $cache_key );
+	if ( $cached !== false ) {
+		return $cached;
+	}
+	
+	$api_url = sprintf( 'https://api.github.com/repos/%s/releases/latest', $github_repo );
+	$response = wp_remote_get( $api_url, [
+		'timeout' => 10,
+		'headers' => [ 'User-Agent' => 'ChurchTools-Suite-Addon-Updater' ]
+	] );
+	
+	if ( is_wp_error( $response ) ) {
+		return false;
+	}
+	
+	$body = wp_remote_retrieve_body( $response );
+	$data = json_decode( $body, true );
+	
+	if ( empty( $data['tag_name'] ) ) {
+		return false;
+	}
+	
+	$latest_version = ltrim( $data['tag_name'], 'v' );
+	$current_clean = ltrim( $current_version, 'v' );
+	
+	if ( version_compare( $latest_version, $current_clean, '>' ) ) {
+		// Find ZIP asset
+		$zip_url = '';
+		if ( ! empty( $data['assets'] ) && is_array( $data['assets'] ) ) {
+			foreach ( $data['assets'] as $asset ) {
+				if ( isset( $asset['browser_download_url'] ) && strpos( $asset['name'], '.zip' ) !== false ) {
+					$zip_url = $asset['browser_download_url'];
+					break;
+				}
+			}
+		}
+		
+		if ( empty( $zip_url ) && ! empty( $data['zipball_url'] ) ) {
+			$zip_url = $data['zipball_url'];
+		}
+		
+		$update_info = [
+			'current_version' => $current_clean,
+			'latest_version' => $latest_version,
+			'tag_name' => $data['tag_name'],
+			'zip_url' => $zip_url,
+			'html_url' => $data['html_url'] ?? '',
+			'body' => $data['body'] ?? '',
+		];
+		
+		// Cache for 1 hour
+		set_transient( $cache_key, $update_info, HOUR_IN_SECONDS );
+		
+		return $update_info;
+	}
+	
+	// No update available - cache for 1 hour
+	set_transient( $cache_key, false, HOUR_IN_SECONDS );
+	return false;
+}
+
+/**
  * Get all ChurchTools Suite addon plugins
  * 
  * Detects addons by:
@@ -69,11 +144,19 @@ function cts_get_addon_plugins() {
 		}
 		
 		if ( $is_addon ) {
+			// Check for GitHub repository
+			$github_repo = '';
+			if ( ! empty( $plugin_data['PluginURI'] ) && 
+			     preg_match( '#github\.com/([^/]+/[^/]+)#', $plugin_data['PluginURI'], $matches ) ) {
+				$github_repo = $matches[1];
+			}
+			
 			$addons[ $plugin_file ] = array_merge( $plugin_data, [
 				'plugin_file' => $plugin_file,
 				'plugin_slug' => $plugin_slug,
 				'is_active' => is_plugin_active( $plugin_file ),
 				'is_network_active' => is_plugin_active_for_network( $plugin_file ),
+				'github_repo' => $github_repo,
 			] );
 		}
 	}
@@ -210,15 +293,20 @@ $elementor_subplugin_installed = isset( $all_plugins['churchtools-suite-elemento
 						count( $active_addons )
 					); ?>
 				</p>
+				<button type="button" class="button cts-check-addon-updates" style="margin-left: 10px;">
+					<span class="dashicons dashicons-update"></span>
+					<?php esc_html_e( 'Nach Updates suchen', 'churchtools-suite' ); ?>
+				</button>
 			</div>
 			
 			<table class="wp-list-table widefat fixed striped">
 				<thead>
 					<tr>
 						<th style="width: 3%;"><?php esc_html_e( 'Status', 'churchtools-suite' ); ?></th>
-						<th style="width: 30%;"><?php esc_html_e( 'Name', 'churchtools-suite' ); ?></th>
-						<th style="width: 40%;"><?php esc_html_e( 'Beschreibung', 'churchtools-suite' ); ?></th>
-						<th style="width: 12%;"><?php esc_html_e( 'Version', 'churchtools-suite' ); ?></th>
+						<th style="width: 25%;"><?php esc_html_e( 'Name', 'churchtools-suite' ); ?></th>
+						<th style="width: 35%;"><?php esc_html_e( 'Beschreibung', 'churchtools-suite' ); ?></th>
+						<th style="width: 10%;"><?php esc_html_e( 'Version', 'churchtools-suite' ); ?></th>
+						<th style="width: 12%;"><?php esc_html_e( 'Update', 'churchtools-suite' ); ?></th>
 						<th style="width: 15%;"><?php esc_html_e( 'Aktionen', 'churchtools-suite' ); ?></th>
 					</tr>
 				</thead>
@@ -230,6 +318,12 @@ $elementor_subplugin_installed = isset( $all_plugins['churchtools-suite-elemento
 							? esc_html__( 'Aktiv', 'churchtools-suite' ) 
 							: esc_html__( 'Inaktiv', 'churchtools-suite' );
 						$row_class = $addon['is_active'] ? 'active' : 'inactive';
+						
+						// Check for updates
+						$update_info = false;
+						if ( ! empty( $addon['github_repo'] ) && ! empty( $addon['Version'] ) ) {
+							$update_info = cts_check_addon_update( $addon['github_repo'], $addon['Version'] );
+						}
 						
 						// Generate action links
 						$actions = [];
@@ -264,7 +358,7 @@ $elementor_subplugin_installed = isset( $all_plugins['churchtools-suite-elemento
 							);
 						}
 						?>
-						<tr class="<?php echo esc_attr( $row_class ); ?>">
+						<tr class="<?php echo esc_attr( $row_class ); ?>" data-plugin-file="<?php echo esc_attr( $plugin_file ); ?>" data-github-repo="<?php echo esc_attr( $addon['github_repo'] ?? '' ); ?>">
 							<td style="text-align: center; font-size: 1.2em;">
 								<span title="<?php echo esc_attr( $status_text ); ?>"><?php echo $status_icon; ?></span>
 							</td>
@@ -282,6 +376,24 @@ $elementor_subplugin_installed = isset( $all_plugins['churchtools-suite-elemento
 							<td>
 								<code><?php echo esc_html( $addon['Version'] ); ?></code>
 							</td>
+							<td class="cts-update-cell">
+								<?php if ( $update_info ) : ?>
+									<div class="cts-update-available">
+										<span class="dashicons dashicons-update" style="color: #d63638;"></span>
+										<strong style="color: #d63638;"><?php echo esc_html( $update_info['latest_version'] ); ?></strong>
+										<button type="button" 
+										        class="button button-primary button-small cts-update-addon" 
+										        data-plugin-file="<?php echo esc_attr( $plugin_file ); ?>"
+										        data-github-repo="<?php echo esc_attr( $addon['github_repo'] ); ?>"
+										        data-zip-url="<?php echo esc_attr( $update_info['zip_url'] ); ?>"
+										        data-version="<?php echo esc_attr( $update_info['latest_version'] ); ?>">
+											<?php esc_html_e( 'Jetzt aktualisieren', 'churchtools-suite' ); ?>
+										</button>
+									</div>
+								<?php else : ?>
+									<span style="color: #2271b1;">✓ <?php esc_html_e( 'Aktuell', 'churchtools-suite' ); ?></span>
+								<?php endif; ?>
+							</td>
 							<td>
 								<?php echo implode( ' | ', $actions ); ?>
 							</td>
@@ -297,6 +409,7 @@ $elementor_subplugin_installed = isset( $all_plugins['churchtools-suite-elemento
 
 <script>
 jQuery(document).ready(function($) {
+	// Install addon handler
 	$('.cts-install-addon').on('click', function(e) {
 		e.preventDefault();
 		
@@ -353,11 +466,104 @@ jQuery(document).ready(function($) {
 			}
 		});
 	});
+	
+	// Check for updates handler
+	$('.cts-check-addon-updates').on('click', function(e) {
+		e.preventDefault();
+		
+		const $btn = $(this);
+		const originalHtml = $btn.html();
+		
+		// Show loading
+		$btn.prop('disabled', true).html('<span class="dashicons dashicons-update spin"></span> <?php esc_html_e( 'Prüfe...', 'churchtools-suite' ); ?>');
+		
+		// Clear transient cache and reload
+		$.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'cts_clear_addon_update_cache',
+				nonce: '<?php echo wp_create_nonce( 'churchtools_suite_admin' ); ?>'
+			},
+			success: function(response) {
+				// Reload page to show fresh update checks
+				location.reload();
+			},
+			error: function() {
+				$btn.prop('disabled', false).html(originalHtml);
+				alert('<?php esc_html_e( 'Fehler beim Prüfen der Updates', 'churchtools-suite' ); ?>');
+			}
+		});
+	});
+	
+	// Update addon handler
+	$('.cts-update-addon').on('click', function(e) {
+		e.preventDefault();
+		
+		const $btn = $(this);
+		const pluginFile = $btn.data('plugin-file');
+		const zipUrl = $btn.data('zip-url');
+		const version = $btn.data('version');
+		const $row = $btn.closest('tr');
+		const $updateCell = $row.find('.cts-update-cell');
+		
+		// Confirm update
+		if (!confirm('<?php esc_html_e( 'Möchten Sie dieses Addon wirklich aktualisieren?', 'churchtools-suite' ); ?>')) {
+			return;
+		}
+		
+		// Show loading in update cell
+		const originalHtml = $updateCell.html();
+		$updateCell.html('<span class="dashicons dashicons-update spin"></span> <?php esc_html_e( 'Aktualisiere...', 'churchtools-suite' ); ?>');
+		$btn.prop('disabled', true);
+		
+		// AJAX request
+		$.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'cts_update_addon',
+				nonce: '<?php echo wp_create_nonce( 'churchtools_suite_admin' ); ?>',
+				plugin_file: pluginFile,
+				zip_url: zipUrl,
+				version: version
+			},
+			success: function(response) {
+				if (response.success) {
+					$updateCell.html('<span style="color: #00a32a;">✓ ' + response.data.message + '</span>');
+					
+					// Reload page after 2 seconds
+					setTimeout(function() {
+						location.reload();
+					}, 2000);
+				} else {
+					$updateCell.html('<span style="color: #d63638;">✗ ' + (response.data.message || '<?php esc_html_e( 'Update fehlgeschlagen', 'churchtools-suite' ); ?>') + '</span>');
+					$btn.prop('disabled', false);
+					
+					// Restore after 3 seconds
+					setTimeout(function() {
+						$updateCell.html(originalHtml);
+					}, 3000);
+				}
+			},
+			error: function(xhr, status, error) {
+				$updateCell.html('<span style="color: #d63638;">✗ <?php esc_html_e( 'Netzwerkfehler', 'churchtools-suite' ); ?></span>');
+				$btn.prop('disabled', false);
+				
+				// Restore after 3 seconds
+				setTimeout(function() {
+					$updateCell.html(originalHtml);
+				}, 3000);
+			}
+		});
+	});
 });
 </script>
 
 <style>
-.cts-install-addon .dashicons.spin {
+.cts-install-addon .dashicons.spin,
+.cts-check-addon-updates .dashicons.spin,
+.cts-update-cell .dashicons.spin {
 	animation: rotation 1s infinite linear;
 }
 
@@ -381,5 +587,35 @@ jQuery(document).ready(function($) {
 
 .cts-install-result p {
 	margin: 0;
+}
+
+.cts-update-available {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.cts-update-available .dashicons {
+	font-size: 18px;
+	width: 18px;
+	height: 18px;
+}
+
+.cts-update-addon.button-small {
+	padding: 2px 8px;
+	font-size: 12px;
+	height: auto;
+	line-height: 1.5;
+}
+
+.cts-check-addon-updates {
+	vertical-align: middle;
+}
+
+.cts-check-addon-updates .dashicons {
+	font-size: 16px;
+	width: 16px;
+	height: 16px;
+	vertical-align: text-top;
 }
 </style>

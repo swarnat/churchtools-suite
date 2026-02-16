@@ -424,6 +424,8 @@ class ChurchTools_Suite_Admin {
 		
 		// Addon Management (v1.0.9.1)
 		add_action( 'wp_ajax_cts_install_addon', [ $this, 'ajax_install_addon' ] );
+		add_action( 'wp_ajax_cts_update_addon', [ $this, 'ajax_update_addon' ] ); // v1.1.0.1
+		add_action( 'wp_ajax_cts_clear_addon_update_cache', [ $this, 'ajax_clear_addon_update_cache' ] ); // v1.1.0.1
 	}
 	
 	/**
@@ -3126,6 +3128,142 @@ class ChurchTools_Suite_Admin {
 		} catch ( Exception $e ) {
 			wp_send_json_error( [
 				'message' => __( 'Fehler bei der Installation: ', 'churchtools-suite' ) . $e->getMessage()
+			] );
+		}
+	}
+	
+	/**
+	 * AJAX Handler: Clear addon update cache
+	 * 
+	 * Clears all addon update transients to force fresh update checks
+	 * 
+	 * @since 1.1.0.1
+	 */
+	public function ajax_clear_addon_update_cache() {
+		check_ajax_referer( 'churchtools_suite_admin', 'nonce' );
+		
+		if ( ! current_user_can( 'manage_churchtools_suite' ) ) {
+			wp_send_json_error( [ 'message' => __( 'Keine Berechtigung.', 'churchtools-suite' ) ] );
+			return;
+		}
+		
+		global $wpdb;
+		
+		// Delete all addon update transients
+		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cts_addon_update_%' OR option_name LIKE '_transient_timeout_cts_addon_update_%'" );
+		
+		wp_send_json_success( [ 'message' => __( 'Cache gelöscht', 'churchtools-suite' ) ] );
+	}
+	
+	/**
+	 * AJAX Handler: Update addon plugin
+	 * 
+	 * Downloads and updates an addon plugin from GitHub release
+	 * 
+	 * @since 1.1.0.1
+	 */
+	public function ajax_update_addon() {
+		// Clean output buffer
+		while ( ob_get_level() ) {
+			ob_end_clean();
+		}
+		
+		check_ajax_referer( 'churchtools_suite_admin', 'nonce' );
+		
+		if ( ! current_user_can( 'update_plugins' ) ) {
+			wp_send_json_error( [ 'message' => __( 'Keine Berechtigung zum Aktualisieren von Plugins.', 'churchtools-suite' ) ] );
+			return;
+		}
+		
+		$plugin_file = isset( $_POST['plugin_file'] ) ? sanitize_text_field( $_POST['plugin_file'] ) : '';
+		$zip_url = isset( $_POST['zip_url'] ) ? esc_url_raw( $_POST['zip_url'] ) : '';
+		$version = isset( $_POST['version'] ) ? sanitize_text_field( $_POST['version'] ) : '';
+		
+		if ( empty( $plugin_file ) || empty( $zip_url ) ) {
+			wp_send_json_error( [ 'message' => __( 'Fehlende Parameter.', 'churchtools-suite' ) ] );
+			return;
+		}
+		
+		try {
+			// Check if plugin exists
+			if ( ! function_exists( 'get_plugins' ) ) {
+				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			}
+			
+			$all_plugins = get_plugins();
+			if ( ! isset( $all_plugins[ $plugin_file ] ) ) {
+				throw new Exception( __( 'Plugin nicht gefunden.', 'churchtools-suite' ) );
+			}
+			
+			// Download ZIP
+			$temp_file = download_url( $zip_url );
+			
+			if ( is_wp_error( $temp_file ) ) {
+				throw new Exception( $temp_file->get_error_message() );
+			}
+			
+			// Verify download
+			if ( ! file_exists( $temp_file ) ) {
+				throw new Exception( __( 'Download-Datei wurde nicht erstellt.', 'churchtools-suite' ) );
+			}
+			
+			$file_size = filesize( $temp_file );
+			if ( $file_size === 0 ) {
+				@unlink( $temp_file );
+				throw new Exception( __( 'Download-Datei ist leer (0 Bytes).', 'churchtools-suite' ) );
+			}
+			
+			// Check for HTML error page
+			if ( $file_size < 10240 ) {
+				$content = file_get_contents( $temp_file );
+				if ( strpos( $content, '<html' ) !== false || strpos( $content, '<!DOCTYPE' ) !== false ) {
+					@unlink( $temp_file );
+					throw new Exception( __( 'Download lieferte HTML-Fehlerseite statt ZIP-Datei.', 'churchtools-suite' ) );
+				}
+			}
+			
+			// Perform upgrade
+			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+			require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+			
+			$upgrader = new Plugin_Upgrader( new WP_Ajax_Upgrader_Skin() );
+			$result = $upgrader->run( [
+				'package' => $temp_file,
+				'destination' => WP_PLUGIN_DIR,
+				'clear_destination' => true,
+				'clear_working' => true,
+				'hook_extra' => [
+					'plugin' => $plugin_file,
+					'type' => 'plugin',
+					'action' => 'update',
+				],
+			] );
+			
+			// Clean up temp file
+			@unlink( $temp_file );
+			
+			if ( is_wp_error( $result ) ) {
+				throw new Exception( $result->get_error_message() );
+			}
+			
+			if ( ! $result ) {
+				throw new Exception( __( 'Update fehlgeschlagen.', 'churchtools-suite' ) );
+			}
+			
+			// Clear update cache
+			delete_transient( 'cts_addon_update_' . sanitize_key( str_replace( '/', '_', dirname( $plugin_file ) ) ) );
+			
+			wp_send_json_success( [
+				'message' => sprintf(
+					__( 'Erfolgreich auf v%s aktualisiert!', 'churchtools-suite' ),
+					$version
+				),
+				'version' => $version,
+			] );
+			
+		} catch ( Exception $e ) {
+			wp_send_json_error( [
+				'message' => __( 'Update fehlgeschlagen: ', 'churchtools-suite' ) . $e->getMessage()
 			] );
 		}
 	}
