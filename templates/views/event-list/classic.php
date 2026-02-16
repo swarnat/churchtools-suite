@@ -107,7 +107,7 @@ $current_month = null;
 				$current_month = $event_month; // Update BEFORE separator output
 			?>
 				<div class="cts-month-separator">
-				<span class="cts-month-name"><?php echo esc_html( get_date_from_gmt( $event['start_datetime'], 'F Y' ) ); ?></span>
+				<span class="cts-month-name"><?php echo esc_html( date_i18n( 'F Y', strtotime( get_date_from_gmt( $event['start_datetime'] ) ) ) ); ?></span>
 				</div>
 			<?php endif; ?>
 			<?php 
@@ -201,18 +201,17 @@ $current_month = null;
 		</div>
 	<?php endif; ?>
 	
-	<!-- Titel & Description -->
+	<!-- Titel & Description (2-zeilig) -->
 	<div class="cts-title-block">
-		<span class="cts-title"><?php echo esc_html( $event['title'] ); ?></span>
-		<?php if ( ! empty( $event['event_description'] ) ) : ?>
-			<span class="cts-event-description"> - <?php echo esc_html( wp_trim_words( $event['event_description'], 15 ) ); ?></span>
-		<?php endif; ?>
-		<?php if ( ! empty( $event['appointment_description'] ) ) : ?>
-			<span class="cts-appointment-description"> - <?php echo esc_html( wp_trim_words( $event['appointment_description'], 15 ) ); ?></span>
+		<div class="cts-title"><?php echo esc_html( $event['title'] ); ?></div>
+		<?php if ( $show_event_description && ! empty( $event['event_description'] ) ) : ?>
+			<div class="cts-event-description"><?php echo esc_html( wp_trim_words( $event['event_description'], 20 ) ); ?></div>
+		<?php elseif ( $show_appointment_description && ! empty( $event['appointment_description'] ) ) : ?>
+			<div class="cts-appointment-description"><?php echo esc_html( wp_trim_words( $event['appointment_description'], 20 ) ); ?></div>
 		<?php endif; ?>
 	</div>
 	
-	<?php if ( ! empty( $event['services'] ) ) : ?>
+	<?php if ( $show_services && ! empty( $event['services'] ) ) : ?>
 		<div class="cts-services">
 			<?php 
 			$service_items = array();
@@ -235,7 +234,7 @@ $current_month = null;
 	<?php endif; ?>
 
 	<!-- Ort -->
-	<?php if ( ! empty( $event['address_name'] ) || ! empty( $event['location_name'] ) || ! empty( $event['address_street'] ) ) : ?>
+	<?php if ( $show_location && ( ! empty( $event['address_name'] ) || ! empty( $event['location_name'] ) || ! empty( $event['address_street'] ) ) ) : ?>
 		<div class="cts-list-location">
 			<span class="dashicons dashicons-location"></span>
 			<?php
@@ -267,7 +266,7 @@ $current_month = null;
 	<?php endif; ?>
 
 	<!-- Tags (v0.10.4.11) -->
-	<?php if ( ! empty( $event['tags_array'] ) ) : ?>
+	<?php if ( $show_tags && ! empty( $event['tags_array'] ) ) : ?>
 		<div class="cts-list-tags">
 			<?php foreach ( $event['tags_array'] as $tag ) : ?>
 				<span class="cts-tag-badge" style="background-color: <?php echo esc_attr( $tag['color'] ?? '#6b7280' ); ?>;">

@@ -360,9 +360,10 @@ class ChurchTools_Suite_Shortcodes {
 		], $atts, 'cts_list' );
 		
 		// v0.9.7.0 - MODERN VIEW AKTIVIERT: classic + minimal + modern + classic-with-images + table (v1.0.6.0)
-		$allowed_views = [ 'classic', 'minimal', 'modern', 'classic-with-images', 'table' ];
+		// v0.10.5.0 - MODERNIZED VIEWS: classic-modern (BEM + Grid + Custom Props)
+		$allowed_views = [ 'classic', 'minimal', 'modern', 'classic-with-images', 'table', 'classic-modern' ];
 		if ( ! in_array( $atts['view'], $allowed_views, true ) ) {
-			return '<p style="padding: 12px; background: #fef3c7; border-radius: 4px;">⚠️ <strong>View nicht verfügbar:</strong> Nur "classic", "minimal", "modern", "classic-with-images" und "table" sind aktiv. View "' . esc_html( $atts['view'] ) . '" wird in zukünftigen Updates aktiviert.</p>';
+			return '<p style="padding: 12px; background: #fef3c7; border-radius: 4px;">⚠️ <strong>View nicht verfügbar:</strong> Nur "classic", "minimal", "modern", "classic-with-images", "table" und "classic-modern" sind aktiv. View "' . esc_html( $atts['view'] ) . '" wird in zukünftigen Updates aktiviert.</p>';
 		}
 		
 		// Convert boolean values

@@ -2,11 +2,12 @@
 /**
  * List View - Minimal
  *
- * Ultra-kompakte Liste: Nur Datum, Uhrzeit und Titel
- * Schmale, niedrige Boxen ohne Zusatzinformationen
+ * Ultra-kompakte einzeilige Liste für Seitenleisten
+ * Nur Datum, Uhrzeit, Titel und kurze Beschreibung
  *
  * @package ChurchTools_Suite
  * @since   0.9.6.27
+ * @version 2.0.0 (Modernized - BEM + einzeilig)
  * 
  * Available variables:
  * @var array $events Events data
@@ -17,218 +18,293 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// v0.9.6.27: Minimal view - only month separator is configurable
+// Helper function for text truncation
+if ( ! function_exists( 'cts_truncate_text_minimal' ) ) {
+	function cts_truncate_text_minimal( $text, $length = 80 ) {
+		if ( empty( $text ) || mb_strlen( $text ) <= $length ) {
+			return $text;
+		}
+		
+		$truncated = mb_substr( $text, 0, $length );
+		$last_space = mb_strrpos( $truncated, ' ' );
+		
+		if ( $last_space !== false ) {
+			$truncated = mb_substr( $truncated, 0, $last_space );
+		}
+		
+		return rtrim( $truncated, '.,;:!?' ) . '…';
+	}
+}
+
+// Parse boolean parameters
+$show_event_description = isset( $args['show_event_description'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_event_description'] ) : true;
+$show_appointment_description = isset( $args['show_appointment_description'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_appointment_description'] ) : true;
+$show_time = isset( $args['show_time'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_time'] ) : true;
 $show_month_separator = isset( $args['show_month_separator'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_month_separator'] ) : true;
 
-// v0.9.9.10: Parse use_calendar_colors and show_calendar_name
-$use_calendar_colors = isset( $args['use_calendar_colors'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['use_calendar_colors'] ) : false;
-$show_calendar_name = isset( $args['show_calendar_name'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_calendar_name'] ) : false; // v0.9.9.12: Default false (minimal soll kompakt bleiben)
+// Not supported in minimal view
+$show_calendar_name = false;
+$show_location = false;
+$show_services = false;
+$show_tags = false;
+$show_images = false;
+$use_calendar_colors = false;
 
-// v0.9.6.27: Style mode and custom colors
+// Style mode and custom colors (simplified for minimal)
 $style_mode = $args['style_mode'] ?? 'theme';
-
-// WP timezone for consistent date/time (AM/PM or Uhr handled via time_format)
-$wp_timezone = wp_timezone();
 $custom_styles = '';
 
 if ( $style_mode === 'plugin' ) {
-	$primary = '#2563eb';
 	$text = '#1e293b';
-	$bg = '#ffffff';
-	$border_radius = 6;
+	$text_secondary = '#6b7280';
+	$border = '#e5e7eb';
 	$font_size = 14;
-	$padding = 12;
 	$spacing = 8;
 	
 	$custom_styles = sprintf(
-		'--cts-primary-color: %s; --cts-text-color: %s; --cts-bg-color: %s; --cts-border-radius: %dpx; --cts-font-size: %dpx; --cts-padding: %dpx; --cts-spacing: %dpx;',
-		esc_attr( $primary ),
+		'--minimal-text: %s; --minimal-text-secondary: %s; --minimal-border: %s; --minimal-font-size: %dpx; --minimal-spacing: %dpx;',
 		esc_attr( $text ),
-		esc_attr( $bg ),
-		absint( $border_radius ),
+		esc_attr( $text_secondary ),
+		esc_attr( $border ),
 		absint( $font_size ),
-		absint( $padding ),
 		absint( $spacing )
 	);
 } elseif ( $style_mode === 'custom' ) {
-	$primary = $args['custom_primary_color'] ?? '#2563eb';
 	$text = $args['custom_text_color'] ?? '#1e293b';
-	$bg = $args['custom_background_color'] ?? '#ffffff';
-	$border_radius = $args['custom_border_radius'] ?? 6;
+	$text_secondary = $args['custom_text_secondary_color'] ?? '#6b7280';
+	$border = $args['custom_border_color'] ?? '#e5e7eb';
 	$font_size = $args['custom_font_size'] ?? 14;
-	$padding = $args['custom_padding'] ?? 12;
 	$spacing = $args['custom_spacing'] ?? 8;
 	
 	$custom_styles = sprintf(
-		'--cts-primary-color: %s; --cts-text-color: %s; --cts-bg-color: %s; --cts-border-radius: %dpx; --cts-font-size: %dpx; --cts-padding: %dpx; --cts-spacing: %dpx;',
-		esc_attr( $primary ),
+		'--minimal-text: %s; --minimal-text-secondary: %s; --minimal-border: %s; --minimal-font-size: %dpx; --minimal-spacing: %dpx;',
 		esc_attr( $text ),
-		esc_attr( $bg ),
-		absint( $border_radius ),
+		esc_attr( $text_secondary ),
+		esc_attr( $border ),
 		absint( $font_size ),
-		absint( $padding ),
 		absint( $spacing )
 	);
 }
+
+// Display empty state if no events
+if ( empty( $events ) ) :
+?>
+	<div class="churchtools-suite-wrapper" data-style-mode="<?php echo esc_attr( $style_mode ); ?>"<?php echo $custom_styles ? ' style="' . $custom_styles . '"' : ''; ?>>
+		<div class="cts-list cts-list--minimal">
+			<p class="cts-list__empty-state">
+				<?php esc_html_e( 'Keine Termine gefunden', 'churchtools-suite' ); ?>
+			</p>
+		</div>
+	</div>
+	<?php
+	return;
+endif;
 
 // Track current month for separator
 $current_month = null;
 ?>
 
 <div class="churchtools-suite-wrapper" data-style-mode="<?php echo esc_attr( $style_mode ); ?>"<?php echo $custom_styles ? ' style="' . $custom_styles . '"' : ''; ?>>
-	<div class="cts-list cts-list-minimal" 
-		data-view="list-minimal">
+	<div class="cts-list cts-list--minimal"
+		data-view="list-minimal"
+		data-style-mode="<?php echo esc_attr( $style_mode ); ?>"
+		data-show-event-description="<?php echo esc_attr( $show_event_description ? '1' : '0' ); ?>"
+		data-show-appointment-description="<?php echo esc_attr( $show_appointment_description ? '1' : '0' ); ?>"
+		data-show-time="<?php echo esc_attr( $show_time ? '1' : '0' ); ?>"
+		data-show-month-separator="<?php echo esc_attr( $show_month_separator ? '1' : '0' ); ?>"
+		data-show-calendar-name="0"
+		data-show-location="0"
+		data-show-services="0"
+		data-show-tags="0"
+		data-show-images="0"
+		data-use-calendar-colors="0">
 	
-	<?php if ( empty( $events ) ) : ?>
+	<?php foreach ( $events as $event ) : ?>
 		
-		<div class="cts-list-empty">
-			<span class="cts-empty-icon">📅</span>
-			<h3>Keine Termine gefunden</h3>
-			<p>Es gibt aktuell keine Termine in diesem Zeitraum.</p>
-		</div>
+		<?php
+		// Month separator
+		$event_month = get_date_from_gmt( $event['start_datetime'], 'Y-m' );
+		if ( $show_month_separator && ( $current_month === null || $current_month !== $event_month ) ) :
+			$current_month = $event_month;
+			$month_timestamp = strtotime( get_date_from_gmt( $event['start_datetime'] ) );
+			$month_label = date_i18n( 'F Y', $month_timestamp );
+		?>
+			<h2 class="cts-list__month-separator">
+				<time datetime="<?php echo esc_attr( $event_month ); ?>">
+					<?php echo esc_html( $month_label ); ?>
+				</time>
+			</h2>
+		<?php endif; ?>
 		
-	<?php else : ?>
+		<?php
+		// Extract event data
+		$event_id          = ! empty( $event['id'] ) ? absint( $event['id'] ) : 0;
+		$appointment_id    = ! empty( $event['appointment_id'] ) ? absint( $event['appointment_id'] ) : null;
+		$event_title       = ! empty( $event['title'] ) ? esc_html( $event['title'] ) : esc_html__( 'Untitled Event', 'churchtools-suite' );
+		$event_description = ! empty( $event['description'] ) ? wp_strip_all_tags( $event['description'] ) : '';
+		$event_description_short = ! empty( $event_description ) ? cts_truncate_text_minimal( $event_description, 80 ) : '';
 		
-		<?php foreach ( $events as $event ) : ?>
-			<?php 
-			// WP-timezone aware start/end timestamps
-			$start_ts = current_time( 'timestamp' );
-			$end_ts = null;
-			if ( ! empty( $event['start_datetime'] ) ) {
-				try {
-					$dt = new DateTime( $event['start_datetime'], new DateTimeZone( 'UTC' ) );
-					$dt->setTimezone( $wp_timezone );
-					$start_ts = $dt->getTimestamp();
-				} catch ( Exception $e ) {
-					$start_ts = current_time( 'timestamp' );
-				}
+		// Location data
+		$event_location = '';
+		if ( ! empty( $event['address_name'] ) ) {
+			$event_location = esc_html( $event['address_name'] );
+		} elseif ( ! empty( $event['location_name'] ) ) {
+			$event_location = esc_html( $event['location_name'] );
+		} elseif ( ! empty( $event['address_street'] ) ) {
+			$event_location = esc_html( $event['address_street'] );
+		}
+		
+		// Calendar name
+		$calendar_name = ! empty( $event['calendar_name'] ) ? esc_html( $event['calendar_name'] ) : '';
+		
+		// Use WordPress date format from settings (localized)
+		$date_timestamp = strtotime( get_date_from_gmt( $event['start_datetime'] ) );
+		$date_display = date_i18n( get_option( 'date_format' ), $date_timestamp );
+		
+		$time_display = '';
+		if ( $show_time && ! empty( $event['start_time'] ) ) {
+			$time_display = $event['start_time'];
+			if ( ! empty( $event['end_time'] ) ) {
+				$time_display .= ' – ' . $event['end_time'];
 			}
-			if ( ! empty( $event['end_datetime'] ) ) {
-				try {
-					$end_dt = new DateTime( $event['end_datetime'], new DateTimeZone( 'UTC' ) );
-					$end_dt->setTimezone( $wp_timezone );
-					$end_ts = $end_dt->getTimestamp();
-				} catch ( Exception $e ) {
-					$end_ts = null;
-				}
-			}
-			$start_date_display = wp_date( 'j. M', $start_ts, $wp_timezone );
-			$start_time_display = wp_date( get_option( 'time_format' ), $start_ts, $wp_timezone );
-			$end_time_display = $end_ts ? wp_date( get_option( 'time_format' ), $end_ts, $wp_timezone ) : '';
-
-			// Month separator logic
-			$event_month = wp_date( 'Y-m', $start_ts, $wp_timezone );
-			if ( $show_month_separator && ( $current_month === null || $current_month !== $event_month ) ) : 
-				$current_month = $event_month;
-			?>
-				<div class="cts-month-separator">
-					<span class="cts-month-name"><?php echo esc_html( wp_date( 'F Y', $start_ts, $wp_timezone ) ); ?></span>
+		}
+		
+		// Determine if appointment
+		$is_appointment = ! empty( $appointment_id );
+		
+		// Check if we have additional info to show in popup
+		$has_additional_info = ( $event_description && ( ( $is_appointment && $show_appointment_description ) || ( ! $is_appointment && $show_event_description ) ) ) || $event_location || $calendar_name;
+		?>
+		
+		<article 
+			class="cts-list--minimal__item<?php echo $is_appointment ? ' cts-list--minimal__item--appointment' : ''; ?>"
+			data-event-id="<?php echo esc_attr( $event_id ); ?>"
+			<?php if ( $appointment_id ) : ?>
+				data-appointment-id="<?php echo esc_attr( $appointment_id ); ?>"
+			<?php endif; ?>
+		>
+			<!-- Date -->
+			<time class="cts-list--minimal__date" datetime="<?php echo esc_attr( get_date_from_gmt( $event['start_datetime'], 'c' ) ); ?>">
+				<?php echo esc_html( $date_display ); ?>
+			</time>
+			
+			<!-- Time -->
+			<?php if ( $time_display ) : ?>
+				<span class="cts-list--minimal__time">
+					<?php echo esc_html( $time_display ); ?>
+				</span>
+			<?php endif; ?>
+			
+			<!-- Content: Title + Short Description -->
+			<div class="cts-list--minimal__content">
+				<span class="cts-list--minimal__title">
+					<?php echo $event_title; ?>
+				</span>
+				
+				<?php if ( $event_description_short && ( ( $is_appointment && $show_appointment_description ) || ( ! $is_appointment && $show_event_description ) ) ) : ?>
+					<span class="cts-list--minimal__description">
+						<?php echo esc_html( $event_description_short ); ?>
+					</span>
+				<?php endif; ?>
+			</div>
+			
+			<!-- Info Icon (shows popup with full details) -->
+			<?php if ( $has_additional_info ) : ?>
+				<button 
+					class="cts-list--minimal__info-icon" 
+					type="button"
+					aria-label="<?php esc_attr_e( 'Weitere Informationen anzeigen', 'churchtools-suite' ); ?>"
+					aria-expanded="false"
+				>
+					<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="12" cy="12" r="10"></circle>
+						<line x1="12" y1="16" x2="12" y2="12"></line>
+						<line x1="12" y1="8" x2="12.01" y2="8"></line>
+					</svg>
+				</button>
+				
+				<!-- Popup Content -->
+				<div class="cts-list--minimal__popup" role="tooltip" aria-hidden="true">
+					<div class="cts-list--minimal__popup-content">
+						
+						<?php if ( $calendar_name ) : ?>
+							<div class="cts-list--minimal__popup-calendar">
+								<strong><?php echo $calendar_name; ?></strong>
+							</div>
+						<?php endif; ?>
+						
+						<?php if ( $event_description && ( ( $is_appointment && $show_appointment_description ) || ( ! $is_appointment && $show_event_description ) ) ) : ?>
+							<div class="cts-list--minimal__popup-description">
+								<?php echo esc_html( $event_description ); ?>
+							</div>
+						<?php endif; ?>
+						
+						<?php if ( $event_location ) : ?>
+							<div class="cts-list--minimal__popup-location">
+								<svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+									<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+									<circle cx="12" cy="10" r="3"></circle>
+								</svg>
+								<?php echo $event_location; ?>
+							</div>
+						<?php endif; ?>
+						
+					</div>
 				</div>
 			<?php endif; ?>
 			
-			<?php 
-			// Event action logic
-			$event_action = isset( $args['event_action'] ) ? $args['event_action'] : 'modal';
-
-			// Single event target for page clicks
-			$single_event_base = apply_filters( 'churchtools_suite_single_event_base_url', home_url( '/events/' ) );
-			$single_event_template = get_option( 'churchtools_suite_single_template', 'professional' );
-			
-			$click_class = '';
-			$click_attrs = '';
-			
-			if ( $event_action === 'modal' ) {
-				$click_class = 'cts-event-clickable';
-				$click_attrs = sprintf(
-					'data-event-id="%s" role="button" tabindex="0" aria-label="%s"',
-					esc_attr( $event['id'] ),
-					esc_attr( sprintf( __( 'Details für %s anzeigen', 'churchtools-suite' ), $event['title'] ) )
-				);
-			} elseif ( $event_action === 'page' ) {
-				$click_class = 'cts-event-page-link';
-				$page_url = add_query_arg(
-					[
-						'event_id' => $event['id'],
-						'template' => $single_event_template,
-						'ctse_context' => 'elementor',
-					],
-					$single_event_base
-				);
-				$click_attrs = sprintf(
-					'data-event-id="%s" data-event-url="%s" role="link" tabindex="0" aria-label="%s"',
-					esc_attr( $event['id'] ),
-					esc_url( $page_url ),
-					esc_attr( sprintf( __( 'Zu %s navigieren', 'churchtools-suite' ), $event['title'] ) )
-				);
-			}
-			?>
-			
-			<?php 
-			// v0.9.9.10: Inline-Styles für Kalenderfarbe
-			$event_style = '';
-			$calendar_color = $event['calendar_color'] ?? '#2563eb';
-			if ( $use_calendar_colors ) {
-				// Hintergrund in Kalenderfarbe (mit Transparenz)
-				$event_style = sprintf(
-					'background: linear-gradient(135deg, %1$s15 0%%, %1$s08 100%%); border-left: 3px solid %1$s;',
-					esc_attr( $calendar_color )
-				);
-			}
-			?>
-			<div class="cts-event-minimal <?php echo esc_attr( $click_class ); ?>" <?php echo $click_attrs; ?><?php echo $event_style ? ' style="' . $event_style . '"' : ''; ?>>
-				
-				<!-- Kalendername (v0.9.9.20: Farbe nur bei use_calendar_colors=true) -->
-				<?php if ( $show_calendar_name && ! empty( $event['calendar_name'] ) ) : 
-					$calendar_name_style = '';
-					if ( $use_calendar_colors ) {
-						$calendar_name_style = sprintf( ' style="color: %s; font-weight: 600;"', esc_attr( $calendar_color ) );
-					}
-				?>
-					<div class="cts-calendar-name-minimal"<?php echo $calendar_name_style; ?>>
-						<?php echo esc_html( $event['calendar_name'] ); ?>
-					</div>
-				<?php endif; ?>
-				
-				<!-- Datum + Uhrzeit (Text-Format, v0.9.6.37) -->
-				<div class="cts-datetime-minimal">
-					<span class="cts-date-text"><?php echo esc_html( $start_date_display ); ?></span>
-					<span class="cts-time-separator"> • </span>
-					<span class="cts-time-text">
-						<?php echo esc_html( $start_time_display ); ?>
-						<?php if ( ! empty( $end_time_display ) ) : ?>
-							- <?php echo esc_html( $end_time_display ); ?>
-						<?php endif; ?>
-					</span>
-				</div>
-				
-				<!-- Titel (single line, ellipsis on overflow) -->
-				<div class="cts-title-minimal">
-					<?php echo esc_html( $event['title'] ); ?>
-				</div>
-				
-				<!-- Location Info Icon (v0.9.6.32) -->
-				<?php
-				$info_parts = array_filter( [
-					$event['address_name'] ?? '',
-					$event['address_street'] ?? '',
-					$event['address_zip'] ?? '',
-					$event['address_city'] ?? ''
-				] );
-				if ( ! empty( $info_parts ) ) {
-					$info_text = implode( ', ', $info_parts );
-					?>
-					<span class="cts-location-info-icon" data-tooltip="<?php echo esc_attr( $info_text ); ?>">
-						<span class="dashicons dashicons-location"></span>
-					</span>
-					<?php
-				}
-				?>
-				
-			</div>
-			
-		<?php endforeach; ?>
+		</article>
 		
-	<?php endif; ?>
+	<?php endforeach; ?>
 	
-	</div><!-- /.cts-list-minimal -->
-</div><!-- /.churchtools-suite-wrapper -->
+	</div><!-- .cts-list--minimal -->
+</div><!-- .churchtools-suite-wrapper -->
+
+<script>
+( function() {
+	'use strict';
+	
+	// Toggle popup on info icon click
+	document.addEventListener( 'DOMContentLoaded', function() {
+		const infoIcons = document.querySelectorAll( '.cts-list--minimal__info-icon' );
+		
+		infoIcons.forEach( function( icon ) {
+			icon.addEventListener( 'click', function( e ) {
+				e.stopPropagation();
+				
+				const isExpanded = this.getAttribute( 'aria-expanded' ) === 'true';
+				
+				// Close all other popups
+				document.querySelectorAll( '.cts-list--minimal__info-icon[aria-expanded="true"]' ).forEach( function( otherIcon ) {
+					if ( otherIcon !== icon ) {
+						otherIcon.setAttribute( 'aria-expanded', 'false' );
+					}
+				} );
+				
+				// Toggle current popup
+				this.setAttribute( 'aria-expanded', ! isExpanded );
+				
+				// Close popup on outside click
+				if ( ! isExpanded ) {
+					setTimeout( function() {
+						const closePopup = function( event ) {
+							if ( ! icon.contains( event.target ) && ! icon.nextElementSibling.contains( event.target ) ) {
+								icon.setAttribute( 'aria-expanded', 'false' );
+								document.removeEventListener( 'click', closePopup );
+							}
+						};
+						document.addEventListener( 'click', closePopup );
+					}, 100 );
+				}
+			} );
+			
+			// Close on Escape key
+			icon.addEventListener( 'keydown', function( e ) {
+				if ( e.key === 'Escape' && this.getAttribute( 'aria-expanded' ) === 'true' ) {
+					this.setAttribute( 'aria-expanded', 'false' );
+				}
+			} );
+		} );
+	} );
+} )();
+</script>

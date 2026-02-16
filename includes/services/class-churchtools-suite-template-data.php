@@ -131,12 +131,12 @@ class ChurchTools_Suite_Template_Data {
 			$where[] = $wpdb->prepare( 'start_datetime <= %s', $filters['to'] );
 		}
 		
-		// Execute query
+		// Execute query (v1.0.6.0: Limit moved after tag filtering)
 		$where_clause = ! empty( $where ) ? 'WHERE ' . implode( ' AND ', $where ) : '';
 		$order_clause = 'ORDER BY start_datetime ' . $filters['order'];
-		$limit_clause = $filters['limit'] > 0 ? 'LIMIT ' . absint( $filters['limit'] ) : '';
+		// No limit in SQL - will be applied after tag filtering
 		
-		$query = "SELECT * FROM {$table} {$where_clause} {$order_clause} {$limit_clause}";
+		$query = "SELECT * FROM {$table} {$where_clause} {$order_clause}";
 		$results = $wpdb->get_results( $query );
 		
 		// Format events
@@ -150,6 +150,11 @@ class ChurchTools_Suite_Template_Data {
 		// Apply tag filter (v0.10.4.11)
 		if ( ! empty( $filters['filter_tags'] ) ) {
 			$events = $this->filter_events_by_tags( $events, $filters['filter_tags'] );
+		}
+		
+		// Apply limit AFTER filtering (v1.0.6.0)
+		if ( $filters['limit'] > 0 && count( $events ) > $filters['limit'] ) {
+			$events = array_slice( $events, 0, $filters['limit'] );
 		}
 		
 		/**

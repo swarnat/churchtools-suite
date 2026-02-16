@@ -112,7 +112,7 @@ $current_month = null;
 				$current_month = $event_month;
 			?>
 				<div class="cts-month-separator">
-				<span class="cts-month-name"><?php echo esc_html( get_date_from_gmt( $event['start_datetime'], 'F Y' ) ); ?></span>
+				<span class="cts-month-name"><?php echo esc_html( date_i18n( 'F Y', strtotime( get_date_from_gmt( $event['start_datetime'] ) ) ) ); ?></span>
 				</div>
 			<?php endif; ?>
 			<?php 
@@ -225,18 +225,17 @@ $current_month = null;
 		</div>
 	<?php endif; ?>
 	
-	<!-- Titel & Description -->
+	<!-- Titel & Description (2-zeilig vertikal) -->
 	<div class="cts-title-block">
-		<span class="cts-title"><?php echo esc_html( $event['title'] ); ?></span>
-		<?php if ( ! empty( $event['event_description'] ) ) : ?>
-			<span class="cts-event-description"> - <?php echo esc_html( wp_trim_words( $event['event_description'], 15 ) ); ?></span>
-		<?php endif; ?>
-		<?php if ( ! empty( $event['appointment_description'] ) ) : ?>
-			<span class="cts-appointment-description"> - <?php echo esc_html( wp_trim_words( $event['appointment_description'], 15 ) ); ?></span>
+		<div class="cts-title"><?php echo esc_html( $event['title'] ); ?></div>
+		<?php if ( $show_event_description && ! empty( $event['event_description'] ) ) : ?>
+			<div class="cts-event-description"><?php echo esc_html( wp_trim_words( $event['event_description'], 20 ) ); ?></div>
+		<?php elseif ( $show_appointment_description && ! empty( $event['appointment_description'] ) ) : ?>
+			<div class="cts-appointment-description"><?php echo esc_html( wp_trim_words( $event['appointment_description'], 20 ) ); ?></div>
 		<?php endif; ?>
 	</div>
 	
-	<!-- Services -->
+	<!-- Services (wrappable 2-3 lines) -->
 	<?php if ( $show_services && ! empty( $event['services'] ) ) : ?>
 		<div class="cts-services">
 			<?php 
@@ -252,10 +251,10 @@ $current_month = null;
 				}
 			}
 			
-			echo esc_html( implode( ' · ', $service_items ) );
+			echo esc_html( implode( ' | ', $service_items ) );
 			
 			if ( is_array( $event['services'] ) && count( $event['services'] ) > 2 ) {
-				echo ' <span class="cts-more-indicator">(+' . ( count( $event['services'] ) - 2 ) . ')</span>';
+				echo ' <span class="cts-more">+' . ( count( $event['services'] ) - 2 ) . '</span>';
 			}
 			?>
 		</div>
@@ -263,27 +262,23 @@ $current_month = null;
 	
 	<!-- Location -->
 	<?php if ( $show_location && ! empty( $event['location_name'] ) ) : ?>
-		<div class="cts-location">
-			<span class="cts-location-icon">📍</span>
+		<div class="cts-list-location">
 			<?php echo esc_html( $event['location_name'] ); ?>
 		</div>
 	<?php endif; ?>
 	
 	<!-- Tags -->
 	<?php if ( $show_tags && ! empty( $event['tags'] ) ) : ?>
-		<div class="cts-tags">
+		<div class="cts-list-tags">
 			<?php 
 			// Only show first 2 tags inline
 			$tags_arr = is_array( $event['tags'] ) ? $event['tags'] : array();
 			foreach ( array_slice( $tags_arr, 0, 2 ) as $tag ) :
 			?>
-				<span class="cts-tag" style="background-color: <?php echo esc_attr( $tag['color'] ?? '#6b7280' ); ?>; color: white;">
+				<span class="cts-tag-badge" style="background-color: <?php echo esc_attr( $tag['color'] ?? '#6b7280' ); ?>;">
 					<?php echo esc_html( $tag['name'] ?? '' ); ?>
 				</span>
 			<?php endforeach; ?>
-			<?php if ( is_array( $event['tags'] ) && count( $event['tags'] ) > 2 ) : ?>
-				<span class="cts-tag-more">+<?php echo count( $event['tags'] ) - 2; ?></span>
-			<?php endif; ?>
 		</div>
 	<?php endif; ?>
 	

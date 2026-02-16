@@ -213,6 +213,20 @@ class ChurchTools_Suite {
 			'all'
 		);
 		
+		// Enqueue modernized list CSS (v0.10.5.0 - BEM + Grid + Custom Props)
+		$css_modern_version = $this->version;
+		$css_modern_path = CHURCHTOOLS_SUITE_PATH . 'assets/css/churchtools-suite-list-modern.css';
+		if ( file_exists( $css_modern_path ) ) {
+			$css_modern_version = max( $css_modern_version, filemtime( $css_modern_path ) );
+			wp_enqueue_style(
+				'churchtools-suite-list-modern',
+				CHURCHTOOLS_SUITE_URL . 'assets/css/churchtools-suite-list-modern.css',
+				[ 'churchtools-suite-public' ], // Depends on base styles
+				$css_modern_version,
+				'all'
+			);
+		}
+		
 		// Enqueue JS (cache-busted by filemtime when available)
 		$js_version = $this->version;
 		$js_path = CHURCHTOOLS_SUITE_PATH . 'assets/js/churchtools-suite-public.js';

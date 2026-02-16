@@ -107,16 +107,13 @@ $current_url = add_query_arg( [], remove_query_arg( [ 'cts_month', 'cts_year' ] 
 // Month names (localized)
 $month_name = date_i18n( 'F Y', strtotime( $first_day ) );
 
-// Weekday names (localized, short)
-$weekdays = [
-	__( 'Mo', 'churchtools-suite' ),
-	__( 'Di', 'churchtools-suite' ),
-	__( 'Mi', 'churchtools-suite' ),
-	__( 'Do', 'churchtools-suite' ),
-	__( 'Fr', 'churchtools-suite' ),
-	__( 'Sa', 'churchtools-suite' ),
-	__( 'So', 'churchtools-suite' ),
-];
+// Weekday names (localized from WordPress)
+// Use reference Monday (2024-01-01) to get all 7 days
+$base_monday = strtotime( '2024-01-01' ); // Known Monday
+$weekdays = [];
+for ( $i = 0; $i < 7; $i++ ) {
+	$weekdays[] = wp_date( 'D', $base_monday + ( $i * DAY_IN_SECONDS ) );
+}
 
 ?>
 
@@ -150,7 +147,7 @@ $weekdays = [
 	<div class="cts-calendar-grid">
 		<?php
 		$current_date = $grid_start;
-		$today = date( 'Y-m-d' );
+		$today = wp_date( 'Y-m-d' );
 		
 		// Determine number of weeks to render for this month
 		$days_in_month = (int) date( 't', strtotime( $first_day ) );
@@ -160,8 +157,8 @@ $weekdays = [
 		$total_cells = $weeks * 7;
 		
 		for ( $i = 0; $i < $total_cells; $i++ ) :
-			$day_number = date( 'j', strtotime( $current_date ) );
-			$is_current_month = date( 'n', strtotime( $current_date ) ) == $current_month;
+			$day_number = wp_date( 'j', strtotime( $current_date ) );
+			$is_current_month = wp_date( 'n', strtotime( $current_date ) ) == $current_month;
 			$is_today = $current_date === $today;
 			$has_events = isset( $events_by_day[ $current_date ] );
 			
@@ -274,7 +271,7 @@ $weekdays = [
 			</div>
 			<?php
 			// Move to next day
-			$current_date = date( 'Y-m-d', strtotime( $current_date . ' +1 day' ) );
+			$current_date = wp_date( 'Y-m-d', strtotime( $current_date . ' +1 day' ) );
 		endfor;
 		?>
 	</div>

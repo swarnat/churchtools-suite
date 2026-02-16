@@ -100,6 +100,23 @@
 			// Get available views for current viewType
 			const availableViews = views[attributes.viewType] || [];
 
+			// Get feature matrix from localized data
+			const viewFeatures = window.churchtoolsSuiteBlocks?.viewFeatures || {};
+			const currentViewFeatures = viewFeatures[attributes.view] || {};
+			
+			// Helper: Check if feature is supported by current view
+			const isFeatureSupported = function(featureName) {
+				return currentViewFeatures[featureName] !== false;
+			};
+			
+			// Helper: Get disabled help text
+			const getDisabledHelpText = function(featureName, defaultHelp) {
+				if (!isFeatureSupported(featureName)) {
+					return __('Diese Option wird von der aktuellen View nicht unterstützt', 'churchtools-suite');
+				}
+				return defaultHelp || '';
+			};
+
 			// View helpers
 			const isListWithImages = attributes.viewType === 'list' && (attributes.view === 'classic-with-images' || attributes.view === 'modern');
 
@@ -200,17 +217,7 @@
 											setAttributes({ view: value });
 										}
 									}),
-									// v0.9.8.9: Anzahl Events nur bei Listen-Ansichten
-									attributes.viewType === 'list' ? el(RangeControl, {
-										label: __('Anzahl Events', 'churchtools-suite'),
-										value: attributes.limit,
-										onChange: function(value) {
-											setAttributes({ limit: value });
-										},
-										min: 1,
-										max: 50
-									}) : null,
-									// v0.9.9.0: Grid-Einstellungen
+								// v0.9.9.0: Grid-Spalten (Limit verschoben nach Filter & Anzahl)
 									attributes.viewType === 'grid' ? el(RangeControl, {
 										label: __('Anzahl Spalten', 'churchtools-suite'),
 										value: attributes.columns,
@@ -221,15 +228,7 @@
 										max: 6,
 										help: __('Anzahl der Spalten im Grid (1-6)', 'churchtools-suite')
 									}) : null,
-									attributes.viewType === 'grid' ? el(RangeControl, {
-										label: __('Anzahl Events', 'churchtools-suite'),
-										value: attributes.limit,
-										onChange: function(value) {
-											setAttributes({ limit: value });
-										},
-										min: 1,
-										max: 50
-									}) : null,
+
 									// v0.9.6.26: Monats-Trennlinien nur bei Listen-Ansichten
 									attributes.viewType === 'list' ? el(ToggleControl, {
 										label: __('Monats-Trennlinien', 'churchtools-suite'),
@@ -242,8 +241,8 @@
 								]
 							),
 					
-						// Display Options (v0.9.7.3: Show for classic and modern views, v0.9.9.0: + grid simple, v0.9.9.66: + grid modern, v0.9.9.96: + classic-with-images)
-						(attributes.view === 'classic' || attributes.view === 'classic-with-images' || attributes.view === 'modern' || (attributes.viewType === 'grid' && (attributes.view === 'simple' || attributes.view === 'modern'))) ? el(
+						// Display Options - ALWAYS visible, toggles disabled if not supported
+						el(
 				PanelBody,
 				{
 					title: __('Anzeige-Optionen', 'churchtools-suite'),
@@ -253,6 +252,8 @@
 									el(ToggleControl, {
 										label: __('Event-Beschreibung', 'churchtools-suite'),
 										checked: attributes.show_event_description,
+										disabled: !isFeatureSupported('show_event_description'),
+										help: getDisabledHelpText('show_event_description'),
 										onChange: function(value) {
 											setAttributes({ show_event_description: value });
 										}
@@ -260,6 +261,8 @@
 									el(ToggleControl, {
 										label: __('Termin-Beschreibung', 'churchtools-suite'),
 										checked: attributes.show_appointment_description,
+										disabled: !isFeatureSupported('show_appointment_description'),
+										help: getDisabledHelpText('show_appointment_description'),
 										onChange: function(value) {
 											setAttributes({ show_appointment_description: value });
 										}
@@ -267,6 +270,8 @@
 									el(ToggleControl, {
 										label: __('Ort', 'churchtools-suite'),
 										checked: attributes.show_location,
+										disabled: !isFeatureSupported('show_location'),
+										help: getDisabledHelpText('show_location'),
 										onChange: function(value) {
 											setAttributes({ show_location: value });
 										}
@@ -274,6 +279,8 @@
 									el(ToggleControl, {
 										label: __('Services', 'churchtools-suite'),
 										checked: attributes.show_services,
+										disabled: !isFeatureSupported('show_services'),
+										help: getDisabledHelpText('show_services'),
 										onChange: function(value) {
 											setAttributes({ show_services: value });
 										}
@@ -281,6 +288,8 @@
 									el(ToggleControl, {
 										label: __('Uhrzeit', 'churchtools-suite'),
 										checked: attributes.show_time,
+										disabled: !isFeatureSupported('show_time'),
+										help: getDisabledHelpText('show_time'),
 										onChange: function(value) {
 											setAttributes({ show_time: value });
 										}
@@ -288,25 +297,38 @@
 									el(ToggleControl, {
 										label: __('Tags', 'churchtools-suite'),
 										checked: attributes.show_tags,
+										disabled: !isFeatureSupported('show_tags'),
+										help: getDisabledHelpText('show_tags'),
 										onChange: function(value) {
 											setAttributes({ show_tags: value });
 										}
 									}),
 									el(ToggleControl, {
+										label: __('Bilder', 'churchtools-suite'),
+										checked: attributes.show_images,
+										disabled: !isFeatureSupported('show_images'),
+										help: getDisabledHelpText('show_images'),
+										onChange: function(value) {
+											setAttributes({ show_images: value });
+										}
+									}),
+									el(ToggleControl, {
 										label: __('Kalendername', 'churchtools-suite'),
 										checked: attributes.show_calendar_name,
+										disabled: !isFeatureSupported('show_calendar_name'),
+										help: getDisabledHelpText('show_calendar_name'),
 										onChange: function(value) {
 											setAttributes({ show_calendar_name: value });
 										}
 									})
 								]
-							) : null, // Close conditional Display Options panel
+							), // Close Display Options panel
 							
-// Filter Panel (v0.9.9.94: Multi-Select mit Klarnamen)
+// Filter & Anzahl Panel (v1.0.6.0: Reihenfolge: Tags, Kalender, Limit)
 						el(
 							PanelBody,
 							{
-								title: __('Filter', 'churchtools-suite'),
+								title: __('Filter & Anzahl', 'churchtools-suite'),
 								initialOpen: false
 							},
 							[
@@ -318,8 +340,36 @@
 									const availableCalendars = window.churchtoolsSuiteBlocks?.calendars || [];
 									const availableTags = window.churchtoolsSuiteBlocks?.tags || [];
 									
-									const calendarCheckboxes = availableCalendars.length > 0 ? [
+									// Tags FIRST (v1.0.6.0)
+									const tagCheckboxes = availableTags.length > 0 ? [
 										el('h4', { style: { margin: '0 0 8px 0', fontSize: '12px', fontWeight: '600' } }, 
+											__('Tags', 'churchtools-suite')
+										),
+										el('p', { style: { fontSize: '11px', color: '#666', marginBottom: '8px' } }, 
+											__('Events müssen ALLE ausgewählten Tags haben (UND-Verknüpfung)', 'churchtools-suite')
+										),
+										...availableTags.map(function(tag) {
+											return el(CheckboxControl, {
+												label: tag.label,
+												checked: tagsArray.includes(tag.value),
+												onChange: function(checked) {
+													let newTags = [...tagsArray];
+													if (checked) {
+														if (!newTags.includes(tag.value)) {
+															newTags.push(tag.value);
+														}
+													} else {
+														newTags = newTags.filter(id => id !== tag.value);
+													}
+													setAttributes({ tags: newTags.join(',') });
+												}
+											});
+										})
+									] : [];
+									
+									// Kalender SECOND (v1.0.6.0)
+									const calendarCheckboxes = availableCalendars.length > 0 ? [
+										el('h4', { style: { margin: '16px 0 8px 0', fontSize: '12px', fontWeight: '600' } }, 
 											__('Kalender', 'churchtools-suite')
 										),
 										el('p', { style: { fontSize: '11px', color: '#666', marginBottom: '8px' } }, 
@@ -348,39 +398,26 @@
 										)
 									];
 									
-									const tagCheckboxes = availableTags.length > 0 ? [
-										el('h4', { style: { margin: '16px 0 8px 0', fontSize: '12px', fontWeight: '600' } }, 
-											__('Tags', 'churchtools-suite')
-										),
-										el('p', { style: { fontSize: '11px', color: '#666', marginBottom: '8px' } }, 
-											__('Events müssen ALLE ausgewählten Tags haben (UND-Verknüpfung)', 'churchtools-suite')
-										),
-										...availableTags.map(function(tag) {
-											return el(CheckboxControl, {
-												label: tag.label,
-												checked: tagsArray.includes(tag.value),
-												onChange: function(checked) {
-													let newTags = [...tagsArray];
-													if (checked) {
-														if (!newTags.includes(tag.value)) {
-															newTags.push(tag.value);
-														}
-													} else {
-														newTags = newTags.filter(id => id !== tag.value);
-													}
-													setAttributes({ tags: newTags.join(',') });
-												}
-											});
-										})
-									] : [];
-									
 									return el('div', {}, [
-										...calendarCheckboxes,
-										...tagCheckboxes
+										...tagCheckboxes,
+										...calendarCheckboxes
 									]);
-								}()
-								]
-							),
+								}(),
+								
+								// LIMIT LAST (v1.0.6.0)
+								el('hr', { style: { margin: '16px 0', border: 'none', borderTop: '1px solid #ddd' } }),
+								attributes.viewType !== 'calendar' ? el(RangeControl, {
+									label: __('Anzahl Events', 'churchtools-suite'),
+									value: attributes.limit,
+									onChange: function(value) {
+										setAttributes({ limit: value });
+									},
+									min: 1,
+									max: 50,
+									help: __('Maximale Anzahl anzuzeigender Events', 'churchtools-suite')
+								}) : null
+							]
+						),
 							
 							// Farbschema
 							el(

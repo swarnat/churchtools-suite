@@ -23,7 +23,7 @@ class ChurchTools_Suite_Migrations {
 	 * Increment this when adding new migrations.
 	 * Format: Major.Minor (e.g., 1.0, 1.1, 1.2)
 	 */
-	const DB_VERSION = '1.2';
+	const DB_VERSION = '1.3';
 	
 	/**
 	 * Option key for storing DB version
@@ -63,6 +63,10 @@ class ChurchTools_Suite_Migrations {
 
 		if ( version_compare( $current_version, '1.2', '<' ) ) {
 			self::migrate_to_1_2();
+		}
+		
+		if ( version_compare( $current_version, '1.3', '<' ) ) {
+			self::migrate_to_1_3();
 		}
 		
 		// Update DB version
@@ -315,6 +319,47 @@ class ChurchTools_Suite_Migrations {
 			if ( class_exists( 'ChurchTools_Suite_Logger' ) ) {
 				ChurchTools_Suite_Logger::log( 'migrations', 'Added calendar_image_id to calendars table', [ 'table' => $table ] );
 			}
+		}
+	}
+	
+	/**
+	 * Migration 1.3: Clean up old files from v1.0.6 refactoring
+	 *
+	 * Removes files that were moved during CSS/JS consolidation:
+	 * - admin/css/churchtools-suite-admin.css (moved to assets/css/)
+	 * - Empty admin/css/ directory
+	 *
+	 * @since 1.0.7.0
+	 */
+	private static function migrate_to_1_3(): void {
+		$cleanup_items = [];
+		
+		// Old admin CSS file (moved to assets/css/ in v1.0.7.0)
+		$old_admin_css = CHURCHTOOLS_SUITE_PATH . 'admin/css/churchtools-suite-admin.css';
+		if ( file_exists( $old_admin_css ) ) {
+			if ( @unlink( $old_admin_css ) ) {
+				$cleanup_items[] = 'admin/css/churchtools-suite-admin.css';
+			}
+		}
+		
+		// Remove empty admin/css/ directory
+		$old_admin_css_dir = CHURCHTOOLS_SUITE_PATH . 'admin/css';
+		if ( is_dir( $old_admin_css_dir ) ) {
+			$files = @scandir( $old_admin_css_dir );
+			// Check if directory is empty (only . and .. entries)
+			if ( $files && count( $files ) === 2 ) {
+				if ( @rmdir( $old_admin_css_dir ) ) {
+					$cleanup_items[] = 'admin/css/ (empty directory)';
+				}
+			}
+		}
+		
+		// Log cleanup results
+		if ( class_exists( 'ChurchTools_Suite_Logger' ) && ! empty( $cleanup_items ) ) {
+			ChurchTools_Suite_Logger::log( 'migrations', 'Cleaned up old files from v1.0.6 refactoring', [
+				'removed_files' => $cleanup_items,
+				'migration' => '1.3',
+			] );
 		}
 	}
 	

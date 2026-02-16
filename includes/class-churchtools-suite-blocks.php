@@ -28,6 +28,7 @@ class ChurchTools_Suite_Blocks {
 		add_filter( 'block_categories_all', [ __CLASS__, 'register_block_category' ], 10, 2 );
 		
 		// Register block editor script FIRST (v0.9.9.5)
+		// CSS wird zentral via admin_enqueue_scripts geladen (v1.0.6.0)
 		wp_register_script(
 			'churchtools-suite-blocks',
 			CHURCHTOOLS_SUITE_URL . 'assets/js/churchtools-suite-blocks.js',
@@ -81,6 +82,7 @@ class ChurchTools_Suite_Blocks {
 			],
 			'render_callback' => [ __CLASS__, 'render_events_block' ],
 			'editor_script' => 'churchtools-suite-blocks', // v0.9.9.5: Explizite Verknüpfung mit JS
+			// editor_style nicht nötig - CSS wird zentral via admin_enqueue_scripts geladen (v1.0.6.0)
 		] );
 	}
 	
@@ -139,6 +141,7 @@ class ChurchTools_Suite_Blocks {
 		require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-repository-base.php';
 		require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-calendars-repository.php';
 		require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-template-loader.php';
+		require_once CHURCHTOOLS_SUITE_PATH . 'includes/view-feature-matrix.php';
 		
 		$calendars_repo = new ChurchTools_Suite_Calendars_Repository();
 		$all_calendars = $calendars_repo->get_all();
@@ -206,6 +209,7 @@ class ChurchTools_Suite_Blocks {
 			'tags' => $tag_options,
 			'viewTypes' => $view_types,
 			'views' => $views_map,
+			'viewFeatures' => churchtools_suite_get_view_features(), // Feature matrix for conditional toggles
 		] );
 	}
 }
