@@ -32,10 +32,6 @@ $show_services = isset( $args['show_services'] ) ?
 $show_images = isset( $args['show_images'] ) ? 
 	ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_images'] ) : true;
 
-// Event-Action Parameter
-$event_action = $args['event_action'] ?? 'modal';
-$single_event_base = apply_filters( 'churchtools_suite_single_event_base_url', home_url( '/events/' ) );
-
 // v0.9.9.2: Parse use_calendar_colors option
 $use_calendar_colors = isset( $args['use_calendar_colors'] ) ? 
 	ChurchTools_Suite_Shortcodes::parse_boolean( $args['use_calendar_colors'] ) : false;
@@ -57,6 +53,40 @@ if ( ! $next_event ) {
 	echo '<p>' . esc_html__( 'Keine anstehenden Events', 'churchtools-suite' ) . '</p>';
 	echo '</div>';
 	return;
+}
+
+// Event-Action Parameter (v1.1.4.0)
+$event_action = $args['event_action'] ?? 'modal';
+$single_event_base = apply_filters( 'churchtools_suite_single_event_base_url', home_url( '/events/' ) );
+$single_event_template = get_option( 'churchtools_suite_single_template', 'professional' );
+
+// Build event click attributes (v1.1.4.0)
+$click_class = '';
+$click_attrs = '';
+
+if ( $event_action === 'modal' ) {
+	$click_class = ' cts-event-clickable';
+	$click_attrs = sprintf(
+		' data-event-id="%s" role="button" tabindex="0" aria-label="%s"',
+		esc_attr( $next_event['id'] ),
+		esc_attr( sprintf( __( 'Details für %s anzeigen', 'churchtools-suite' ), $next_event['title'] ) )
+	);
+} elseif ( $event_action === 'page' ) {
+	$click_class = ' cts-event-page-link';
+	$page_url = add_query_arg(
+		[
+			'event_id' => $next_event['id'],
+			'template' => $single_event_template,
+			'ctse_context' => 'elementor',
+		],
+		$single_event_base
+	);
+	$click_attrs = sprintf(
+		' data-event-id="%s" data-event-url="%s" role="link" tabindex="0" aria-label="%s"',
+		esc_attr( $next_event['id'] ),
+		esc_url( $page_url ),
+		esc_attr( sprintf( __( 'Zu %s navigieren', 'churchtools-suite' ), $next_event['title'] ) )
+	);
 }
 
 // Event-Daten extrahieren
@@ -172,7 +202,11 @@ if ( $use_custom_colors ) {
 $style_attr .= '"';
 ?>
 
-<div class="cts-countdown-classic<?php echo $use_calendar_colors ? ' cts-countdown-use-calendar-colors' : ''; ?>" data-style-mode="<?php echo esc_attr( $style_mode ); ?>" <?php echo $style_attr; ?> data-countdown-target="<?php echo esc_attr( $countdown_target ); ?>">
+<div class="cts-countdown-classic<?php echo $use_calendar_colors ? ' cts-countdown-use-calendar-colors' : ''; ?><?php echo $click_class; ?>" 
+     data-style-mode="<?php echo esc_attr( $style_mode ); ?>" 
+     <?php echo $style_attr; ?> 
+     data-countdown-target="<?php echo esc_attr( $countdown_target ); ?>"
+     <?php echo $click_attrs; ?>>
 
 	<!-- Main Content -->
 	<div class="cts-countdown-content">

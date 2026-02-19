@@ -6022,6 +6022,25 @@
 	/* Custom colors are set via inline style attributes from template */
 }
 
+/* Clickable Interaction (v1.1.4.0) */
+.cts-countdown-classic.cts-event-clickable,
+.cts-countdown-classic.cts-event-page-link {
+	cursor: pointer;
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cts-countdown-classic.cts-event-clickable:hover,
+.cts-countdown-classic.cts-event-page-link:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.cts-countdown-classic.cts-event-clickable:active,
+.cts-countdown-classic.cts-event-page-link:active {
+	transform: translateY(0);
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
 /* Responsive Design */
 @media (max-width: 900px) {
 	.cts-countdown-content {

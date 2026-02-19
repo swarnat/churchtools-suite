@@ -1,5 +1,14 @@
 # ChurchTools Suite - Changelog
 
+## v1.1.4.1 - Countdown Click Bugfix (19. Februar 2026)
+
+### 🔧 Bugfixes
+- ✅ **Countdown Click-Funktionalität** - Variable-Ordering-Bug behoben
+  - Fix: Click-Attribute wurden VOR Event-Zuweisung erstellt
+  - `$next_event` wird jetzt korrekt ZUERST definiert, dann für Click-Logik verwendet
+  - Countdown ist jetzt vollständig klickbar mit Modal-Support
+  - Alle Accessibility-Attribute (`role="button"`, `data-event-id`, `aria-label`) funktionieren
+
 ## v1.1.4.0 - Hero Images & Calendar Fallback (19. Februar 2026)
 
 ### ✨ Neue Features
