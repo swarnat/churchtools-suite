@@ -77,10 +77,13 @@ if ( ! empty( $args['class'] ) ) {
 	$wrapper_classes[] = esc_attr( $args['class'] );
 }
 
-// Helper: Get image URL (wie Grid)
+// Helper: Get image URL (like Grid) - v1.1.3.8: Added image_url support
 if ( ! function_exists( 'cts_carousel_get_image_url' ) ) {
 	function cts_carousel_get_image_url( $event ) {
-		// Priority: event_image > appointment_image > calendar_image
+		// Priority: image_url (v1.1.3.8) > event_image > appointment_image > calendar_image
+		if ( ! empty( $event['image_url'] ) ) {
+			return $event['image_url'];
+		}
 		if ( ! empty( $event['event_image_url'] ) ) {
 			return $event['event_image_url'];
 		}
