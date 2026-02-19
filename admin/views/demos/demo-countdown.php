@@ -18,36 +18,36 @@ if ( ! defined( 'ABSPATH' ) ) {
 	</div>
 	<div class="cts-card-body">
 		
-		<!-- Countdown Type 1 -->
+		<!-- Countdown Klassisch (Split-Layout) -->
 		<div class="cts-demo-item">
 			<div class="cts-demo-item-header">
-				<h4>Countdown Type 1</h4>
-				<code>[cts_countdown view="type-1"]</code>
+				<h4>Countdown Klassisch - Split-Layout mit Hero-Image</h4>
+				<code>[cts_countdown view="countdown-klassisch"]</code>
 			</div>
 			<div class="cts-demo-item-preview">
-				<?php echo do_shortcode( '[cts_countdown view="type-1"]' ); ?>
+				<?php echo do_shortcode( '[cts_countdown view="countdown-klassisch"]' ); ?>
 			</div>
 		</div>
 		
-		<!-- Countdown Type 2 -->
+		<!-- Countdown mit custom Beschreibung -->
 		<div class="cts-demo-item">
 			<div class="cts-demo-item-header">
-				<h4>Countdown Type 2</h4>
-				<code>[cts_countdown view="type-2"]</code>
+				<h4>Countdown - ohne Event-Beschreibung</h4>
+				<code>[cts_countdown view="countdown-klassisch" show_event_description="false"]</code>
 			</div>
 			<div class="cts-demo-item-preview">
-				<?php echo do_shortcode( '[cts_countdown view="type-2"]' ); ?>
+				<?php echo do_shortcode( '[cts_countdown view="countdown-klassisch" show_event_description="false"]' ); ?>
 			</div>
 		</div>
 		
-		<!-- Countdown Type 3 -->
+		<!-- Countdown mit spezifischem Kalender -->
 		<div class="cts-demo-item">
 			<div class="cts-demo-item-header">
-				<h4>Countdown Type 3</h4>
-				<code>[cts_countdown view="type-3"]</code>
+				<h4>Countdown - nur Gottesdienste</h4>
+				<code>[cts_countdown view="countdown-klassisch" calendar="1"]</code>
 			</div>
 			<div class="cts-demo-item-preview">
-				<?php echo do_shortcode( '[cts_countdown view="type-3"]' ); ?>
+				<?php echo do_shortcode( '[cts_countdown view="countdown-klassisch" calendar="1"]' ); ?>
 			</div>
 		</div>
 		

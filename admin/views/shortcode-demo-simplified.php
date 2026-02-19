@@ -60,7 +60,7 @@ $demo_types = [
 	'carousel' => [
 		'icon' => '🎡',
 		'name' => 'Carousel Views',
-		'count' => 4,
+		'count' => 5,
 		'description' => 'Karussell mit Navigation'
 	],
 	'widget' => [
