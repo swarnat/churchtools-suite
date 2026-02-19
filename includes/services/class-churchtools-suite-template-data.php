@@ -267,6 +267,15 @@ class ChurchTools_Suite_Template_Data {
 		}
 	}
 	
+	// Build image URL with fallback priority (v1.1.3.8):
+	// 1. imageUrl from raw_payload (demo events)
+	// 2. event['image_url'] (directly saved)
+	// 3. calendar image (fallback)
+	$image_url = $image_url_from_payload ?: ( $event['image_url'] ?? '' );
+	if ( empty( $image_url ) ) {
+		$image_url = $this->get_calendar_image_url( $event['calendar_id'] ?? '' );
+	}
+	
 	return [
 		// IDs
 		'id' => absint( $event['id'] ),
@@ -274,10 +283,11 @@ class ChurchTools_Suite_Template_Data {
 		'appointment_id' => $event['appointment_id'] ?? '',
 		'calendar_id' => $event['calendar_id'] ?? '',
 
-		// Bildfelder explicitly get imageUrl from raw_payload (v1.1.3.8)
+		// Bildfelder with fallback to calendar image (v1.1.3.8)
 		'image_attachment_id' => $event['image_attachment_id'] ?? '',
-		'image_url' => $image_url_from_payload ?: ( $event['image_url'] ?? '' ),
-			'calendar_image_url' => $this->get_calendar_image_url( $event['calendar_id'] ?? '' ),
+		'image_url' => $image_url,
+		'calendar_image_id' => $this->get_calendar_image_id( $event['calendar_id'] ?? '' ),
+		'calendar_image_url' => $this->get_calendar_image_url( $event['calendar_id'] ?? '' ),
 			
 			// Basic data
 			'title' => $event['title'] ?? __( 'Unbenannt', 'churchtools-suite' ),
