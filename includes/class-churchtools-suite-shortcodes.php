@@ -58,6 +58,13 @@ class ChurchTools_Suite_Shortcodes {
 		
 		// Calendar Views
 		add_shortcode( 'cts_calendar', [ __CLASS__, 'calendar_shortcode' ] );
+		
+		// Countdown Views
+		add_shortcode( 'cts_countdown', [ __CLASS__, 'countdown_shortcode' ] );
+		
+		// Carousel Views (v1.1.3.0)
+		add_shortcode( 'cts_carousel', [ __CLASS__, 'carousel_shortcode' ] );
+		
 	}
 	
 	/**
@@ -359,11 +366,13 @@ class ChurchTools_Suite_Shortcodes {
 			'filter_tags' => '',
 		], $atts, 'cts_list' );
 		
-		// v0.9.7.0 - MODERN VIEW AKTIVIERT: classic + minimal + modern + classic-with-images + table (v1.0.6.0)
-		// v0.10.5.0 - MODERNIZED VIEWS: classic-modern (BEM + Grid + Custom Props)
-		$allowed_views = [ 'classic', 'minimal', 'modern', 'classic-with-images', 'table', 'classic-modern' ];
+		// Backward-Compatibility: Normalisiere View-ID (alte Namen → neue deutsche IDs)
+		$atts['view'] = ChurchTools_Suite_Template_Loader::normalize_view_id( 'list', $atts['view'] );
+		
+		// v0.9.7.0 - Erlaubte Views (deutsche IDs mit Präfix)
+		$allowed_views = [ 'list-klassisch', 'list-minimal', 'list-modern', 'list-klassisch-mit-bildern' ];
 		if ( ! in_array( $atts['view'], $allowed_views, true ) ) {
-			return '<p style="padding: 12px; background: #fef3c7; border-radius: 4px;">⚠️ <strong>View nicht verfügbar:</strong> Nur "classic", "minimal", "modern", "classic-with-images", "table" und "classic-modern" sind aktiv. View "' . esc_html( $atts['view'] ) . '" wird in zukünftigen Updates aktiviert.</p>';
+			return '<p style="padding: 12px; background: #fef3c7; border-radius: 4px;">⚠️ <strong>View nicht verfügbar:</strong> Erlaubte Ansichten: Klassisch, Minimal, Modern, Klassisch-mit-Bildern. View "' . esc_html( $atts['view'] ) . '" existiert nicht.</p>';
 		}
 		
 		// Convert boolean values
@@ -391,8 +400,9 @@ class ChurchTools_Suite_Shortcodes {
 		
 		$events = self::get_events( $atts );
 		
-		// v0.9.9.44: New template structure (views/event-list/)
-		$template_path = 'views/event-list/' . $atts['view'];
+		// Konvertiere standardisierte View-ID zu Template-Dateiname (list-klassisch → classic)
+		$template_filename = ChurchTools_Suite_Template_Loader::normalize_view_to_filename( $atts['view'] );
+		$template_path = 'views/event-list/' . $template_filename;
 		
 		return self::render_template( $template_path, $events, $atts );
 	}
@@ -439,10 +449,13 @@ class ChurchTools_Suite_Shortcodes {
 			'custom_spacing' => 16,
 		], $atts, 'cts_grid' );
 		
-		// v0.9.9.66: simple + modern available (background-images removed, replaced by modern)
-		$allowed_views = [ 'simple', 'modern' ];
+		// Backward-Compatibility: Normalisiere View-ID (alte Namen → neue deutsche IDs)
+		$atts['view'] = ChurchTools_Suite_Template_Loader::normalize_view_id( 'grid', $atts['view'] );
+		
+		// Erlaubte Views (deutsche IDs mit Präfix)
+		$allowed_views = [ 'grid-klassisch', 'grid-einfach', 'grid-minimal', 'grid-modern' ];
 		if ( ! in_array( $atts['view'], $allowed_views, true ) ) {
-			return '<p style="padding: 12px; background: #fef3c7; border-radius: 4px;">⚠️ <strong>Grid View nicht verfügbar:</strong> Nur "simple" und "modern" sind aktiv.</p>';
+			return '<p style="padding: 12px; background: #fef3c7; border-radius: 4px;">⚠️ <strong>Grid View nicht verfügbar:</strong> Erlaubte Ansichten: Klassisch, Einfach, Minimal, Modern</p>';
 		}
 		
 		// Validate columns (1-6)
@@ -463,8 +476,9 @@ class ChurchTools_Suite_Shortcodes {
 		// Get events
 		$events = self::get_events( $atts );
 		
-		// v0.9.9.44: New template structure (views/event-grid/)
-		$template_path = 'views/event-grid/' . $atts['view'];
+		// Konvertiere standardisierte View-ID zu Template-Dateiname (grid-klassisch → classic)
+		$template_filename = ChurchTools_Suite_Template_Loader::normalize_view_to_filename( $atts['view'] );
+		$template_path = 'views/event-grid/' . $template_filename;
 		
 		return self::render_template( $template_path, $events, $atts );
 	}
@@ -529,14 +543,197 @@ class ChurchTools_Suite_Shortcodes {
 	}
 	
 	/**
-	 * DEBUG Test Shortcode
+	 * Countdown Shortcode (v1.1.1.0)
 	 * 
-	 * Simple test without templates - just shows raw data
-	 * Usage: [cts_debug_test]
+	 * Zeigt nächstes kommendes Event mit Live-Countdown-Timer
+	 * 
+	 * Usage:
+	 * [cts_countdown]
+	 * [cts_countdown view="countdown-klassisch"]
+	 * [cts_countdown calendar="2" show_event_description="true"]
+	 * 
+	 * @param array $atts Shortcode attributes
+	 * @return string HTML output
 	 */
-	public static function debug_test_shortcode( $atts ): string {
-		$output = '<div style="padding: 20px; background: #f0f0f0; border: 2px solid #333; margin: 20px 0;">';
-		$output .= '<h3>🔍 ChurchTools Suite Debug Test</h3>';
+	public static function countdown_shortcode( $atts ): string {
+		$atts = shortcode_atts( [
+			'view' => 'countdown-klassisch',
+			'calendar' => '',
+			'calendars' => '',
+			'tags' => '',
+			'event_id' => '', // v1.1.3.0: Spezifischer Event statt nächster
+			'limit' => 1, // Always 1 event (next upcoming)
+			'from' => '',
+			'to' => '',
+			'class' => '',
+			'show_past_events' => false,
+			'show_event_description' => true,
+			'show_appointment_description' => true,
+			'show_location' => true,
+			'show_tags' => true,
+			'show_calendar_name' => true,
+			'show_images' => true,
+			'event_action' => 'modal',
+			// Style Management
+			'style_mode' => 'theme',
+			'use_calendar_colors' => false,
+			'custom_primary_color' => '#3b82f6',
+			'custom_text_color' => '#ffffff',
+			'custom_background_color' => '#2d3748',
+			'custom_border_radius' => 8,
+			'custom_font_size' => 16,
+			'custom_padding' => 24,
+			'custom_spacing' => 16,
+		], $atts, 'cts_countdown' );
+		
+		// v1.1.3.0: Fix für Block-Editor - wenn 'view' leer oder 'classic', setze countdown-klassisch
+		if ( empty( $atts['view'] ) || $atts['view'] === 'classic' ) {
+			$atts['view'] = 'countdown-klassisch';
+		}
+		
+		// Backward-Compatibility: Normalisiere View-ID
+		$atts['view'] = ChurchTools_Suite_Template_Loader::normalize_view_id( 'countdown', $atts['view'] );
+		
+		// Erlaubte Views (deutsche IDs mit Präfix)
+		$allowed_views = [ 'countdown-klassisch' ];
+		if ( ! in_array( $atts['view'], $allowed_views, true ) ) {
+			return '<p style="padding: 12px; background: #fef3c7; border-radius: 4px;">⚠️ <strong>Countdown View nicht verfügbar:</strong> Nur "countdown-klassisch" ist aktiv.</p>';
+		}
+		
+		// Force limit to 1 (countdown always shows only next event)
+		$atts['limit'] = 1;
+		
+		// v1.1.3.0: Wenn event_id angegeben, filtere Events
+		if ( ! empty( $atts['event_id'] ) ) {
+			$atts['event_id'] = absint( $atts['event_id'] );
+		} else {
+			$atts['event_id'] = 0;
+		}
+		
+		// Convert boolean values
+		$atts['show_past_events'] = self::parse_boolean( $atts['show_past_events'] );
+		$atts['use_calendar_colors'] = self::parse_boolean( $atts['use_calendar_colors'] );
+		$atts['show_event_description'] = self::parse_boolean( $atts['show_event_description'] );
+		$atts['show_appointment_description'] = self::parse_boolean( $atts['show_appointment_description'] );
+		$atts['show_location'] = self::parse_boolean( $atts['show_location'] );
+		$atts['show_tags'] = self::parse_boolean( $atts['show_tags'] );
+		$atts['show_calendar_name'] = self::parse_boolean( $atts['show_calendar_name'] );
+		$atts['show_images'] = self::parse_boolean( $atts['show_images'] );
+		
+		// Get events
+		// v1.1.3.0: Wenn event_id angegeben, lade spezifischen Event statt nächsten
+		if ( ! empty( $atts['event_id'] ) ) {
+			$single_event = self::get_event_by_id( $atts['event_id'] );
+			$events = $single_event ? [ $single_event ] : [];
+		} else {
+			$events = self::get_events( $atts );
+		}
+		
+		// Konvertiere standardisierte View-ID zu Template-Dateiname (countdown-klassisch → classic)
+		$template_filename = ChurchTools_Suite_Template_Loader::normalize_view_to_filename( $atts['view'] );
+		$template_path = 'views/event-countdown/' . $template_filename;
+		
+		return self::render_template( $template_path, $events, $atts );
+	}
+	
+	/**
+	 * Carousel Shortcode (v1.1.3.0)
+	 * 
+	 * Horizontales Karussell mit Swipe-Navigation (basierend auf Grid Classic)
+	 * 
+	 * Usage:
+	 * [cts_carousel]
+	 * [cts_carousel view="carousel-klassisch" slides_per_view="3"]
+	 * [cts_carousel calendar="2" autoplay="true" loop="true"]
+	 * 
+	 * @param array $atts Shortcode attributes
+	 * @return string HTML output
+	 */
+	public static function carousel_shortcode( $atts ): string {
+		$atts = shortcode_atts( [
+			'view' => 'carousel-klassisch',
+			'calendar' => '',
+			'calendars' => '',
+			'tags' => '',
+			'limit' => 12, // Default: 12 events in carousel
+			'from' => '',
+			'to' => '',
+			'class' => '',
+			'show_past_events' => false,
+			'show_event_description' => true,
+			'show_appointment_description' => true,
+			'show_location' => true,
+			'show_time' => true,
+			'show_services' => false,
+			'show_tags' => false,
+			'show_calendar_name' => true,
+			'show_images' => true,
+			'event_action' => 'modal',
+			// Carousel-spezifische Parameter
+			'slides_per_view' => 3, // 1-6 slides
+			'autoplay' => false,
+			'autoplay_delay' => 5000, // milliseconds
+			'loop' => true,
+			// Style Management
+			'style_mode' => 'theme',
+			'use_calendar_colors' => true, // Default true (wie Grid Classic)
+			'custom_primary_color' => '#2563eb',
+			'custom_text_color' => '#111827',
+			'custom_background_color' => '#ffffff',
+			'custom_border_radius' => 0, // Wie Grid Classic: eckig
+			'custom_font_size' => 14,
+			'custom_padding' => 16,
+			'custom_spacing' => 16,
+		], $atts, 'cts_carousel' );
+		
+		// Backward-Compatibility: Normalisiere View-ID
+		$atts['view'] = ChurchTools_Suite_Template_Loader::normalize_view_id( 'carousel', $atts['view'] );
+		
+		// Erlaubte Views (deutsche IDs mit Präfix)
+		$allowed_views = [ 'carousel-klassisch' ];
+		if ( ! in_array( $atts['view'], $allowed_views, true ) ) {
+			return '<p style="padding: 12px; background: #fef3c7; border-radius: 4px;">⚠️ <strong>Carousel View nicht verfügbar:</strong> Nur "carousel-klassisch" ist aktiv.</p>';
+		}
+		
+		// Validate carousel-specific parameters
+		$atts['slides_per_view'] = max( 1, min( 6, intval( $atts['slides_per_view'] ) ) );
+		$atts['autoplay_delay'] = max( 1000, min( 10000, intval( $atts['autoplay_delay'] ) ) );
+		
+		// Convert boolean values
+		$atts['show_past_events'] = self::parse_boolean( $atts['show_past_events'] );
+		$atts['use_calendar_colors'] = self::parse_boolean( $atts['use_calendar_colors'] );
+		$atts['show_event_description'] = self::parse_boolean( $atts['show_event_description'] );
+		$atts['show_appointment_description'] = self::parse_boolean( $atts['show_appointment_description'] );
+		$atts['show_location'] = self::parse_boolean( $atts['show_location'] );
+		$atts['show_time'] = self::parse_boolean( $atts['show_time'] );
+		$atts['show_services'] = self::parse_boolean( $atts['show_services'] );
+		$atts['show_tags'] = self::parse_boolean( $atts['show_tags'] );
+		$atts['show_calendar_name'] = self::parse_boolean( $atts['show_calendar_name'] );
+		$atts['show_images'] = self::parse_boolean( $atts['show_images'] );
+		$atts['autoplay'] = self::parse_boolean( $atts['autoplay'] );
+		$atts['loop'] = self::parse_boolean( $atts['loop'] );
+		
+		// Get events
+		$events = self::get_events( $atts );
+		
+		// Konvertiere standardisierte View-ID zu Template-Dateiname (carousel-klassisch → classic)
+		$template_filename = ChurchTools_Suite_Template_Loader::normalize_view_to_filename( $atts['view'] );
+		$template_path = 'views/event-carousel/' . $template_filename;
+		
+		return self::render_template( $template_path, $events, $atts );
+	}
+	
+	/**
+	 * Debug Shortcode (Developer Tool)
+	 * 
+	 * Shows debug information about template loading
+	 * 
+	 * @param array $atts Shortcode attributes
+	 * @return string HTML output
+	 */
+	public static function debug_shortcode( $atts ): string {
+		$output = '<div style="padding: 20px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px;">';
+		$output .= '<h3>ChurchTools Suite Debug</h3>';
 		
 		// Test 1: Check if Data Provider exists
 		try {

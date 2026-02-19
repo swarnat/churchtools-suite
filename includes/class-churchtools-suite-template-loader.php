@@ -23,7 +23,7 @@ class ChurchTools_Suite_Template_Loader {
 	/**
 	 * Prüft, ob ein Template für einen View-Typ existiert
 	 *
-	 * @param string $view_type list|grid|calendar
+	 * @param string $view_type list|grid|calendar|countdown|carousel
 	 * @param string $view      Template-Name
 	 * @return bool
 	 */
@@ -32,6 +32,8 @@ class ChurchTools_Suite_Template_Loader {
 			'list' => 'views/event-list/',
 			'grid' => 'views/event-grid/',
 			'calendar' => 'views/event-calendar/',
+			'countdown' => 'views/event-countdown/',
+			'carousel' => 'views/event-carousel/',
 		];
 
 		if ( ! isset( $base[ $view_type ] ) ) {
@@ -52,6 +54,8 @@ class ChurchTools_Suite_Template_Loader {
 			[ 'label' => __( 'Liste', 'churchtools-suite' ), 'value' => 'list' ],
 			[ 'label' => __( 'Grid', 'churchtools-suite' ), 'value' => 'grid' ],
 			[ 'label' => __( 'Kalender', 'churchtools-suite' ), 'value' => 'calendar' ],
+			[ 'label' => __( 'Countdown', 'churchtools-suite' ), 'value' => 'countdown' ],
+			[ 'label' => __( 'Karussell', 'churchtools-suite' ), 'value' => 'carousel' ],
 		];
 
 		$filtered = [];
@@ -67,24 +71,36 @@ class ChurchTools_Suite_Template_Loader {
 
 	/**
 	 * Liefert die verfügbaren Views (Templates) für einen Typ als Options-Liste
+	 * 
+	 * WICHTIG: View-IDs sind jetzt standardisiert mit Präfix (z.B. "grid-klassisch")
+	 * Mapping zu Dateinamen erfolgt automatisch
 	 *
-	 * @param string $view_type list|grid|calendar
+	 * @param string $view_type list|grid|calendar|countdown|carousel
 	 * @return array[] Array von Options-Objekten: [ [label => '...', value => '...'], ... ]
 	 */
 	public static function get_view_options( string $view_type ): array {
+		// Standardisierte View-Definitionen mit deutschen IDs
 		$labels = [
 			'list' => [
-				'classic' => __( 'Klassisch', 'churchtools-suite' ),
-				'classic-with-images' => __( 'Klassisch mit Bildern', 'churchtools-suite' ),
-				'minimal' => __( 'Minimal', 'churchtools-suite' ),
-				'modern' => __( 'Modern', 'churchtools-suite' ),
+				'list-klassisch'           => __( 'Klassisch', 'churchtools-suite' ),
+				'list-klassisch-mit-bildern' => __( 'Klassisch mit Bildern', 'churchtools-suite' ),
+				'list-minimal'             => __( 'Minimal', 'churchtools-suite' ),
+				'list-modern'              => __( 'Modern', 'churchtools-suite' ),
 			],
 			'grid' => [
-				'simple' => __( 'Einfach', 'churchtools-suite' ),
-				'modern' => __( 'Modern', 'churchtools-suite' ),
+				'grid-klassisch' => __( 'Klassisch (Hero-Bild)', 'churchtools-suite' ),
+				'grid-einfach'   => __( 'Einfach (Alle Details)', 'churchtools-suite' ),
+				'grid-minimal'   => __( 'Minimal (Kompakt)', 'churchtools-suite' ),
+				'grid-modern'    => __( 'Modern (Card-Style)', 'churchtools-suite' ),
 			],
 			'calendar' => [
-				'monthly-simple' => __( 'Monat (Simple)', 'churchtools-suite' ),
+				'calendar-monatlich-einfach' => __( 'Monatlich (Einfach)', 'churchtools-suite' ),
+			],
+			'countdown' => [
+				'countdown-klassisch' => __( 'Klassisch (Split-Layout)', 'churchtools-suite' ),
+			],
+			'carousel' => [
+				'carousel-klassisch' => __( 'Klassisch (Swipe)', 'churchtools-suite' ),
 			],
 		];
 
@@ -94,12 +110,104 @@ class ChurchTools_Suite_Template_Loader {
 
 		$options = [];
 		foreach ( $labels[ $view_type ] as $view => $label ) {
-			if ( self::template_exists( $view_type, $view ) ) {
+			// Entferne Präfix für Template-Lookup (grid-klassisch → klassisch)
+			$template_name = self::normalize_view_to_filename( $view );
+			
+			if ( self::template_exists( $view_type, $template_name ) ) {
 				$options[] = [ 'label' => $label, 'value' => $view ];
 			}
 		}
 
 		return $options;
+	}
+	
+	/**
+	 * Normalisiert View-ID zu Template-Dateinamen
+	 * Mapping: grid-klassisch → classic, grid-einfach → simple, etc.
+	 * 
+	 * @param string $view View-ID (z.B. "grid-klassisch", "list-minimal")
+	 * @return string Template-Dateiname (ohne .php)
+	 */
+	public static function normalize_view_to_filename( string $view ): string {
+		// Mapping deutscher IDs zu bestehenden Dateinamen
+		$mapping = [
+			// Grid Views
+			'grid-klassisch' => 'classic',
+			'grid-einfach'   => 'simple',
+			'grid-minimal'   => 'minimal',
+			'grid-modern'    => 'modern',
+			
+			// List Views
+			'list-klassisch'           => 'classic',
+			'list-klassisch-mit-bildern' => 'classic-with-images',
+			'list-minimal'             => 'minimal',
+			'list-modern'              => 'modern',
+			
+			// Calendar Views
+			'calendar-monatlich-einfach' => 'monthly-simple',
+			
+			// Countdown Views
+			'countdown-klassisch' => 'classic',
+			
+			// Carousel Views
+			'carousel-klassisch' => 'classic',
+		];
+		
+		// Wenn Mapping existiert, verwende es
+		if ( isset( $mapping[ $view ] ) ) {
+			return $mapping[ $view ];
+		}
+		
+		// Backward-Compatibility: Ent ferne nur Präfix (grid- / list- / calendar- / countdown- / carousel-)
+		$view = preg_replace( '/^(grid|list|calendar|countdown|carousel)-/', '', $view );
+		
+		return $view;
+	}
+	
+	/**
+	 * Backward-Compatibility: Konvertiert alte View-IDs zu neuen
+	 * 
+	 * @param string $view_type list|grid|calendar|countdown|carousel
+	 * @param string $view Alte oder neue View-ID
+	 * @return string Standardisierte View-ID mit Präfix
+	 */
+	public static function normalize_view_id( string $view_type, string $view ): string {
+		// Wenn bereits mit Präfix → direkt zurückgeben
+		if ( strpos( $view, $view_type . '-' ) === 0 ) {
+			return $view;
+		}
+		
+		// Backward-Compatibility-Mapping
+		$legacy_mapping = [
+			'grid' => [
+				'classic' => 'grid-klassisch',
+				'simple'  => 'grid-einfach',
+				'minimal' => 'grid-minimal',
+				'modern'  => 'grid-modern',
+			],
+			'list' => [
+				'classic'            => 'list-klassisch',
+				'classic-with-images' => 'list-klassisch-mit-bildern',
+				'minimal'            => 'list-minimal',
+				'modern'             => 'list-modern',
+			],
+			'calendar' => [
+				'monthly-simple' => 'calendar-monatlich-einfach',
+			],
+			'countdown' => [
+				'classic' => 'countdown-klassisch',
+			],
+			'carousel' => [
+				'classic' => 'carousel-klassisch',
+			],
+		];
+		
+		if ( isset( $legacy_mapping[ $view_type ][ $view ] ) ) {
+			return $legacy_mapping[ $view_type ][ $view ];
+		}
+		
+		// Fallback: Präfix hinzufügen
+		return $view_type . '-' . $view;
 	}
 
 	/**

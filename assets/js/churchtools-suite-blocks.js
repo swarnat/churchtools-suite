@@ -20,7 +20,7 @@
 	/**
 	 * Available View Types (from PHP, with fallback)
 	 */
-	const viewTypes = (window.churchtoolsSuiteBlocks && churchtoolsSuiteBlocks.viewTypes) || [
+	const viewTypes = (window.churchtoolsSuiteBlocks && window.churchtoolsSuiteBlocks.viewTypes) || [
 		{ label: __('Liste', 'churchtools-suite'), value: 'list' },
 		{ label: __('Grid', 'churchtools-suite'), value: 'grid' },
 		{ label: __('Kalender', 'churchtools-suite'), value: 'calendar' }
@@ -29,7 +29,7 @@
 	/**
 	 * Available Views per Type
 	 */
-	const views = (window.churchtoolsSuiteBlocks && churchtoolsSuiteBlocks.views) || {
+	const views = (window.churchtoolsSuiteBlocks && window.churchtoolsSuiteBlocks.views) || {
 		list: [
 			{ label: __('Classic', 'churchtools-suite'), value: 'classic' },
 			{ label: __('Classic mit Bildern', 'churchtools-suite'), value: 'classic-with-images' },
@@ -63,8 +63,7 @@
 			view: { type: 'string', default: 'classic' },
 			
 			// Event Settings
-		limit: { type: 'number', default: 5 },
-			columns: { type: 'number', default: 3 },
+		limit: { type: 'number', default: 5 },		event_id: { type: 'number', default: 0 },			columns: { type: 'number', default: 3 },
 			calendars: { type: 'string', default: '' },
 			tags: { type: 'string', default: '' },
 			show_event_description: { type: 'boolean', default: true },
@@ -361,7 +360,10 @@
 													} else {
 														newTags = newTags.filter(id => id !== tag.value);
 													}
-													setAttributes({ tags: newTags.join(',') });
+													setAttributes({
+														tags: newTags.join(','),
+														event_id: 0
+													});
 												}
 											});
 										})
@@ -388,7 +390,10 @@
 													} else {
 														newCalendars = newCalendars.filter(id => id !== cal.value);
 													}
-													setAttributes({ calendars: newCalendars.join(',') });
+													setAttributes({
+														calendars: newCalendars.join(','),
+														event_id: 0
+													});
 												}
 											});
 										})
@@ -404,9 +409,80 @@
 									]);
 								}(),
 								
-								// LIMIT LAST (v1.0.6.0)
-								el('hr', { style: { margin: '16px 0', border: 'none', borderTop: '1px solid #ddd' } }),
-								attributes.viewType !== 'calendar' ? el(RangeControl, {
+							// Event-ID Selection (nur für Countdown)
+							attributes.viewType === 'countdown' ? el('hr', { style: { margin: '16px 0', border: 'none', borderTop: '1px solid #ddd' } }) : null,
+							attributes.viewType === 'countdown' ? el(SelectControl, {
+								label: __('Event-Auswahl', 'churchtools-suite'),
+								value: attributes.event_id || 0,
+								onChange: function(value) {
+									setAttributes({ event_id: parseInt(value, 10) });
+								},
+								options: (function() {
+									// Get all events from localized data
+									const allEvents = (window.churchtoolsSuiteBlocks && window.churchtoolsSuiteBlocks.events) || [];
+									
+									// First option: Automatic next event
+									const options = [
+										{ label: __('Nächstes Event (automatisch)', 'churchtools-suite'), value: 0 }
+									];
+									
+									// Filter events based on selected calendars and tags
+									const calendarsArray = attributes.calendars ? attributes.calendars.split(',').filter(Boolean) : [];
+									const tagsArray = attributes.tags ? attributes.tags.split(',').filter(Boolean) : [];
+									
+									const filteredEvents = allEvents.filter(function(event) {
+										// Check calendar filter
+										const calendarMatch = calendarsArray.length === 0 || calendarsArray.includes(String(event.calendar_id));
+										
+										// Check tags filter (must have ALL selected tags)
+										let tagsMatch = true;
+										if (tagsArray.length > 0 && event.tags) {
+											const eventTags = event.tags.map(function(t) { return String(t.id || t); });
+											tagsMatch = tagsArray.every(function(tagId) {
+												return eventTags.includes(tagId);
+											});
+										}
+										
+										return calendarMatch && tagsMatch;
+									});
+									
+									// Add filtered events to options
+									filteredEvents.forEach(function(event) {
+										options.push({
+											label: event.label || event.title,
+											value: event.value || event.id
+										});
+									});
+									
+									return options;
+								})(),
+								help: (function() {
+									const calendarsArray = attributes.calendars ? attributes.calendars.split(',').filter(Boolean) : [];
+									const tagsArray = attributes.tags ? attributes.tags.split(',').filter(Boolean) : [];
+									const allEvents = (window.churchtoolsSuiteBlocks && window.churchtoolsSuiteBlocks.events) || [];
+									
+									const filteredCount = allEvents.filter(function(event) {
+										const calendarMatch = calendarsArray.length === 0 || calendarsArray.includes(String(event.calendar_id));
+										let tagsMatch = true;
+										if (tagsArray.length > 0 && event.tags) {
+											const eventTags = event.tags.map(function(t) { return String(t.id || t); });
+											tagsMatch = tagsArray.every(function(tagId) {
+												return eventTags.includes(tagId);
+											});
+										}
+										return calendarMatch && tagsMatch;
+									}).length;
+									
+									if (calendarsArray.length > 0 || tagsArray.length > 0) {
+										return __('Gefiltert nach ausgewählten Kalendern/Tags', 'churchtools-suite') + ' (' + filteredCount + ' Events)';
+									}
+									return __('Wähle ein spezifisches Event oder lass es bei "automatisch"', 'churchtools-suite');
+								})()
+							}) : null,
+							
+							// LIMIT LAST (v1.0.6.0)
+							el('hr', { style: { margin: '16px 0', border: 'none', borderTop: '1px solid #ddd' } }),
+							attributes.viewType !== 'calendar' && attributes.viewType !== 'countdown' ? el(RangeControl, {
 									label: __('Anzahl Events', 'churchtools-suite'),
 									value: attributes.limit,
 									onChange: function(value) {

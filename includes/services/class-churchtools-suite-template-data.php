@@ -356,11 +356,23 @@ class ChurchTools_Suite_Template_Data {
 	 */
 	private function get_calendar_image_url( string $calendar_id ): ?string {
 		$attachment_id = $this->get_calendar_image_id( $calendar_id );
+		
+		// Debug logging
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( '[Template_Data] get_calendar_image_url for calendar_id=' . $calendar_id . ': attachment_id=' . $attachment_id );
+		}
+		
 		if ( ! $attachment_id ) {
 			return null;
 		}
 
 		$image_url = wp_get_attachment_image_url( $attachment_id, 'large' );
+		
+		// Debug result
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( '[Template_Data] wp_get_attachment_image_url result: ' . ( $image_url ?: 'FALSE' ) );
+		}
+		
 		return $image_url ?: null;
 	}
 

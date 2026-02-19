@@ -78,11 +78,11 @@ $shortcodes = [
 		'name' => 'Grid',
 		'icon' => '🎯',
 		'category' => 'grid',
-		'description' => 'Zeigt Events als Raster an',
-		'views' => ['simple', 'background-images'], // v0.9.9.35: background-images added
+		'description' => 'Zeigt Events als Karten-Raster (Klassisch: Hero-Bild+Buttons, Einfach: Alle Infos, Minimal: Essentials+Info-Icon)',
+		'views' => ['grid-klassisch', 'grid-einfach', 'grid-minimal', 'grid-modern'], // v1.1.0.5: Standardisierte IDs
 		'params' => [
 			// === Ansicht & Basis ===
-			'view' => ['type' => 'select', 'label' => 'View', 'options' => ['simple', 'background-images'], 'section' => '📋 Ansicht & Basis'],
+			'view' => ['type' => 'select', 'label' => 'View', 'options' => ['grid-klassisch' => 'Klassisch (Hero-Bild)', 'grid-einfach' => 'Einfach (Alle Details)', 'grid-minimal' => 'Minimal (Kompakt)', 'grid-modern' => 'Modern (Card-Style)'], 'section' => '📋 Ansicht & Basis'],
 			'calendar' => ['type' => 'checkboxes', 'label' => 'Kalender auswählen', 'section' => '📋 Ansicht & Basis'],
 			'limit' => ['type' => 'number', 'label' => 'Anzahl Events', 'default' => '12', 'section' => '⚙️ Basis-Einstellungen'],
 			// === Layout ===
@@ -102,7 +102,70 @@ $shortcodes = [
 			'to' => ['type' => 'date', 'label' => 'Bis Datum (Legacy)', 'section' => '📦 Legacy-Parameter'],
 			'class' => ['type' => 'text', 'label' => 'CSS Klasse', 'section' => '🎨 Styling'],
 		],
-		'example' => '[cts_grid view="simple" columns="3"]',
+		'example' => '[cts_grid view="grid-klassisch" columns="3"]',
+	],
+	[
+		'tag' => 'cts_countdown',
+		'name' => 'Countdown',
+		'icon' => '⏱️',
+		'category' => 'countdown',
+		'description' => 'Zeigt nächstes kommendes Event mit Live-Countdown-Timer (Split-Layout: Timer links, Hero-Image rechts)',
+		'views' => ['countdown-klassisch'], // v1.1.1.0: Neuer View-Typ
+		'params' => [
+			// === Ansicht & Basis ===
+			'view' => ['type' => 'select', 'label' => 'View', 'options' => ['countdown-klassisch' => 'Klassisch (Split-Layout)'], 'section' => '📋 Ansicht & Basis'],
+			'calendar' => ['type' => 'checkboxes', 'label' => 'Kalender auswählen', 'section' => '📋 Ansicht & Basis'],
+			// === Anzeige-Optionen ===
+			'show_event_description' => ['type' => 'toggle', 'label' => 'Event-Beschreibung anzeigen', 'default' => true, 'section' => '👁️ Anzeige-Optionen'],
+			'show_appointment_description' => ['type' => 'toggle', 'label' => 'Termin-Beschreibung anzeigen', 'default' => true, 'section' => '👁️ Anzeige-Optionen'],
+			'show_location' => ['type' => 'toggle', 'label' => 'Ort anzeigen', 'default' => true, 'section' => '👁️ Anzeige-Optionen'],
+			'show_calendar_name' => ['type' => 'toggle', 'label' => 'Kalender-Name anzeigen', 'default' => true, 'section' => '👁️ Anzeige-Optionen'],
+			'show_images' => ['type' => 'toggle', 'label' => 'Hero-Image anzeigen', 'default' => true, 'section' => '👁️ Anzeige-Optionen'],
+			// === Verhalten ===
+			'event_action' => ['type' => 'select', 'label' => 'Event Aktion', 'options' => ['modal' => 'Modal öffnen', 'page' => 'Seite öffnen', 'none' => 'Keine Aktion'], 'default' => 'modal', 'section' => '⚙️ Basis-Einstellungen'],
+			// === Filter & Sortierung ===
+			'date_from' => ['type' => 'date', 'label' => 'Datum von (YYYY-MM-DD)', 'section' => '🔍 Filter & Sortierung'],
+			'date_to' => ['type' => 'date', 'label' => 'Datum bis (YYYY-MM-DD)', 'section' => '🔍 Filter & Sortierung'],
+			// === Styling ===
+			'class' => ['type' => 'text', 'label' => 'CSS Klasse', 'section' => '🎨 Styling'],
+		],
+		'example' => '[cts_countdown view="countdown-klassisch"]',
+	],
+	[
+		'tag' => 'cts_carousel',
+		'name' => 'Carousel',
+		'icon' => '🎠',
+		'category' => 'carousel',
+		'description' => 'Horizontales Karussell mit Swipe-Navigation (Hero-Images, mehrere Events, Touch-Support)',
+		'views' => ['carousel-klassisch'], // v1.1.1.0: Neuer View-Typ
+		'params' => [
+			// === Ansicht & Basis ===
+			'view' => ['type' => 'select', 'label' => 'View', 'options' => ['carousel-klassisch' => 'Klassisch (Swipe)'], 'section' => '📋 Ansicht & Basis'],
+			'calendar' => ['type' => 'checkboxes', 'label' => 'Kalender auswählen', 'section' => '📋 Ansicht & Basis'],
+			'limit' => ['type' => 'number', 'label' => 'Anzahl Events', 'default' => '12', 'section' => '⚙️ Basis-Einstellungen'],
+			// === Carousel-Einstellungen ===
+			'slides_per_view' => ['type' => 'number', 'label' => 'Slides pro Ansicht (1-6)', 'default' => '3', 'section' => '🎠 Carousel-Einstellungen'],
+			'autoplay' => ['type' => 'toggle', 'label' => 'Auto-Play aktivieren', 'default' => false, 'section' => '🎠 Carousel-Einstellungen'],
+			'autoplay_delay' => ['type' => 'number', 'label' => 'Auto-Play Verzögerung (ms)', 'default' => '5000', 'section' => '🎠 Carousel-Einstellungen'],
+			'loop' => ['type' => 'toggle', 'label' => 'Loop-Modus (endlos)', 'default' => true, 'section' => '🎠 Carousel-Einstellungen'],
+			// === Anzeige-Optionen ===
+			'show_event_description' => ['type' => 'toggle', 'label' => 'Event-Beschreibung anzeigen', 'default' => true, 'section' => '👁️ Anzeige-Optionen'],
+			'show_appointment_description' => ['type' => 'toggle', 'label' => 'Termin-Beschreibung anzeigen', 'default' => true, 'section' => '👁️ Anzeige-Optionen'],
+			'show_location' => ['type' => 'toggle', 'label' => 'Ort anzeigen', 'default' => true, 'section' => '👁️ Anzeige-Optionen'],
+			'show_time' => ['type' => 'toggle', 'label' => 'Uhrzeit anzeigen', 'default' => true, 'section' => '👁️ Anzeige-Optionen'],
+			'show_services' => ['type' => 'toggle', 'label' => 'Services anzeigen', 'default' => false, 'section' => '👁️ Anzeige-Optionen'],
+			'show_tags' => ['type' => 'toggle', 'label' => 'Tags anzeigen', 'default' => false, 'section' => '👁️ Anzeige-Optionen'],
+			'show_calendar_name' => ['type' => 'toggle', 'label' => 'Kalender-Name anzeigen', 'default' => true, 'section' => '👁️ Anzeige-Optionen'],
+			'show_images' => ['type' => 'toggle', 'label' => 'Hero-Images anzeigen', 'default' => true, 'section' => '👁️ Anzeige-Optionen'],
+			// === Verhalten ===
+			'event_action' => ['type' => 'select', 'label' => 'Event Aktion', 'options' => ['modal' => 'Modal öffnen', 'page' => 'Seite öffnen', 'none' => 'Keine Aktion'], 'default' => 'modal', 'section' => '⚙️ Basis-Einstellungen'],
+			// === Filter & Sortierung ===
+			'date_from' => ['type' => 'date', 'label' => 'Datum von (YYYY-MM-DD)', 'section' => '🔍 Filter & Sortierung'],
+			'date_to' => ['type' => 'date', 'label' => 'Datum bis (YYYY-MM-DD)', 'section' => '🔍 Filter & Sortierung'],
+			// === Styling ===
+			'class' => ['type' => 'text', 'label' => 'CSS Klasse', 'section' => '🎨 Styling'],
+		],
+		'example' => '[cts_carousel view="carousel-klassisch" slides_per_view="3" autoplay="true"]',
 	],
 ];
 ?>

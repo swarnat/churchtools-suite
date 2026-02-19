@@ -45,6 +45,39 @@
 		
 		// Always initialize these (needed everywhere)
 		initCalendarViews();
+		initCountdownTimers(); // v1.1.1.0: Countdown Views
+		initCarouselViews(); // v1.1.3.0: Carousel Views
+		
+		// Re-initialize views when DOM changes (for Gutenberg live preview)
+		if (isEditor) {
+			console.log('[ChurchTools Suite] Setting up MutationObserver for Views in Editor');
+			const observer = new MutationObserver(function(mutations) {
+				mutations.forEach(function(mutation) {
+					if (mutation.addedNodes.length > 0) {
+						mutation.addedNodes.forEach(function(node) {
+							if (node.nodeType === 1) { // Element node
+								const $node = $(node);
+								// Check for Carousel
+								if ($node.hasClass('cts-carousel-classic') || $node.find('.cts-carousel-classic').length > 0) {
+									console.log('[ChurchTools Suite] Carousel detected in DOM, reinitializing...');
+									setTimeout(initCarouselViews, 100);
+								}
+								// Check for Countdown
+								if ($node.hasClass('cts-countdown-classic') || $node.find('.cts-countdown-classic').length > 0) {
+									console.log('[ChurchTools Suite] Countdown detected in DOM, reinitializing...');
+									setTimeout(initCountdownTimers, 100);
+								}
+							}
+						});
+					}
+				});
+			});
+			
+			observer.observe(document.body, {
+				childList: true,
+				subtree: true
+			});
+		}
 		
 		console.log('[ChurchTools Suite] Init complete');
 	});
@@ -849,6 +882,295 @@
 	});
 
 	/**
+	 * Initialize Countdown Timers (v1.1.1.0)
+	 * Updates countdown displays every second
+	 */
+	function initCountdownTimers() {
+		console.log('[ChurchTools Suite] Initializing countdown timers');
+		
+		$('.cts-countdown-classic').each(function() {
+			const $countdown = $(this);
+			const targetDate = $countdown.data('countdown-target');
+			
+			if (!targetDate) {
+				console.warn('[ChurchTools Suite] Countdown target date missing');
+				return;
+			}
+			
+			console.log('[ChurchTools Suite] Countdown target:', targetDate);
+			
+			// Parse target date
+			const target = new Date(targetDate);
+			
+			if (isNaN(target.getTime())) {
+				console.error('[ChurchTools Suite] Invalid countdown target date:', targetDate);
+				return;
+			}
+			
+			// Update function
+			const updateCountdown = function() {
+				const now = new Date();
+				const diff = target - now;
+				
+				if (diff <= 0) {
+					// Event has passed
+					$countdown.find('[data-unit="days"]').text('0');
+					$countdown.find('[data-unit="hours"]').text('0');
+					$countdown.find('[data-unit="minutes"]').text('0');
+					$countdown.find('[data-unit="seconds"]').text('0');
+					return;
+				}
+				
+				// Calculate time units
+				const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+				const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+				const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+				const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+				
+				// Update display
+				$countdown.find('[data-unit="days"]').text(days);
+				$countdown.find('[data-unit="hours"]').text(hours);
+				$countdown.find('[data-unit="minutes"]').text(minutes);
+				$countdown.find('[data-unit="seconds"]').text(seconds);
+			};
+			
+			// Initial update
+			updateCountdown();
+			
+			// Update every second
+			const intervalId = setInterval(updateCountdown, 1000);
+			
+			// Store interval ID for cleanup
+			$countdown.data('countdown-interval', intervalId);
+		});
+		
+		console.log('[ChurchTools Suite] Countdown timers initialized:', $('.cts-countdown-classic').length);
+	}
+
+	/**
+	 * Initialize Carousel Views with horizontal navigation
+	 * v1.1.3.0 - Basierend auf Grid Classic, konsistentes Design
+	 */
+	function initCarouselViews() {
+		console.log('[Carousel] Searching for .cts-carousel-classic elements...');
+		const $carousels = $('.cts-carousel-classic');
+		console.log('[Carousel] Found', $carousels.length, 'carousel(s)');
+		
+		$carousels.each(function(index) {
+			console.log('[Carousel] Initializing carousel #' + (index + 1));
+			const $carousel = $(this);
+			
+			// Skip if already initialized
+			if ($carousel.data('carousel-initialized')) {
+				console.log('[Carousel] Carousel #' + (index + 1) + ' already initialized, skipping');
+				return;
+			}
+			
+			const $track = $carousel.find('.cts-carousel-track');
+			const $slides = $carousel.find('.cts-carousel-slide');
+			const $prevBtn = $carousel.find('.cts-carousel-nav-prev');
+			const $nextBtn = $carousel.find('.cts-carousel-nav-next');
+			const $pagination = $carousel.find('.cts-carousel-pagination');
+			
+			console.log('[Carousel] Elements found:', {
+				track: $track.length,
+				slides: $slides.length,
+				prevBtn: $prevBtn.length,
+				nextBtn: $nextBtn.length,
+				pagination: $pagination.length
+			});
+			
+			if ($slides.length === 0) return;
+			
+			// Carousel settings from data attributes
+			const desktopSlidesPerView = parseInt($carousel.data('slides-per-view') || 3);
+			const autoplay = $carousel.data('autoplay') == 1 || $carousel.data('autoplay') === true;
+			const autoplayDelay = parseInt($carousel.data('autoplay-delay') || 5000);
+			const loop = $carousel.data('loop') == 1 || $carousel.data('loop') === true;
+			
+			console.log('[Carousel] Settings:', {
+				slidesPerView: desktopSlidesPerView,
+				autoplay: autoplay,
+				autoplayDelay: autoplayDelay,
+				loop: loop,
+				totalSlides: $slides.length
+			});
+			
+			let slidesPerView = desktopSlidesPerView;
+			let currentIndex = 0;
+			let autoplayInterval = null;
+			let isDragging = false;
+			let startX = 0;
+			let currentX = 0;
+			let translateX = 0;
+			
+			// Responsive slides per view (respect desktop max)
+			const updateSlidesPerView = () => {
+				const width = $(window).width();
+				if (width <= 640) {
+					slidesPerView = 1;
+				} else if (width <= 1024) {
+					slidesPerView = Math.min(2, desktopSlidesPerView);
+				} else {
+					slidesPerView = desktopSlidesPerView;
+				}
+				// Set CSS custom property correctly
+				$track.get(0).style.setProperty('--slides-per-view', slidesPerView);
+				
+				console.log('[Carousel] Updated slidesPerView:', slidesPerView, 'at width:', width);
+			};
+			updateSlidesPerView();
+			
+			// Calculate max index
+			const getMaxIndex = () => Math.max(0, $slides.length - slidesPerView);
+			
+			// Update slide position
+			const updateSlidePosition = (animated = true) => {
+				const maxIndex = getMaxIndex();
+				currentIndex = Math.max(0, Math.min(currentIndex, maxIndex));
+				
+				const slideWidth = $slides.first().outerWidth(true);
+				const offset = -currentIndex * slideWidth;
+				
+				if (animated) {
+					$track.css('transition', 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)');
+				} else {
+					$track.css('transition', 'none');
+				}
+				$track.css('transform', `translateX(${offset}px)`);
+				
+				// Update navigation buttons
+				$prevBtn.prop('disabled', !loop && currentIndex === 0);
+				$nextBtn.prop('disabled', !loop && currentIndex >= maxIndex);
+				
+				// Update pagination
+				$pagination.find('.cts-carousel-dot').removeClass('active').eq(currentIndex).addClass('active');
+			};
+			
+			// Navigation
+			const goToSlide = (index) => {
+				const maxIndex = getMaxIndex();
+				if (loop) {
+					if (index < 0) index = maxIndex;
+					if (index > maxIndex) index = 0;
+				}
+				currentIndex = Math.max(0, Math.min(index, maxIndex));
+				updateSlidePosition();
+			};
+			
+			const nextSlide = () => goToSlide(currentIndex + 1);
+			const prevSlide = () => goToSlide(currentIndex - 1);
+			
+			// Button events
+			$prevBtn.on('click', prevSlide);
+			$nextBtn.on('click', nextSlide);
+			
+			// Create pagination dots
+			const createPagination = () => {
+				$pagination.empty();
+				const maxIndex = getMaxIndex();
+				for (let i = 0; i <= maxIndex; i++) {
+					const $dot = $('<button>')
+						.addClass('cts-carousel-dot')
+						.attr('aria-label', `Slide ${i + 1}`)
+						.toggleClass('active', i === 0)
+						.on('click', () => goToSlide(i));
+					$pagination.append($dot);
+				}
+			};
+			createPagination();
+			
+			// Touch/Swipe support
+			const getPositionX = (e) => {
+				return e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+			};
+			
+			const handleStart = (e) => {
+				isDragging = true;
+				startX = getPositionX(e);
+				currentX = startX;
+				$track.css('transition', 'none');
+				stopAutoplay();
+			};
+			
+			const handleMove = (e) => {
+				if (!isDragging) return;
+				e.preventDefault();
+				currentX = getPositionX(e);
+				const diff = currentX - startX;
+				const slideWidth = $slides.first().outerWidth(true);
+				const offset = -currentIndex * slideWidth + diff;
+				$track.css('transform', `translateX(${offset}px)`);
+			};
+			
+			const handleEnd = () => {
+				if (!isDragging) return;
+				isDragging = false;
+				const diff = currentX - startX;
+				const threshold = $slides.first().outerWidth() * 0.2;
+				
+				if (Math.abs(diff) > threshold) {
+					if (diff > 0) {
+						prevSlide();
+					} else {
+						nextSlide();
+					}
+				} else {
+					updateSlidePosition();
+				}
+				startAutoplay();
+			};
+			
+			$track.on('mousedown touchstart', handleStart);
+			$(document).on('mousemove touchmove', handleMove);
+			$(document).on('mouseup touchend', handleEnd);
+			
+			// Autoplay
+			const stopAutoplay = () => {
+				if (autoplayInterval) {
+					clearInterval(autoplayInterval);
+					autoplayInterval = null;
+				}
+			};
+			
+			const startAutoplay = () => {
+				if (!autoplay) return;
+				stopAutoplay();
+				autoplayInterval = setInterval(nextSlide, autoplayDelay);
+			};
+			
+			$carousel.on('mouseenter', stopAutoplay);
+			$carousel.on('mouseleave', startAutoplay);
+			
+			// Resize handler (debounced)
+			let resizeTimeout;
+			$(window).on('resize', () => {
+				clearTimeout(resizeTimeout);
+				resizeTimeout = setTimeout(() => {
+					updateSlidesPerView();
+					createPagination();
+					updateSlidePosition(false);
+				}, 150);
+			});
+			
+			// Initialize
+			updateSlidePosition(false);
+			startAutoplay();
+			
+			// Mark as initialized
+			$carousel.data('carousel-initialized', true);
+			
+			// Store instance for cleanup
+			$carousel.data('carousel-instance', {
+				stop: stopAutoplay,
+				currentIndex: () => currentIndex
+			});
+		});
+		
+		console.log('[ChurchTools Suite] Carousel views initialized:', $('.cts-carousel-classic').length);
+	}
+
+	/**
 	 * Elementor Frontend Support
 	 * Re-initialize handlers when Elementor widgets are loaded/refreshed
 	 */
@@ -859,7 +1181,7 @@
 			console.log('[ChurchTools Suite] Elementor widget ready, checking for CTS widgets');
 			
 			// Check if this is a ChurchTools Suite widget
-			if ($scope.find('.cts-events-container, .cts-calendar-monthly, .cts-event-grid, .cts-event-list').length > 0) {
+			if ($scope.find('.cts-events-container, .cts-calendar-monthly, .cts-event-grid, .cts-event-list, .cts-countdown-classic').length > 0) {
 				console.log('[ChurchTools Suite] CTS widget detected, reinitializing handlers');
 				
 				// Re-initialize calendar views for this widget
@@ -868,6 +1190,42 @@
 					if (!$calendar.data('calendar-initialized')) {
 						$calendar.data('calendar-initialized', true);
 						setupCalendarNavigation($calendar);
+					}
+				});
+				
+				// Re-initialize countdown timers for this widget
+				$scope.find('.cts-countdown-classic').each(function() {
+					const $countdown = $(this);
+					if (!$countdown.data('countdown-interval')) {
+						// Initialize countdown (same logic as initCountdownTimers)
+						const targetDate = $countdown.data('countdown-target');
+						if (targetDate) {
+							const target = new Date(targetDate);
+							if (!isNaN(target.getTime())) {
+								const updateCountdown = function() {
+									const now = new Date();
+									const diff = target - now;
+									if (diff <= 0) {
+										$countdown.find('[data-unit="days"]').text('0');
+										$countdown.find('[data-unit="hours"]').text('0');
+										$countdown.find('[data-unit="minutes"]').text('0');
+										$countdown.find('[data-unit="seconds"]').text('0');
+										return;
+									}
+									const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+									const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+									const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+									const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+									$countdown.find('[data-unit="days"]').text(days);
+									$countdown.find('[data-unit="hours"]').text(hours);
+									$countdown.find('[data-unit="minutes"]').text(minutes);
+									$countdown.find('[data-unit="seconds"]').text(seconds);
+								};
+								updateCountdown();
+								const intervalId = setInterval(updateCountdown, 1000);
+								$countdown.data('countdown-interval', intervalId);
+							}
+						}
 					}
 				});
 			}

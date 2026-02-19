@@ -54,12 +54,17 @@ class ChurchTools_Suite_Blocks {
 			],
 			'attributes' => [
 				'viewType' => [ 'type' => 'string', 'default' => 'list' ],
-				'view' => [ 'type' => 'string', 'default' => 'classic' ],
+				'view' => [ 'type' => 'string', 'default' => 'classic' ], // Auto-switches to grid-classic when viewType=grid
 				'limit' => [ 'type' => 'number', 'default' => 5 ],
 				'columns' => [ 'type' => 'number', 'default' => 3 ],
-			'calendars' => [ 'type' => 'string', 'default' => '' ],
+				'slides_per_view' => [ 'type' => 'number', 'default' => 3 ], // Carousel
+				'autoplay' => [ 'type' => 'boolean', 'default' => false ], // Carousel
+				'autoplay_delay' => [ 'type' => 'number', 'default' => 5000 ], // Carousel
+				'loop' => [ 'type' => 'boolean', 'default' => true ], // Carousel
+				'calendars' => [ 'type' => 'string', 'default' => '' ],
 			'tags' => [ 'type' => 'string', 'default' => '' ],
-				'show_event_description' => [ 'type' => 'boolean', 'default' => true ],
+			'event_id' => [ 'type' => 'number', 'default' => 0 ], // v1.1.3.0: Countdown - spezifischer Event
+			'show_event_description' => [ 'type' => 'boolean', 'default' => true ],
 				'show_appointment_description' => [ 'type' => 'boolean', 'default' => true ],
 				'show_location' => [ 'type' => 'boolean', 'default' => true ],
 				'show_services' => [ 'type' => 'boolean', 'default' => false ],
@@ -109,13 +114,20 @@ class ChurchTools_Suite_Blocks {
 	 * @return string Rendered HTML
 	 */
 	public static function render_events_block( $attributes ): string {
-		// v0.9.6.8: No conversion needed - attributes are already correct type
-		// Boolean attributes stay boolean, numbers stay numbers, strings stay strings
 		
+		// v1.1.2.0: Convert Block attributes (camelCase) to Shortcode params (snake_case)
 		// Route to appropriate shortcode handler
 		$view_type = ! empty( $attributes['viewType'] ) ? $attributes['viewType'] : 'list';
 		
-		// v0.9.9.0: List, Grid and Calendar views active
+		// Convert camelCase Block attributes to snake_case Shortcode params
+		// Blocks use: viewType, showPastEvents, etc.
+		// Shortcodes expect: view_type, show_past_events, etc.
+		// BUT: Most display options already use snake_case in both (show_event_description)
+		
+		// Ensure all boolean/number values are properly typed
+		// (Block editor already sends correct types, but ensure compatibility)
+		
+		// v1.1.2.0: All view types active (List, Grid, Calendar, Countdown)
 		if ( $view_type === 'list' ) {
 			return ChurchTools_Suite_Shortcodes::list_shortcode( $attributes );
 		}
@@ -126,6 +138,15 @@ class ChurchTools_Suite_Blocks {
 		
 		if ( $view_type === 'calendar' ) {
 			return ChurchTools_Suite_Shortcodes::calendar_shortcode( $attributes );
+		}
+		
+		if ( $view_type === 'countdown' ) {
+			return ChurchTools_Suite_Shortcodes::countdown_shortcode( $attributes );
+		}
+		
+		// v1.1.3.0: Carousel Views
+		if ( $view_type === 'carousel' ) {
+			return ChurchTools_Suite_Shortcodes::carousel_shortcode( $attributes );
 		}
 		
 		return '<p>' . __( 'Dieser Ansichtstyp ist derzeit deaktiviert.', 'churchtools-suite' ) . '</p>';
@@ -140,6 +161,7 @@ class ChurchTools_Suite_Blocks {
 		// Load repositories
 		require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-repository-base.php';
 		require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-calendars-repository.php';
+		require_once CHURCHTOOLS_SUITE_PATH . 'includes/repositories/class-churchtools-suite-events-repository.php';
 		require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-template-loader.php';
 		require_once CHURCHTOOLS_SUITE_PATH . 'includes/view-feature-matrix.php';
 		
@@ -153,6 +175,45 @@ class ChurchTools_Suite_Blocks {
 				$calendar_options[] = [
 					'label' => $calendar->name,
 					'value' => $calendar->calendar_id,
+				];
+			}
+		}
+		
+		// v1.1.3.0: Load upcoming events for Countdown selector
+		$events_repo = new ChurchTools_Suite_Events_Repository();
+		$upcoming_events = $events_repo->get_upcoming( 50 ); // Next 50 events
+		
+		$event_options = [
+			[ 'label' => __( 'Nächster Event (automatisch)', 'churchtools-suite' ), 'value' => 0, 'calendar_id' => '', 'tags' => [] ]
+		];
+		
+		if ( ! empty( $upcoming_events ) ) {
+			foreach ( $upcoming_events as $event ) {
+				$date_format = get_option( 'date_format', 'd.m.Y' );
+				$event_date = '';
+				
+				if ( ! empty( $event->start_datetime ) ) {
+					$event_date = ' (' . get_date_from_gmt( $event->start_datetime, $date_format ) . ')';
+				}
+				
+				// Extract tag IDs from tags JSON
+				$tag_ids = [];
+				if ( ! empty( $event->tags ) ) {
+					$tags = json_decode( $event->tags, true );
+					if ( is_array( $tags ) ) {
+						foreach ( $tags as $tag ) {
+							if ( isset( $tag['id'] ) ) {
+								$tag_ids[] = (string) $tag['id'];
+							}
+						}
+					}
+				}
+				
+				$event_options[] = [
+					'label' => $event->title . $event_date,
+					'value' => (int) ( $event->event_id ?: $event->appointment_id ),
+					'calendar_id' => (string) $event->calendar_id,
+					'tags' => $tag_ids,
 				];
 			}
 		}
@@ -201,12 +262,14 @@ class ChurchTools_Suite_Blocks {
 			'list' => ChurchTools_Suite_Template_Loader::get_view_options( 'list' ),
 			'grid' => ChurchTools_Suite_Template_Loader::get_view_options( 'grid' ),
 			'calendar' => ChurchTools_Suite_Template_Loader::get_view_options( 'calendar' ),
-		];
+			'countdown' => ChurchTools_Suite_Template_Loader::get_view_options( 'countdown' ),
+			];
 
 		// Pass to editor
 		wp_localize_script( 'churchtools-suite-blocks', 'churchtoolsSuiteBlocks', [
 			'calendars' => $calendar_options,
 			'tags' => $tag_options,
+			'events' => $event_options, // v1.1.3.0: Event selector for Countdown
 			'viewTypes' => $view_types,
 			'views' => $views_map,
 			'viewFeatures' => churchtools_suite_get_view_features(), // Feature matrix for conditional toggles

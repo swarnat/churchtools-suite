@@ -80,7 +80,7 @@ if ( ! class_exists( 'ChurchTools_Suite_Elementor_Events_Widget' ) ) {
 				]
 			);
 
-			// View Type (List/Grid/Calendar)
+			// View Type (List/Grid/Calendar/Countdown/Carousel)
 			$this->add_control(
 				'view_type',
 				[
@@ -90,9 +90,11 @@ if ( ! class_exists( 'ChurchTools_Suite_Elementor_Events_Widget' ) ) {
 						'list' => __( 'Liste', 'churchtools-suite' ),
 						'grid' => __( 'Gitter', 'churchtools-suite' ),
 						'calendar' => __( 'Kalender', 'churchtools-suite' ),
+						'countdown' => __( 'Countdown', 'churchtools-suite' ),
+						'carousel' => __( 'Karussell', 'churchtools-suite' ),
 					],
 					'default' => 'list',
-					'description' => __( 'Wähle zwischen Listenansicht, Gitteransicht und Kalender', 'churchtools-suite' ),
+					'description' => __( 'Wähle zwischen Listenansicht, Gitteransicht, Kalender, Countdown und Karussell', 'churchtools-suite' ),
 				]
 			);
 
@@ -114,32 +116,65 @@ if ( ! class_exists( 'ChurchTools_Suite_Elementor_Events_Widget' ) ) {
 				]
 			);
 
-			// View Template - Grid
+			// View Template - Grid (standardisiert mit Präfix)
 			$this->add_control(
 				'view_grid',
 				[
 					'label' => __( 'Template', 'churchtools-suite' ),
 					'type' => \Elementor\Controls_Manager::SELECT,
 					'options' => [
-						'simple' => __( 'Einfach', 'churchtools-suite' ),
-						'modern' => __( 'Modern', 'churchtools-suite' ),
+						'grid-klassisch' => __( 'Klassisch (Hero-Bild)', 'churchtools-suite' ),
+						'grid-einfach' => __( 'Einfach (Alle Details)', 'churchtools-suite' ),
+						'grid-minimal' => __( 'Minimal (Kompakt)', 'churchtools-suite' ),
+						'grid-modern' => __( 'Modern (Card-Style)', 'churchtools-suite' ),
 					],
-					'default' => 'simple',
+					'default' => 'grid-klassisch',
 					'condition' => [ 'view_type' => 'grid' ],
+					'description' => __( 'Klassisch: Hero-Bild + Buttons | Einfach: Alle Details sichtbar | Minimal: Nur Essentials + Info-Icon | Modern: Card-Style', 'churchtools-suite' ),
 				]
 			);
 
-			// View Template - Calendar
+			// View Template - Calendar (standardisiert mit Präfix)
 			$this->add_control(
 				'view_calendar',
 				[
 					'label' => __( 'Template', 'churchtools-suite' ),
 					'type' => \Elementor\Controls_Manager::SELECT,
 					'options' => [
-						'monthly-simple' => __( 'Monat (Simple)', 'churchtools-suite' ),
+						'calendar-monatlich-einfach' => __( 'Monatlich (Einfach)', 'churchtools-suite' ),
 					],
-					'default' => 'monthly-simple',
+					'default' => 'calendar-monatlich-einfach',
 					'condition' => [ 'view_type' => 'calendar' ],
+				]
+			);
+
+			// View Template - Countdown (standardisiert mit Präfix)
+			$this->add_control(
+				'view_countdown',
+				[
+					'label' => __( 'Template', 'churchtools-suite' ),
+					'type' => \Elementor\Controls_Manager::SELECT,
+					'options' => [
+						'countdown-klassisch' => __( 'Klassisch (Split-Layout)', 'churchtools-suite' ),
+					],
+					'default' => 'countdown-klassisch',
+					'condition' => [ 'view_type' => 'countdown' ],
+					'description' => __( 'Zeigt nächstes kommendes Event mit Live-Countdown-Timer', 'churchtools-suite' ),
+				]
+			);
+
+			// View Template - Carousel (standardisiert mit Präfix)
+			$this->add_control(
+				'view_carousel',
+				[
+					'label' => __( 'Template', 'churchtools-suite' ),
+					'type' => \Elementor\Controls_Manager::SELECT,
+					'options' => [
+						'carousel-klassisch' => __( 'Klassisch (Swipe)', 'churchtools-suite' ),
+					],
+					'default' => 'carousel-klassisch',
+					'condition' => [ 'view_type' => 'carousel' ],
+					'description' => __( 'Horizontales Karussell mit Touch/Swipe-Navigation', 'churchtools-suite' ),
 				]
 			);
 
@@ -153,7 +188,7 @@ if ( ! class_exists( 'ChurchTools_Suite_Elementor_Events_Widget' ) ) {
 					'min' => 1,
 					'max' => 100,
 					'condition' => [
-						'view_type!' => 'calendar',
+						'view_type!' => [ 'calendar', 'countdown' ],
 					],
 				]
 			);
@@ -530,9 +565,14 @@ if ( ! class_exists( 'ChurchTools_Suite_Elementor_Events_Widget' ) ) {
 			$selected_view = $settings['view_grid'];
 		} elseif ( $view_type === 'calendar' && ! empty( $settings['view_calendar'] ) ) {
 			$selected_view = $settings['view_calendar'];
+		} elseif ( $view_type === 'countdown' && ! empty( $settings['view_countdown'] ) ) {
+			$selected_view = $settings['view_countdown'];
+		} elseif ( $view_type === 'carousel' && ! empty( $settings['view_carousel'] ) ) {
+			$selected_view = $settings['view_carousel'];
 		} else {
-			// Fallback für alte Widgets
-			$selected_view = $settings['view'] ?? 'classic';
+			// Fallback für alte Widgets: Normalisiere alte View-IDs
+			$legacy_view = $settings['view'] ?? 'classic';
+			$selected_view = ChurchTools_Suite_Template_Loader::normalize_view_id( $view_type, $legacy_view );
 		}
 
 		// Build shortcode attributes
@@ -560,9 +600,11 @@ if ( ! class_exists( 'ChurchTools_Suite_Elementor_Events_Widget' ) ) {
 			'custom_spacing' => $settings['custom_spacing'] ?? 8,
 		];
 
-		// Add limit for non-calendar views
-		if ( $view_type !== 'calendar' ) {
+		// Add limit for non-calendar/non-countdown views
+		if ( $view_type !== 'calendar' && $view_type !== 'countdown' ) {
 			$atts['limit'] = $settings['limit'] ?? 5;
+		} elseif ( $view_type === 'countdown' ) {
+			$atts['limit'] = 1; // Countdown always shows only next event
 		}
 
 		// Add calendars filter if specified
@@ -583,6 +625,11 @@ if ( ! class_exists( 'ChurchTools_Suite_Elementor_Events_Widget' ) ) {
 			$atts['columns'] = $settings['columns'] ?? 3;
 		} elseif ( $view_type === 'calendar' ) {
 			$shortcode_tag = 'cts_calendar';
+		} elseif ( $view_type === 'countdown' ) {
+			$shortcode_tag = 'cts_countdown';
+		} elseif ( $view_type === 'carousel' ) {
+			$shortcode_tag = 'cts_carousel';
+			$atts['slides_per_view'] = $settings['slides_per_view'] ?? 3;
 		}
 
 		// Execute shortcode

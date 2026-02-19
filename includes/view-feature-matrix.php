@@ -2,8 +2,14 @@
 /**
  * View Feature Matrix
  * 
- * Defines which display options are supported by each view template
- * Used by Gutenberg blocks and Elementor widgets to show/disable toggles
+ * Defines which display options are supported by each view template.
+ * Used by Gutenberg blocks and Elementor widgets to show/disable toggles.
+ * 
+ * WICHTIG: View-IDs sind standardisiert mit deutschem Präfix:
+ * - List: list-klassisch, list-minimal, list-modern, list-klassisch-mit-bildern
+ * - Grid: grid-klassisch, grid-einfach, grid-minimal, grid-modern
+ * - Calendar: calendar-monatlich-einfach
+ * - Countdown: countdown-klassisch
  *
  * @package ChurchTools_Suite
  * @since   1.0.6.0
@@ -21,9 +27,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 function churchtools_suite_get_view_features() {
 	return [
 		// ============================================
-		// LIST VIEWS
+		// LIST VIEWS (standardisiert mit Präfix)
 		// ============================================
-		'classic' => [
+		'list-klassisch' => [
 			'show_event_description' => true,
 			'show_appointment_description' => true,
 			'show_location' => true,
@@ -35,7 +41,7 @@ function churchtools_suite_get_view_features() {
 			'show_month_separator' => true,
 		],
 		
-		'classic-with-images' => [
+		'list-klassisch-mit-bildern' => [
 			'show_event_description' => true,
 			'show_appointment_description' => true,
 			'show_location' => true,
@@ -47,7 +53,7 @@ function churchtools_suite_get_view_features() {
 			'show_month_separator' => true,
 		],
 		
-		'minimal' => [
+		'list-minimal' => [
 			'show_event_description' => true, // Nur in Popup
 			'show_appointment_description' => true, // Nur in Popup
 			'show_location' => false, // ❌ Keine inline Location
@@ -59,7 +65,7 @@ function churchtools_suite_get_view_features() {
 			'show_month_separator' => true,
 		],
 		
-		'modern' => [
+		'list-modern' => [
 			'show_event_description' => true,
 			'show_appointment_description' => true,
 			'show_location' => true,
@@ -72,21 +78,45 @@ function churchtools_suite_get_view_features() {
 		],
 		
 		// ============================================
-		// GRID VIEWS
+		// GRID VIEWS (standardisiert mit Präfix)
 		// ============================================
-		'simple' => [
+		'grid-klassisch' => [ // Grid Classic (Hero-Image + Buttons)
+			'show_event_description' => false, // ❌ Keine Beschreibung in Card
+			'show_appointment_description' => false,
+			'show_location' => true, // ✅ Location anzeigen
+			'show_services' => false, // ❌ Keine Services
+			'show_time' => true, // ✅ Zeit-Range
+			'show_tags' => false, // ❌ Keine Tags
+			'show_images' => true, // ✅ Hero-Image
+			'show_calendar_name' => true, // ✅ Badge rechts oben
+			'show_month_separator' => false, // ❌ Kein Monat-Separator in Grid
+		],
+		
+		'grid-einfach' => [ // Grid Simple (Alle Details sichtbar)
 			'show_event_description' => true,
 			'show_appointment_description' => true,
 			'show_location' => true,
 			'show_services' => true,
 			'show_time' => true,
-			'show_tags' => false, // ❌ Keine Tags in Cards
-			'show_images' => true, // ✅ Grid mit Bildern
+			'show_tags' => true, // ✅ Tags angezeigt
+			'show_images' => false, // ❌ Keine Bilder
 			'show_calendar_name' => true,
 			'show_month_separator' => false, // ❌ Kein Monat-Separator in Grid
 		],
 		
-		'modern-grid' => [ // Grid-Version von modern
+		'grid-minimal' => [ // Grid Minimal (Nur Essentials + Info-Icon)
+			'show_event_description' => true, // In Info-Popup
+			'show_appointment_description' => false,
+			'show_location' => true, // ✅ Main Info
+			'show_services' => false, // ❌ Keine Services
+			'show_time' => true, // In Info-Popup
+			'show_tags' => false, // In Info-Popup
+			'show_images' => false, // ❌ Keine Bilder
+			'show_calendar_name' => true, // ✅ Badge unten
+			'show_month_separator' => false, // ❌ Kein Monat-Separator in Grid
+		],
+		
+		'grid-modern' => [ // Grid Modern (Card-Style)
 			'show_event_description' => true,
 			'show_appointment_description' => true,
 			'show_location' => true,
@@ -96,6 +126,21 @@ function churchtools_suite_get_view_features() {
 			'show_images' => true, // ✅ Grid mit Bildern
 			'show_calendar_name' => true,
 			'show_month_separator' => false, // ❌ Kein Monat-Separator in Grid
+		],
+		
+		// ============================================
+		// CALENDAR VIEWS (standardisiert mit Präfix)
+		// ============================================
+		'calendar-monatlich-einfach' => [
+			'show_event_description' => true,
+			'show_appointment_description' => true,
+			'show_location' => true,
+			'show_services' => false,
+			'show_time' => true,
+			'show_tags' => false,
+			'show_images' => false,
+			'show_calendar_name' => true,
+			'show_month_separator' => false,
 		],
 		
 		// ============================================
@@ -111,6 +156,36 @@ function churchtools_suite_get_view_features() {
 			'show_images' => false,
 			'show_calendar_name' => false,
 			'show_month_separator' => false,
+		],
+		
+		// ============================================
+		// COUNTDOWN VIEWS
+		// ============================================
+		'countdown-klassisch' => [
+			'show_event_description' => true, // ✅ Beschreibung unter Titel
+		'show_appointment_description' => true, // ✅ Termin-spezifische Beschreibung
+		'show_location' => true, // ✅ Location mit Icon
+		'show_services' => true, // ✅ Services werden angezeigt
+		'show_time' => true, // ✅ Uhrzeit mit "Uhr"-Suffix
+		'show_tags' => true, // ✅ Tags als Badges
+		'show_images' => true, // ✅ Hero-Image oder Calendar-Color
+		'show_calendar_name' => true, // ✅ Calendar-Badge
+		'show_month_separator' => false, // ❌ Keine Monats-Trenner bei Countdown
+	],
+	
+		// ============================================
+		// CAROUSEL VIEWS (v1.1.3.0)
+		// ============================================
+		'carousel-klassisch' => [
+			'show_event_description' => true, // ✅ Beschreibung auf Karte
+			'show_appointment_description' => true,
+			'show_location' => true, // ✅ Location mit Icon
+			'show_services' => true, // ✅ Services werden angezeigt
+			'show_time' => true, // ✅ Zeit-Anzeige
+			'show_tags' => true, // ✅ Tags am Footer
+			'show_images' => true, // ✅ Hero-Image ODER Calendar-Color (wenn false)
+			'show_calendar_name' => true, // ✅ Calendar-Badge
+			'show_month_separator' => false, // ❌ Keine Monats-Trenner bei Carousel
 		],
 	];
 }

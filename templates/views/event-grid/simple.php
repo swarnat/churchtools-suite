@@ -30,7 +30,7 @@ $show_services = isset( $args['show_services'] ) ?
 $show_time = isset( $args['show_time'] ) ? 
 	ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_time'] ) : true;
 $show_tags = isset( $args['show_tags'] ) ? 
-	ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_tags'] ) : true;
+	ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_tags'] ) : true; // v1.1.0.5: Tags default=true
 $show_calendar_name = isset( $args['show_calendar_name'] ) ? 
 	ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_calendar_name'] ) : true;
 $event_action = $args['event_action'] ?? 'modal';
@@ -130,6 +130,20 @@ if ( ! empty( $args['class'] ) ) {
 				}
 				$start_date_display = wp_date( get_option( 'date_format' ), $start_ts, $wp_timezone );
 				$start_time_display = wp_date( get_option( 'time_format' ), $start_ts, $wp_timezone );
+				
+				// v1.1.0.5: End timestamp für Zeit-Range
+				$end_ts = null;
+				$end_time_display = '';
+				if ( ! empty( $event['end_datetime'] ) ) {
+					try {
+						$dt_end = new DateTime( $event['end_datetime'], new DateTimeZone( 'UTC' ) );
+						$dt_end->setTimezone( $wp_timezone );
+						$end_ts = $dt_end->getTimestamp();
+						$end_time_display = wp_date( get_option( 'time_format' ), $end_ts, $wp_timezone );
+					} catch ( Exception $e ) {
+						// End time failed, skip
+					}
+				}
 				// Event-Action Data Attributes
 				$event_attrs = '';
 				if ( $event_action === 'modal' ) {
@@ -205,32 +219,21 @@ if ( ! empty( $args['class'] ) ) {
 						<?php if ( $show_time ) : ?>
 							<div class="cts-card-time">
 								<span class="dashicons dashicons-clock"></span>
-								<?php echo esc_html( $start_time_display ); ?>
+								<?php 
+								// v1.1.0.5: Zeit-Range anzeigen (Start - Ende)
+								if ( ! empty( $end_time_display ) ) {
+									echo esc_html( $start_time_display . ' - ' . $end_time_display );
+								} else {
+									echo esc_html( $start_time_display );
+								}
+								?>
 							</div>
 						<?php endif; ?>
 					</div>
 					
 					<!-- Card Body -->
 					<div class="cts-card-body">
-					<!-- Kalendername (v0.9.9.20: Farbe nur bei use_calendar_colors=true) -->
-					<?php if ( $show_calendar_name && ! empty( $event['calendar_name'] ) ) : 
-						$calendar_name_style = '';
-						if ( $use_calendar_colors ) {
-							$calendar_name_style = sprintf( ' style="color: %s; font-weight: 600; font-size: 0.85em; margin-bottom: 6px;"', esc_attr( $calendar_color ) );
-						}
-					?>
-						<div class="cts-calendar-name-grid"<?php echo $calendar_name_style; ?>>
-								<?php echo esc_html( $event['calendar_name'] ); ?>
-							</div>
-						<?php endif; ?>
-						
-						<?php 
-						$title_style = '';
-						if ( $use_calendar_colors ) {
-							$title_style = sprintf( 'color: %s;', esc_attr( $calendar_color ) );
-						}
-						?>
-						<h3 class="cts-card-title"<?php echo $title_style ? ' style="' . $title_style . '"' : ''; ?>><?php echo esc_html( $event['title'] ); ?></h3>
+						<h3 class="cts-card-title"><?php echo esc_html( $event['title'] ); ?></h3>
 						
 						<?php if ( $show_location && ! empty( $event['location_name'] ) ) : ?>
 							<div class="cts-location">
