@@ -1,5 +1,16 @@
 # ChurchTools Suite - Changelog
 
+## v1.1.4.2 - Logger Robustness Fix (19. Februar 2026)
+
+### 🔧 Bugfixes
+- ✅ **Logger "No such file or directory" Error** - Robustheit verbessert
+  - Init: Prüft jetzt ob Verzeichnis erfolgreich erstellt wurde
+  - Init: Verifiziert Schreibrechte vor Verwendung
+  - Log: Prüft `self::$log_file` ist gesetzt bevor geschrieben wird
+  - Log: Erstellt Verzeichnis falls nicht existent (zusätzliche Sicherheit)
+  - Rotate: Erstellt Verzeichnis vor rename() um "No such file" zu verhindern
+  - Fehlerbehandlung: Alle kritischen Operationen mit @ und error_log() gesichert
+
 ## v1.1.4.1 - Countdown Click Bugfix (19. Februar 2026)
 
 ### 🔧 Bugfixes

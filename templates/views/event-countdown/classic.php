@@ -39,15 +39,6 @@ $use_calendar_colors = isset( $args['use_calendar_colors'] ) ?
 // Nur das nächste Event anzeigen
 $next_event = ! empty( $events ) ? $events[0] : null;
 
-// DEBUG: Event-Daten prüfen (temporär)
-if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-	error_log( 'Countdown Debug - Events Count: ' . count( $events ) );
-	if ( $next_event ) {
-		error_log( 'Countdown Debug - Event Keys: ' . implode( ', ', array_keys( $next_event ) ) );
-		error_log( 'Countdown Debug - Event Data: ' . print_r( $next_event, true ) );
-	}
-}
-
 if ( ! $next_event ) {
 	echo '<div class="cts-countdown-empty">';
 	echo '<p>' . esc_html__( 'Keine anstehenden Events', 'churchtools-suite' ) . '</p>';
