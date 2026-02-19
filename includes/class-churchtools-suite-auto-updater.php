@@ -485,12 +485,12 @@ class ChurchTools_Suite_Auto_Updater {
         $update->package = $info['zip_url'];
         $update->url = $info['html_url'] ?? '';
 
-        // Ensure response property exists as object (WordPress expects an object, not array)
-        if ( ! isset( $transient->response ) || ! is_object( $transient->response ) ) {
-            $transient->response = new stdClass();
+        // Ensure response property exists as array (WordPress expects an array, not object)
+        if ( ! isset( $transient->response ) || ! is_array( $transient->response ) ) {
+            $transient->response = [];
         }
 
-        $transient->response->{$plugin_file} = $update;
+        $transient->response[$plugin_file] = $update;
 
         return $transient;
     }
