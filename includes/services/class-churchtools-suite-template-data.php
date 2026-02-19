@@ -258,22 +258,25 @@ class ChurchTools_Suite_Template_Data {
 			$time_display .= ' - ' . $end_time_formatted;
 		}
 		
-		return [
-			// IDs
-			'id' => absint( $event['id'] ),
-			'event_id' => $event['event_id'] ?? '',
-			'appointment_id' => $event['appointment_id'] ?? '',
-			'calendar_id' => $event['calendar_id'] ?? '',
+		// Extract imageUrl from raw_payload if not already set (v1.1.3.8)
+	$image_url_from_payload = '';
+	if ( ! empty( $event['raw_payload'] ) ) {
+		$raw_payload = json_decode( $event['raw_payload'], true );
+		if ( isset( $raw_payload['imageUrl'] ) ) {
+			$image_url_from_payload = $raw_payload['imageUrl'];
+		}
+	}
+	
+	return [
+		// IDs
+		'id' => absint( $event['id'] ),
+		'event_id' => $event['event_id'] ?? '',
+		'appointment_id' => $event['appointment_id'] ?? '',
+		'calendar_id' => $event['calendar_id'] ?? '',
 
-			// Bildfelder explizit übernehmen
-			'image_attachment_id' => $event['image_attachment_id'] ?? '',
-			'image_url' => $event['image_url'] ?? '',
-
-			// Calendar info
-			'calendar_name' => $calendar ? $calendar->name : '',
-			'calendar_name_translated' => $calendar ? $calendar->name_translated : '',
-			'calendar_color' => $calendar ? $calendar->color : '#3498db',
-			'calendar_image_id' => $this->get_calendar_image_id( $event['calendar_id'] ?? '' ),
+		// Bildfelder explicitly get imageUrl from raw_payload (v1.1.3.8)
+		'image_attachment_id' => $event['image_attachment_id'] ?? '',
+		'image_url' => $image_url_from_payload ?: ( $event['image_url'] ?? '' ),
 			'calendar_image_url' => $this->get_calendar_image_url( $event['calendar_id'] ?? '' ),
 			
 			// Basic data
