@@ -13,14 +13,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Get selected type
 $selected_type = isset( $_GET['type'] ) ? sanitize_key( $_GET['type'] ) : '';
 
-// Available types
+// Available types (grouped logically: Main views → Dynamic views → Specialized views)
 $demo_types = [
-	'calendar' => [
-		'icon' => '📅',
-		'name' => 'Calendar Views',
-		'count' => 8,
-		'description' => 'Monatsansicht, Wochenansicht, Jahresansicht'
-	],
+	// === Haupt-Ansichten ===
 	'list' => [
 		'icon' => '📋',
 		'name' => 'List Views',
@@ -33,35 +28,44 @@ $demo_types = [
 		'count' => 14,
 		'description' => 'Simple, Modern, Colorful, verschiedene Spalten'
 	],
-	'slider' => [
-		'icon' => '🎠',
-		'name' => 'Slider Views',
-		'count' => 5,
-		'description' => 'Autoplay, verschiedene Stile'
+	'calendar' => [
+		'icon' => '📅',
+		'name' => 'Calendar Views',
+		'count' => 8,
+		'description' => 'Monatsansicht, Wochenansicht, Jahresansicht'
 	],
+	// === Dynamische Ansichten (NEU) ===
 	'countdown' => [
 		'icon' => '⏱️',
 		'name' => 'Countdown Views',
 		'count' => 3,
 		'description' => 'Countdown bis zum nächsten Event'
 	],
+	'carousel' => [
+		'icon' => '🎠',
+		'name' => 'Carousel Views',
+		'count' => 5,
+		'description' => 'Karussell mit Swipe-Navigation'
+	],
+	'slider' => [
+		'icon' => '🎞️',
+		'name' => 'Slider Views',
+		'count' => 5,
+		'description' => 'Autoplay, verschiedene Stile'
+	],
+	// === Hero/Cover ===
 	'cover' => [
 		'icon' => '🎨',
 		'name' => 'Cover Views',
 		'count' => 5,
 		'description' => 'Hero-Banner, große Teaserbilder'
 	],
+	// === Spezialisierte Ansichten ===
 	'timetable' => [
 		'icon' => '🗓️',
 		'name' => 'Timetable Views',
 		'count' => 3,
 		'description' => 'Zeitplan, Timeline-Ansichten'
-	],
-	'carousel' => [
-		'icon' => '🎡',
-		'name' => 'Carousel Views',
-		'count' => 5,
-		'description' => 'Karussell mit Navigation'
 	],
 	'widget' => [
 		'icon' => '🎁',
