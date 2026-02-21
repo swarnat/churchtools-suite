@@ -44,7 +44,7 @@ class ChurchTools_Suite_Template_Data {
 	private $calendar_images;
 
 	/**
-	 * Calendar fallback images (calendar_id => attachment ID)
+	 * Calendar color cache (calendar_id => hex color of calendar)
 	 *
 	 * @var array
 	 */
