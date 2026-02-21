@@ -42,6 +42,13 @@ class ChurchTools_Suite_Template_Data {
 	 * @var array
 	 */
 	private $calendar_images;
+
+	/**
+	 * Calendar fallback images (calendar_id => attachment ID)
+	 *
+	 * @var array
+	 */
+	private $calendar_colors;
 	
 	/**
 	 * Constructor
@@ -52,6 +59,8 @@ class ChurchTools_Suite_Template_Data {
 		$this->calendars_repo = churchtools_suite_get_repository( 'calendars' );
 		$this->event_services_repo = churchtools_suite_get_repository( 'event_services' );
 		
+		$this->calendar_colors = [];
+
 		// v0.9.9.58: Load calendar images from table (with fallback to option for backward compatibility)
 		$this->load_calendar_images();
 	}
@@ -275,7 +284,7 @@ class ChurchTools_Suite_Template_Data {
 	if ( empty( $image_url ) ) {
 		$image_url = $this->get_calendar_image_url( $event['calendar_id'] ?? '' );
 	}
-	
+
 	return [
 		// IDs
 		'id' => absint( $event['id'] ),
@@ -344,9 +353,29 @@ class ChurchTools_Suite_Template_Data {
 			// Metadata
 			'created_at' => $event['created_at'] ?? '',
 			'updated_at' => $event['updated_at'] ?? '',
+
+			'calendar_color' => $this->get_calendar_color($event['calendar_id']),
 		];
 	}
 	
+	/**
+	 * Fetch color for a calendar
+	 *
+	 * @param string $calendar_id Calendar domain identifier
+	 * @return string | null color of calendar
+	 */
+	private function get_calendar_color(string $calendar_id): string | null {
+
+		if(array_key_exists($calendar_id, $this->calendar_colors) === false) {
+			$calendars_repo = new ChurchTools_Suite_Calendars_Repository();
+			$calendar = $calendars_repo->get_by_calendar_id( $calendar_id );
+
+			$this->calendar_colors[$calendar_id] = $calendar->color;
+		}
+
+		return $this->calendar_colors[$calendar_id];
+	}
+
 	/**
 	 * Get fallback image attachment ID for a calendar
 	 *
@@ -482,7 +511,7 @@ class ChurchTools_Suite_Template_Data {
 		$grouped = [];
 		foreach ( $events as $event ) {
 			$calendar_id = $event['calendar_id'];
-			
+	
 			if ( ! isset( $grouped[ $calendar_id ] ) ) {
 				$grouped[ $calendar_id ] = [
 					'calendar_name' => $event['calendar_name'],
