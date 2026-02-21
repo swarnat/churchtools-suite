@@ -101,7 +101,6 @@ function cts_check_addon_update( $github_repo, $current_version ) {
  * 
  * Excludes:
  * - Main plugin (churchtools-suite)
- * - Demo plugins (churchtools-suite-demo, churchtools-suite-demos)
  * 
  * @return array Array of addon plugin data
  */
@@ -114,11 +113,6 @@ function cts_get_addon_plugins() {
 		
 		// Skip main plugin itself
 		if ( $plugin_slug === 'churchtools-suite' || $plugin_file === 'churchtools-suite/churchtools-suite.php' ) {
-			continue;
-		}
-		
-		// Skip demo plugins (ALWAYS exclude)
-		if ( $plugin_slug === 'churchtools-suite-demo' || $plugin_slug === 'churchtools-suite-demos' ) {
 			continue;
 		}
 		
