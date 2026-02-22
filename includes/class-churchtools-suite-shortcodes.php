@@ -482,6 +482,9 @@ class ChurchTools_Suite_Shortcodes {
 			'custom_font_size' => 14,
 			'custom_padding' => 12,
 			'custom_spacing' => 16,
+
+			// Use existing search value
+			'link_search' => true,			
 		], $atts, 'cts_grid' );
 		
 		// Backward-Compatibility: Normalisiere View-ID (alte Namen → neue deutsche IDs)
@@ -507,7 +510,12 @@ class ChurchTools_Suite_Shortcodes {
 		$atts['show_time'] = self::parse_boolean( $atts['show_time'] );
 		$atts['show_tags'] = self::parse_boolean( $atts['show_tags'] );
 		$atts['show_calendar_name'] = self::parse_boolean( $atts['show_calendar_name'] );
+		$atts['link_search'] = self::parse_boolean( $atts['link_search'] );
 		
+		if($atts["link_search"] === true) {
+			$atts["search"] = ChurchTools_Suite_Queryvars::getEventSearchQuery();
+		}
+
 		// Get events
 		$events = self::get_events( $atts );
 		
@@ -550,6 +558,9 @@ class ChurchTools_Suite_Shortcodes {
 			'custom_font_size' => 14,
 			'custom_padding' => 8,
 			'custom_spacing' => 0,
+
+			// Use existing search value
+			'link_search' => true,			
 		], $atts, 'cts_calendar' );
 		
 		// v0.9.8.6: Debug - Check what view value we received
@@ -567,7 +578,12 @@ class ChurchTools_Suite_Shortcodes {
 		// Convert boolean values
 		$atts['show_past_events'] = self::parse_boolean( $atts['show_past_events'] );
 		$atts['use_calendar_colors'] = self::parse_boolean( $atts['use_calendar_colors'] );
+		$atts['link_search'] = self::parse_boolean( $atts['link_search'] );
 		
+		if($atts["link_search"] === true) {
+			$atts["search"] = ChurchTools_Suite_Queryvars::getEventSearchQuery();
+		}
+
 		// Get events
 		$events = self::get_events( $atts );
 		
@@ -719,6 +735,9 @@ class ChurchTools_Suite_Shortcodes {
 			'custom_font_size' => 14,
 			'custom_padding' => 16,
 			'custom_spacing' => 16,
+
+			// Use existing search value
+			'link_search' => true,			
 		], $atts, 'cts_carousel' );
 		
 		// Backward-Compatibility: Normalisiere View-ID
@@ -747,6 +766,11 @@ class ChurchTools_Suite_Shortcodes {
 		$atts['show_images'] = self::parse_boolean( $atts['show_images'] );
 		$atts['autoplay'] = self::parse_boolean( $atts['autoplay'] );
 		$atts['loop'] = self::parse_boolean( $atts['loop'] );
+		$atts['link_search'] = self::parse_boolean( $atts['link_search'] );
+		
+		if($atts["link_search"] === true) {
+			$atts["search"] = ChurchTools_Suite_Queryvars::getEventSearchQuery();
+		}
 		
 		// Get events
 		$events = self::get_events( $atts );
