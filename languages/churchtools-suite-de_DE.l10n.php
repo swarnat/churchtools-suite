@@ -1,0 +1,2 @@
+<?php
+return ['project-id-version'=>'ChurchTools Suite','report-msgid-bugs-to'=>'','pot-creation-date'=>'2026-02-22 13:48+0000','po-revision-date'=>'2026-02-22 13:49+0000','last-translator'=>'','language-team'=>'Deutsch','language'=>'de_DE','plural-forms'=>'nplurals=2; plural=n != 1;','mime-version'=>'1.0','content-type'=>'text/plain; charset=UTF-8','content-transfer-encoding'=>'8bit','x-generator'=>'Loco https://localise.biz/','x-loco-version'=>'2.8.1; wp-6.9.1; php-8.2.27','x-domain'=>'churchtools-suite','messages'=>['DATE'=>'Datum','TIME'=>'Zeit']];
