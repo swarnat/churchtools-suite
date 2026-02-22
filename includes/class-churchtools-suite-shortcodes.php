@@ -330,6 +330,7 @@ class ChurchTools_Suite_Shortcodes {
 		$atts['view'] = ChurchTools_Suite_Template_Loader::normalize_view_id( 'search', $atts['view'] );
 		
 		$allowed_views = [ 'search-classic' ];
+		$allowed_views = apply_filters( 'churchtools_suite_search_allowed_views', $allowed_views );
 		if ( ! in_array( $atts['view'], $allowed_views, true ) ) {
 			return '<p style="padding: 12px; background: #fef3c7; border-radius: 4px;">⚠️ <strong>View nicht verfügbar:</strong> Erlaubte Ansichten: Klassisch. View "' . esc_html( $atts['view'] ) . '" existiert nicht.</p>';
 		}
