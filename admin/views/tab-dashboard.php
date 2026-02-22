@@ -311,7 +311,8 @@ $tables_missing = ( $wpdb->last_error !== '' );
 				   if ( is_array( $cron ) ) {
 					   foreach ( $cron as $ts => $hooks ) {
 						   foreach ( $hooks as $hook => $events ) {
-							   if ( preg_match( '/churchtools|cts_|puc_/i', $hook ) ) {
+							   // Filter: Include churchtools/cts_/puc_ hooks, but EXCLUDE cts_demo_ hooks (Demo Plugin)
+							   if ( preg_match( '/churchtools|cts_|puc_/i', $hook ) && ! preg_match( '/^cts_demo_/i', $hook ) ) {
 								   if ( ! isset( $relevant_hooks[ $hook ] ) ) {
 									   $relevant_hooks[ $hook ] = [];
 								   }
