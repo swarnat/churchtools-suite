@@ -523,8 +523,11 @@ class ChurchTools_Suite_Shortcodes {
 			error_log( 'Calendar Shortcode - All atts: ' . var_export( $atts, true ) );
 		}
 		
-		// v0.9.8.0: Only monthly-simple activated
-		$allowed_views = [ 'monthly-simple' ];
+		// Backward-Compatibility: Normalisiere View-ID (alte/neue/englische IDs)
+		$atts['view'] = ChurchTools_Suite_Template_Loader::normalize_view_id( 'calendar', $atts['view'] );
+
+		// Erlaubte Views (standardisierte IDs)
+		$allowed_views = [ 'calendar-monatlich-einfach', 'monthly-simple' ];
 		if ( ! in_array( $atts['view'], $allowed_views, true ) ) {
 			return '<p style="padding: 12px; background: #fef3c7; border-radius: 4px;">⚠️ <strong>Calendar View nicht verfügbar:</strong> Nur "monthly-simple" ist aktiv. (Erhalten: "' . esc_html( $atts['view'] ) . '")</p>';
 		}
@@ -536,8 +539,9 @@ class ChurchTools_Suite_Shortcodes {
 		// Get events
 		$events = self::get_events( $atts );
 		
-		// v0.9.9.44: New template structure (views/event-calendar/)
-		$template_path = 'views/event-calendar/' . $atts['view'];
+		// Konvertiere View-ID zu Template-Dateiname
+		$template_filename = ChurchTools_Suite_Template_Loader::normalize_view_to_filename( $atts['view'] );
+		$template_path = 'views/event-calendar/' . $template_filename;
 		
 		return self::render_template( $template_path, $events, $atts );
 	}

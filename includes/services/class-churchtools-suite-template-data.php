@@ -282,6 +282,9 @@ class ChurchTools_Suite_Template_Data {
 		'event_id' => $event['event_id'] ?? '',
 		'appointment_id' => $event['appointment_id'] ?? '',
 		'calendar_id' => $event['calendar_id'] ?? '',
+		'calendar_name' => $calendar ? $calendar->name : '',
+		'calendar_name_translated' => $calendar ? ( $calendar->name_translated ?? '' ) : '',
+		'calendar_color' => $calendar ? ( $calendar->color ?? '#3498db' ) : '#3498db',
 
 		// Bildfelder with fallback to calendar image (v1.1.3.8)
 		'image_attachment_id' => $event['image_attachment_id'] ?? '',

@@ -1,15 +1,18 @@
 # ChurchTools Suite - Changelog
 
-## v1.1.4.2 - Logger Robustness Fix (19. Februar 2026)
+## v1.1.4.2 - Logger Simplification (19. Februar 2026)
 
-### 🔧 Bugfixes
-- ✅ **Logger "No such file or directory" Error** - Robustheit verbessert
-  - Init: Prüft jetzt ob Verzeichnis erfolgreich erstellt wurde
-  - Init: Verifiziert Schreibrechte vor Verwendung
-  - Log: Prüft `self::$log_file` ist gesetzt bevor geschrieben wird
-  - Log: Erstellt Verzeichnis falls nicht existent (zusätzliche Sicherheit)
-  - Rotate: Erstellt Verzeichnis vor rename() um "No such file" zu verhindern
-  - Fehlerbehandlung: Alle kritischen Operationen mit @ und error_log() gesichert
+### 🔧 Optimierungen
+- **Logger vereinfacht** - Nutzt jetzt WordPress error_log() statt custom File-Logging
+  - Keine custom Log-Dateien mehr in wp-content/uploads/
+  - Keine Log-Rotation, Compression, CSV-Export mehr nötig
+  - Einfachere Wartung und weniger Komplexität
+  - Legacy-Methoden als No-Ops für Backward-Compatibility
+  - Logs nur noch in WordPress debug.log (wenn WP_DEBUG aktiv)
+
+- **Debug-Code entfernt** - Temporäres Debugging aus Templates entfernt
+  - Countdown Template: Event-Daten Debug-Logs entfernt
+  - Production-ready Code ohne temporäre Debug-Statements
 
 ## v1.1.4.1 - Countdown Click Bugfix (19. Februar 2026)
 

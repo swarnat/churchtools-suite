@@ -45,7 +45,7 @@ class ChurchTools_Suite_Blocks {
 		
 		// Register ChurchTools Events Block
 		register_block_type( 'churchtools-suite/events', [
-			'api_version' => 2,
+			'api_version' => 3, // v1.1.4.4: Updated for iframe editor compatibility
 			'category' => 'churchtools-suite',
 			'supports' => [
 				'html' => false,

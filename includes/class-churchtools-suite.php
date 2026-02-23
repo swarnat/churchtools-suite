@@ -148,6 +148,8 @@ class ChurchTools_Suite {
 		$this->loader->add_action( 'admin_enqueue_scripts', $admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $admin, 'enqueue_scripts' );
 		$this->loader->add_action( 'admin_menu', $admin, 'add_plugin_admin_menu' );
+		$this->loader->add_action( 'admin_notices', $admin, 'display_view_migration_notice' );
+		$this->loader->add_action( 'admin_post_cts_feedback_submit', $admin, 'handle_feedback_submit' );
 		
 		// v0.10.3.4: Prevent redirect to plugins.php after update
 		$this->loader->add_action( 'admin_init', $admin, 'handle_update_redirect', 1 );
@@ -191,6 +193,9 @@ class ChurchTools_Suite {
 		
 		// Enqueue frontend assets (also loaded in admin via admin_enqueue_scripts)
 		$this->loader->add_action( 'wp_enqueue_scripts', $this, 'enqueue_public_assets' );
+
+		// Ensure styles/scripts are available inside Gutenberg iframe preview
+		$this->loader->add_action( 'enqueue_block_assets', $this, 'enqueue_public_assets' );
 	}
 	
 	/**

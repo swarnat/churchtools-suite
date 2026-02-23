@@ -587,6 +587,13 @@
 		
 		console.log('[Modal] Display options:', {showDescription, showLocation, showServices, showCalendarName});
 		
+		// Set CSS Custom Properties for calendar colors (v1.1.4.4)
+		const calendarColor = event.calendar_color || '#3498db';
+		$('#cts-modal-overlay').css({
+			'--cts-calendar-color': calendarColor,
+			'--cts-primary-color': calendarColor
+		});
+		
 		// Event Title (new: in main area)
 		$('#cts-modal-event-title').text(event.title);
 		

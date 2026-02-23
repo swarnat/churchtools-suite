@@ -23,7 +23,7 @@ class ChurchTools_Suite_Migrations {
 	 * Increment this when adding new migrations.
 	 * Format: Major.Minor (e.g., 1.0, 1.1, 1.2)
 	 */
-	const DB_VERSION = '1.3';
+	const DB_VERSION = '1.5';
 	
 	/**
 	 * Option key for storing DB version
@@ -67,6 +67,14 @@ class ChurchTools_Suite_Migrations {
 		
 		if ( version_compare( $current_version, '1.3', '<' ) ) {
 			self::migrate_to_1_3();
+		}
+
+		if ( version_compare( $current_version, '1.4', '<' ) ) {
+			self::migrate_to_1_4();
+		}
+
+		if ( version_compare( $current_version, '1.5', '<' ) ) {
+			self::migrate_to_1_5();
 		}
 		
 		// Update DB version
@@ -361,6 +369,332 @@ class ChurchTools_Suite_Migrations {
 				'migration' => '1.3',
 			] );
 		}
+	}
+
+	/**
+	 * Migration 1.4: Migrate stored view IDs in Gutenberg + Elementor content
+	 *
+	 * Converts legacy/english view IDs to current canonical IDs to keep existing
+	 * blocks/widgets working after template/view refactoring.
+	 *
+	 * @since 1.1.4.5
+	 */
+	private static function migrate_to_1_4(): void {
+		$gutenberg_updated = self::migrate_gutenberg_block_views();
+		$elementor_updated = self::migrate_elementor_widget_views();
+
+		if ( $gutenberg_updated > 0 || $elementor_updated > 0 ) {
+			update_option( 'churchtools_suite_view_migration_notice', [
+				'gutenberg' => (int) $gutenberg_updated,
+				'elementor' => (int) $elementor_updated,
+				'timestamp' => time(),
+			], false );
+		}
+
+		if ( class_exists( 'ChurchTools_Suite_Logger' ) ) {
+			ChurchTools_Suite_Logger::log( 'migrations', 'Migrated stored block/widget view IDs', [
+				'migration' => '1.4',
+				'gutenberg_posts_updated' => $gutenberg_updated,
+				'elementor_posts_updated' => $elementor_updated,
+			] );
+		}
+	}
+
+	/**
+	 * Migration 1.5: Re-run view-ID migration to cover already-updated 1.4 installs.
+	 *
+	 * @since 1.1.4.6
+	 */
+	private static function migrate_to_1_5(): void {
+		self::migrate_to_1_4();
+	}
+
+	/**
+	 * Migrate Gutenberg block attributes in post_content.
+	 *
+	 * @return int Number of updated posts
+	 */
+	private static function migrate_gutenberg_block_views(): int {
+		if ( ! function_exists( 'parse_blocks' ) || ! function_exists( 'serialize_blocks' ) ) {
+			return 0;
+		}
+
+		global $wpdb;
+		$needle = '%' . $wpdb->esc_like( 'wp:churchtools-suite/events' ) . '%';
+		$post_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts} WHERE post_content LIKE %s AND post_status NOT IN ('auto-draft','trash')",
+				$needle
+			)
+		);
+
+		if ( empty( $post_ids ) ) {
+			return 0;
+		}
+
+		$updated = 0;
+
+		foreach ( $post_ids as $post_id ) {
+			$post_id = (int) $post_id;
+			$content = get_post_field( 'post_content', $post_id );
+			if ( ! is_string( $content ) || $content === '' ) {
+				continue;
+			}
+
+			$blocks = parse_blocks( $content );
+			if ( empty( $blocks ) || ! is_array( $blocks ) ) {
+				continue;
+			}
+
+			$changed = false;
+			$blocks = self::migrate_gutenberg_blocks_recursive( $blocks, $changed );
+
+			if ( ! $changed ) {
+				continue;
+			}
+
+			$new_content = serialize_blocks( $blocks );
+			if ( $new_content === $content ) {
+				continue;
+			}
+
+			wp_update_post( [
+				'ID' => $post_id,
+				'post_content' => $new_content,
+			] );
+			clean_post_cache( $post_id );
+			$updated++;
+		}
+
+		return $updated;
+	}
+
+	/**
+	 * Recursively migrate Gutenberg blocks.
+	 *
+	 * @param array $blocks  Parsed blocks
+	 * @param bool  $changed Whether changes were made
+	 * @return array
+	 */
+	private static function migrate_gutenberg_blocks_recursive( array $blocks, bool &$changed ): array {
+		foreach ( $blocks as &$block ) {
+			if ( isset( $block['blockName'] ) && $block['blockName'] === 'churchtools-suite/events' ) {
+				$attrs = ( isset( $block['attrs'] ) && is_array( $block['attrs'] ) ) ? $block['attrs'] : [];
+
+				$raw_view_type = isset( $attrs['viewType'] ) ? $attrs['viewType'] : ( $attrs['view_type'] ?? 'list' );
+				$view_type = self::normalize_view_type( (string) $raw_view_type );
+				if ( ! isset( $attrs['viewType'] ) || $attrs['viewType'] !== $view_type ) {
+					$attrs['viewType'] = $view_type;
+					$changed = true;
+				}
+
+				$current_view = isset( $attrs['view'] ) ? (string) $attrs['view'] : '';
+				$normalized_view = self::normalize_view_for_type( $view_type, $current_view );
+				if ( $normalized_view !== $current_view ) {
+					$attrs['view'] = $normalized_view;
+					$changed = true;
+				}
+
+				if ( isset( $attrs['view_type'] ) ) {
+					unset( $attrs['view_type'] );
+					$changed = true;
+				}
+
+				$block['attrs'] = $attrs;
+			}
+
+			if ( ! empty( $block['innerBlocks'] ) && is_array( $block['innerBlocks'] ) ) {
+				$block['innerBlocks'] = self::migrate_gutenberg_blocks_recursive( $block['innerBlocks'], $changed );
+			}
+		}
+		unset( $block );
+
+		return $blocks;
+	}
+
+	/**
+	 * Migrate Elementor widget settings in _elementor_data postmeta.
+	 *
+	 * @return int Number of updated posts
+	 */
+	private static function migrate_elementor_widget_views(): int {
+		global $wpdb;
+		$needle = '%' . $wpdb->esc_like( 'churchtools_suite_events' ) . '%';
+
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT post_id, meta_value FROM {$wpdb->postmeta} WHERE meta_key = '_elementor_data' AND meta_value LIKE %s",
+				$needle
+			),
+			ARRAY_A
+		);
+
+		if ( empty( $rows ) ) {
+			return 0;
+		}
+
+		$updated = 0;
+
+		foreach ( $rows as $row ) {
+			$post_id = (int) $row['post_id'];
+			$elements = json_decode( (string) $row['meta_value'], true );
+			if ( ! is_array( $elements ) ) {
+				continue;
+			}
+
+			$changed = false;
+			$elements = self::migrate_elementor_elements_recursive( $elements, $changed );
+
+			if ( ! $changed ) {
+				continue;
+			}
+
+			update_post_meta( $post_id, '_elementor_data', wp_slash( wp_json_encode( $elements ) ) );
+			clean_post_cache( $post_id );
+			$updated++;
+		}
+
+		return $updated;
+	}
+
+	/**
+	 * Recursively migrate Elementor elements.
+	 *
+	 * @param array $elements Elementor elements tree
+	 * @param bool  $changed  Whether changes were made
+	 * @return array
+	 */
+	private static function migrate_elementor_elements_recursive( array $elements, bool &$changed ): array {
+		foreach ( $elements as &$element ) {
+			if ( ! is_array( $element ) ) {
+				continue;
+			}
+
+			if ( isset( $element['widgetType'] ) && $element['widgetType'] === 'churchtools_suite_events' ) {
+				$settings = ( isset( $element['settings'] ) && is_array( $element['settings'] ) ) ? $element['settings'] : [];
+
+				$view_type = self::normalize_view_type( (string) ( $settings['view_type'] ?? 'list' ) );
+				if ( ! isset( $settings['view_type'] ) || $settings['view_type'] !== $view_type ) {
+					$settings['view_type'] = $view_type;
+					$changed = true;
+				}
+
+				$view_keys = [
+					'list' => 'view_list',
+					'grid' => 'view_grid',
+					'calendar' => 'view_calendar',
+					'countdown' => 'view_countdown',
+					'carousel' => 'view_carousel',
+				];
+
+				foreach ( $view_keys as $type => $key ) {
+					if ( isset( $settings[ $key ] ) ) {
+						$normalized = self::normalize_view_for_type( $type, (string) $settings[ $key ] );
+						if ( $normalized !== $settings[ $key ] ) {
+							$settings[ $key ] = $normalized;
+							$changed = true;
+						}
+					}
+				}
+
+				if ( isset( $settings['view'] ) ) {
+					$normalized_fallback = self::normalize_view_for_type( $view_type, (string) $settings['view'] );
+					if ( $normalized_fallback !== $settings['view'] ) {
+						$settings['view'] = $normalized_fallback;
+						$changed = true;
+					}
+				}
+
+				$element['settings'] = $settings;
+			}
+
+			if ( ! empty( $element['elements'] ) && is_array( $element['elements'] ) ) {
+				$element['elements'] = self::migrate_elementor_elements_recursive( $element['elements'], $changed );
+			}
+		}
+		unset( $element );
+
+		return $elements;
+	}
+
+	/**
+	 * Normalize view type.
+	 *
+	 * @param string $view_type Raw view type
+	 * @return string
+	 */
+	private static function normalize_view_type( string $view_type ): string {
+		$allowed = [ 'list', 'grid', 'calendar', 'countdown', 'carousel' ];
+		$view_type = strtolower( trim( $view_type ) );
+		return in_array( $view_type, $allowed, true ) ? $view_type : 'list';
+	}
+
+	/**
+	 * Normalize legacy/new/english/german view IDs to canonical IDs.
+	 *
+	 * @param string $view_type View type
+	 * @param string $view      Raw view value
+	 * @return string
+	 */
+	private static function normalize_view_for_type( string $view_type, string $view ): string {
+		$view = strtolower( trim( $view ) );
+
+		$mapping = [
+			'list' => [
+				'classic' => 'list-klassisch',
+				'klassisch' => 'list-klassisch',
+				'list-classic' => 'list-klassisch',
+				'list-klassisch' => 'list-klassisch',
+				'classic-with-images' => 'list-klassisch-mit-bildern',
+				'list-classic-with-images' => 'list-klassisch-mit-bildern',
+				'list-klassisch-mit-bildern' => 'list-klassisch-mit-bildern',
+				'classic-modern' => 'list-klassisch-modern',
+				'list-classic-modern' => 'list-klassisch-modern',
+				'list-klassisch-modern' => 'list-klassisch-modern',
+				'minimal' => 'list-minimal',
+				'list-minimal' => 'list-minimal',
+				'modern' => 'list-modern',
+				'list-modern' => 'list-modern',
+			],
+			'grid' => [
+				'classic' => 'grid-klassisch',
+				'klassisch' => 'grid-klassisch',
+				'grid-classic' => 'grid-klassisch',
+				'grid-klassisch' => 'grid-klassisch',
+				'simple' => 'grid-einfach',
+				'einfach' => 'grid-einfach',
+				'grid-simple' => 'grid-einfach',
+				'grid-einfach' => 'grid-einfach',
+				'minimal' => 'grid-minimal',
+				'grid-minimal' => 'grid-minimal',
+				'modern' => 'grid-modern',
+				'grid-modern' => 'grid-modern',
+				'background-images' => 'grid-hintergrundbilder',
+				'grid-background-images' => 'grid-hintergrundbilder',
+				'grid-hintergrundbilder' => 'grid-hintergrundbilder',
+			],
+			'calendar' => [
+				'monthly-simple' => 'monthly-simple',
+				'calendar-monthly-simple' => 'monthly-simple',
+				'calendar-monatlich-einfach' => 'monthly-simple',
+			],
+			'countdown' => [
+				'classic' => 'countdown-klassisch',
+				'countdown-classic' => 'countdown-klassisch',
+				'countdown-klassisch' => 'countdown-klassisch',
+			],
+			'carousel' => [
+				'classic' => 'carousel-klassisch',
+				'carousel-classic' => 'carousel-klassisch',
+				'carousel-klassisch' => 'carousel-klassisch',
+			],
+		];
+
+		if ( isset( $mapping[ $view_type ][ $view ] ) ) {
+			return $mapping[ $view_type ][ $view ];
+		}
+
+		return $view;
 	}
 	
 	/**

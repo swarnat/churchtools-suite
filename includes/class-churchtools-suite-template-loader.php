@@ -123,34 +123,47 @@ class ChurchTools_Suite_Template_Loader {
 	
 	/**
 	 * Normalisiert View-ID zu Template-Dateinamen
-	 * Mapping: grid-klassisch → classic, grid-einfach → simple, etc.
+	 * 
+	 * v1.1.4.4: Templates verwenden jetzt Präfix (z.B. list-classic.php statt classic.php)
+	 * Diese Funktion mappt View-IDs zu neuen Dateinamen mit Backward-Compatibility-Fallback
 	 * 
 	 * @param string $view View-ID (z.B. "grid-klassisch", "list-minimal")
 	 * @return string Template-Dateiname (ohne .php)
 	 */
 	public static function normalize_view_to_filename( string $view ): string {
-		// Mapping deutscher IDs zu bestehenden Dateinamen
+		// v1.1.4.4: Neue Namenskonvention - Templates haben jetzt Typ-Präfix
+		// Mapping deutscher IDs zu neuen Dateinamen (mit Präfix)
 		$mapping = [
 			// Grid Views
-			'grid-klassisch' => 'classic',
-			'grid-einfach'   => 'simple',
-			'grid-minimal'   => 'minimal',
-			'grid-modern'    => 'modern',
+			'grid-klassisch' => 'grid-classic',
+			'grid-einfach'   => 'grid-simple',
+			'grid-minimal'   => 'grid-minimal',
+			'grid-modern'    => 'grid-modern',
+			'grid-hintergrundbilder' => 'grid-background-images',
 			
 			// List Views
-			'list-klassisch'           => 'classic',
-			'list-klassisch-mit-bildern' => 'classic-with-images',
-			'list-minimal'             => 'minimal',
-			'list-modern'              => 'modern',
+			'list-klassisch'           => 'list-classic',
+			'list-klassisch-mit-bildern' => 'list-classic-with-images',
+			'list-klassisch-modern'   => 'list-classic-modern',
+			'list-minimal'             => 'list-minimal',
+			'list-modern'              => 'list-modern',
 			
 			// Calendar Views
-			'calendar-monatlich-einfach' => 'monthly-simple',
+			'calendar-monatlich-einfach' => 'calendar-monthly-simple',
 			
 			// Countdown Views
-			'countdown-klassisch' => 'classic',
+			'countdown-klassisch' => 'countdown-classic',
 			
 			// Carousel Views
-			'carousel-klassisch' => 'classic',
+			'carousel-klassisch' => 'carousel-classic',
+			
+			// Single Views
+			'single-minimal' => 'single-minimal',
+			'single-professional' => 'single-professional',
+			
+			// Modal Views
+			'modal-minimal' => 'modal-minimal',
+			'modal-professional' => 'modal-professional',
 		];
 		
 		// Wenn Mapping existiert, verwende es
@@ -158,9 +171,16 @@ class ChurchTools_Suite_Template_Loader {
 			return $mapping[ $view ];
 		}
 		
-		// Backward-Compatibility: Ent ferne nur Präfix (grid- / list- / calendar- / countdown- / carousel-)
-		$view = preg_replace( '/^(grid|list|calendar|countdown|carousel)-/', '', $view );
+		// Backward-Compatibility: Für alte View-IDs ohne Präfix
+		// Entferne Typ-Präfix wenn vorhanden und füge ihn wieder als Datei-Präfix hinzu
+		if ( preg_match( '/^(grid|list|calendar|countdown|carousel|single|modal)-(.+)$/', $view, $matches ) ) {
+			$type = $matches[1];
+			$name = $matches[2];
+			// Bereits im neuen Format
+			return $view;
+		}
 		
+		// Fallback: Gebe View-ID unverändert zurück (für alte Shortcodes)
 		return $view;
 	}
 	
@@ -172,9 +192,46 @@ class ChurchTools_Suite_Template_Loader {
 	 * @return string Standardisierte View-ID mit Präfix
 	 */
 	public static function normalize_view_id( string $view_type, string $view ): string {
-		// Wenn bereits mit Präfix → direkt zurückgeben
-		if ( strpos( $view, $view_type . '-' ) === 0 ) {
-			return $view;
+		$view = strtolower( trim( $view ) );
+
+		// Direkte Treffer (inkl. englischer Präfix-Varianten)
+		$direct_mapping = [
+			'list' => [
+				'list-klassisch' => 'list-klassisch',
+				'list-classic' => 'list-klassisch',
+				'list-klassisch-mit-bildern' => 'list-klassisch-mit-bildern',
+				'list-classic-with-images' => 'list-klassisch-mit-bildern',
+				'list-klassisch-modern' => 'list-klassisch-modern',
+				'list-classic-modern' => 'list-klassisch-modern',
+				'list-minimal' => 'list-minimal',
+				'list-modern' => 'list-modern',
+			],
+			'grid' => [
+				'grid-klassisch' => 'grid-klassisch',
+				'grid-classic' => 'grid-klassisch',
+				'grid-einfach' => 'grid-einfach',
+				'grid-simple' => 'grid-einfach',
+				'grid-minimal' => 'grid-minimal',
+				'grid-modern' => 'grid-modern',
+				'grid-hintergrundbilder' => 'grid-hintergrundbilder',
+				'grid-background-images' => 'grid-hintergrundbilder',
+			],
+			'calendar' => [
+				'calendar-monatlich-einfach' => 'calendar-monatlich-einfach',
+				'calendar-monthly-simple' => 'calendar-monatlich-einfach',
+			],
+			'countdown' => [
+				'countdown-klassisch' => 'countdown-klassisch',
+				'countdown-classic' => 'countdown-klassisch',
+			],
+			'carousel' => [
+				'carousel-klassisch' => 'carousel-klassisch',
+				'carousel-classic' => 'carousel-klassisch',
+			],
+		];
+
+		if ( isset( $direct_mapping[ $view_type ][ $view ] ) ) {
+			return $direct_mapping[ $view_type ][ $view ];
 		}
 		
 		// Backward-Compatibility-Mapping
@@ -315,7 +372,7 @@ class ChurchTools_Suite_Template_Loader {
 		}
 		
 		if ( class_exists( 'ChurchTools_Suite_Logger' ) ) {
-			ChurchTools_Suite_Logger::warning( 'template_loader', 'Template NOT FOUND - DETAILED ERROR', [
+			ChurchTools_Suite_Logger::warning( 'template_loader', 'Template NOT FOUND - trying legacy fallback', [
 				'template_name' => $template_name,
 				'theme_template_path' => $theme_template,
 				'theme_exists' => $theme_exists,
@@ -329,6 +386,63 @@ class ChurchTools_Suite_Template_Loader {
 				'churchtools_suite_path_length' => strlen( CHURCHTOOLS_SUITE_PATH ),
 				'churchtools_suite_path_defined' => defined( 'CHURCHTOOLS_SUITE_PATH' ),
 			] );
+		}
+		
+		// v1.1.4.4: Backward-Compatibility-Fallback für alte Dateinamen (ohne Präfix)
+		// Wenn Template nicht gefunden: Versuche alte Konvention (z.B. list-classic.php → classic.php)
+		$legacy_template = self::try_legacy_template_fallback( $template_name );
+		if ( $legacy_template !== false ) {
+			if ( class_exists( 'ChurchTools_Suite_Logger' ) ) {
+				ChurchTools_Suite_Logger::info( 'template_loader', 'Legacy template fallback successful', [
+					'new_template' => $template_name,
+					'legacy_template' => $legacy_template,
+				] );
+			}
+			return $legacy_template;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * Versucht Legacy-Template als Fallback zu laden (v1.1.4.4)
+	 * 
+	 * Konvertiert neue Dateinamen zu alten für Backward Compatibility:
+	 * - list-classic.php → classic.php
+	 * - grid-simple.php → simple.php
+	 * etc.
+	 * 
+	 * @param string $template_name Neuer Template-Name (z.B. views/event-list/list-classic.php)
+	 * @return string|false Legacy template path oder false
+	 */
+	private static function try_legacy_template_fallback( string $template_name ) {
+		// Extrahiere Pfadteile
+		if ( ! preg_match( '#views/event-(list|grid|calendar|countdown|carousel|single|modal)/([a-z-]+)\.php$#', $template_name, $matches ) ) {
+			return false;
+		}
+		
+		$type = $matches[1]; // z.B. "list", "grid"
+		$filename = $matches[2]; // z.B. "list-classic", "grid-simple"
+		
+		// Entferne Typ-Präfix vom Dateinamen
+		$legacy_filename = preg_replace( '/^(list|grid|calendar|countdown|carousel|single|modal)-/', '', $filename );
+		
+		// Wenn kein Präfix entfernt wurde (Dateiname = legacy), nicht nochmal versuchen
+		if ( $legacy_filename === $filename ) {
+			return false;
+		}
+		
+		// Baue Legacy-Pfad zusammen
+		$legacy_template_name = "views/event-{$type}/{$legacy_filename}.php";
+		$legacy_plugin_template = CHURCHTOOLS_SUITE_PATH . 'templates/' . $legacy_template_name;
+		
+		if ( file_exists( $legacy_plugin_template ) ) {
+			if ( class_exists( 'ChurchTools_Suite_Logger' ) ) {
+				ChurchTools_Suite_Logger::info( 'template_loader', 'Legacy template found', [
+					'legacy_path' => $legacy_plugin_template,
+				] );
+			}
+			return $legacy_plugin_template;
 		}
 		
 		return false;

@@ -135,6 +135,10 @@ class ChurchTools_Suite_Admin {
 	 * @since 0.6.1.5 Load public CSS first, then admin CSS (correct order)
 	 */
 	public function enqueue_styles() {
+		if ( ! $this->is_churchtools_admin_page() ) {
+			return;
+		}
+
 		// Load public CSS first (for demos in admin area)
 		wp_enqueue_style(
 			'churchtools-suite-public',
@@ -159,6 +163,10 @@ class ChurchTools_Suite_Admin {
 	 * @since 0.10.2.9 Load public JS too (for calendar navigation in demos)
 	 */
 	public function enqueue_scripts() {
+		if ( ! $this->is_churchtools_admin_page() ) {
+			return;
+		}
+
 		// Ensure media library is available for calendar image picker
 		wp_enqueue_media();
 
@@ -199,6 +207,29 @@ class ChurchTools_Suite_Admin {
 				'version' => $this->version,
 			]
 		);
+	}
+
+	/**
+	 * Check if current admin page belongs to ChurchTools Suite.
+	 *
+	 * @return bool
+	 */
+	private function is_churchtools_admin_page(): bool {
+		if ( ! is_admin() ) {
+			return false;
+		}
+
+		$page = isset( $_GET['page'] ) ? sanitize_key( (string) $_GET['page'] ) : '';
+		if ( strpos( $page, 'churchtools-suite' ) === 0 ) {
+			return true;
+		}
+
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( $screen && strpos( (string) $screen->id, 'churchtools-suite' ) !== false ) {
+			return true;
+		}
+
+		return false;
 	}
 	
 	/**
@@ -273,6 +304,122 @@ class ChurchTools_Suite_Admin {
 
 		// Note: Settings, Sync and Debug are handled as tabs in the main admin page
 		// (admin/views/admin-page.php) — no separate submenu entries are added here.
+	}
+
+	/**
+	 * Show one-time notice after view-ID migration.
+	 *
+	 * @since 1.1.4.6
+	 */
+	public function display_view_migration_notice(): void {
+		if ( ! current_user_can( 'manage_churchtools_suite' ) ) {
+			return;
+		}
+
+		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
+		if ( $screen && strpos( (string) $screen->id, 'churchtools-suite' ) === false ) {
+			return;
+		}
+
+		$payload = get_option( 'churchtools_suite_view_migration_notice', null );
+		if ( ! is_array( $payload ) ) {
+			return;
+		}
+
+		$gutenberg = isset( $payload['gutenberg'] ) ? (int) $payload['gutenberg'] : 0;
+		$elementor = isset( $payload['elementor'] ) ? (int) $payload['elementor'] : 0;
+
+		if ( $gutenberg <= 0 && $elementor <= 0 ) {
+			delete_option( 'churchtools_suite_view_migration_notice' );
+			return;
+		}
+
+		echo '<div class="notice notice-success is-dismissible">';
+		echo '<p><strong>' . esc_html__( 'ChurchTools Suite: Views migriert.', 'churchtools-suite' ) . '</strong><br>';
+		echo esc_html__( 'Gutenberg-Blöcke aktualisiert:', 'churchtools-suite' ) . ' ' . esc_html( (string) $gutenberg ) . ' · ';
+		echo esc_html__( 'Elementor-Widgets aktualisiert:', 'churchtools-suite' ) . ' ' . esc_html( (string) $elementor ) . '</p>';
+		echo '</div>';
+
+		delete_option( 'churchtools_suite_view_migration_notice' );
+	}
+
+	/**
+	 * Handle feedback consent form and optional automatic mail send.
+	 *
+	 * @since 1.1.4.12
+	 */
+	public function handle_feedback_submit(): void {
+		if ( ! current_user_can( 'manage_churchtools_suite' ) ) {
+			wp_die( esc_html__( 'Keine Berechtigung.', 'churchtools-suite' ) );
+		}
+
+		check_admin_referer( 'cts_feedback_submit', 'cts_feedback_nonce' );
+
+		$choice = isset( $_POST['cts_feedback_choice'] ) ? sanitize_key( (string) $_POST['cts_feedback_choice'] ) : '';
+		$selected_stages = [];
+		if ( isset( $_POST['cts_feedback_stage'] ) && is_array( $_POST['cts_feedback_stage'] ) ) {
+			$selected_stages = array_map( 'sanitize_text_field', wp_unslash( $_POST['cts_feedback_stage'] ) );
+		}
+		$allowed_stages = [ 'installiert', 'getestet', 'genutzt' ];
+		$selected_stages = array_values( array_intersect( $selected_stages, $allowed_stages ) );
+
+		$redirect_url = admin_url( 'admin.php?page=churchtools-suite' );
+		if ( isset( $_POST['cts_feedback_redirect'] ) ) {
+			$raw_redirect = esc_url_raw( wp_unslash( (string) $_POST['cts_feedback_redirect'] ) );
+			if ( ! empty( $raw_redirect ) ) {
+				$redirect_url = $raw_redirect;
+			}
+		}
+
+		if ( $choice === 'skip' ) {
+			update_option( 'churchtools_suite_feedback_status', [
+				'status' => 'declined',
+				'updated_at' => current_time( 'mysql' ),
+			], false );
+			set_transient( 'churchtools_suite_feedback_flash', 'declined', 120 );
+			wp_safe_redirect( $redirect_url );
+			exit;
+		}
+
+		if ( $choice !== 'send' ) {
+			set_transient( 'churchtools_suite_feedback_flash', 'invalid', 120 );
+			wp_safe_redirect( $redirect_url );
+			exit;
+		}
+
+		$to = 'plugin@feg-aschaffenburg.de';
+		$subject = sprintf( 'ChurchTools Suite Feedback (%s)', wp_parse_url( home_url(), PHP_URL_HOST ) );
+
+		$stage_text = ! empty( $selected_stages ) ? implode( ', ', $selected_stages ) : 'nicht angegeben';
+		$body_lines = [
+			'Neue Rückmeldung zur Plugin-Nutzung',
+			'',
+			'Site URL: ' . site_url(),
+			'Home URL: ' . home_url(),
+			'Blogname: ' . get_bloginfo( 'name' ),
+			'WP-Version: ' . get_bloginfo( 'version' ),
+			'Plugin-Version: ' . CHURCHTOOLS_SUITE_VERSION,
+			'Status: ' . $stage_text,
+			'Zeitpunkt: ' . current_time( 'mysql' ),
+		];
+		$body = implode( "\n", $body_lines );
+
+		$sent = wp_mail( $to, $subject, $body );
+
+		if ( $sent ) {
+			update_option( 'churchtools_suite_feedback_status', [
+				'status' => 'sent',
+				'stages' => $selected_stages,
+				'sent_at' => current_time( 'mysql' ),
+			], false );
+			set_transient( 'churchtools_suite_feedback_flash', 'sent', 120 );
+			wp_safe_redirect( $redirect_url );
+			exit;
+		}
+
+		set_transient( 'churchtools_suite_feedback_flash', 'error', 120 );
+		wp_safe_redirect( $redirect_url );
+		exit;
 	}
 	
 	/**
