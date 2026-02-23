@@ -25,6 +25,7 @@ class ChurchTools_Suite_Auto_Updater {
         
         // Offer update info to WordPress update API so plugin updates show in Plugins list
         add_filter( 'pre_set_site_transient_update_plugins', [ __CLASS__, 'push_update_to_transient' ] );
+        add_filter( 'site_transient_update_plugins', [ __CLASS__, 'push_update_to_transient' ] );
 
         // Schedule according to saved option
         $interval = get_option( 'churchtools_suite_update_interval', 'daily' );
@@ -466,11 +467,25 @@ class ChurchTools_Suite_Auto_Updater {
             return $transient;
         }
 
+        $plugin_file = plugin_basename( CHURCHTOOLS_SUITE_PATH . 'churchtools-suite.php' );
+
         if ( empty( $info['is_update'] ) || empty( $info['zip_url'] ) ) {
+            if ( isset( $transient->response ) && is_array( $transient->response ) ) {
+                unset( $transient->response[ $plugin_file ] );
+            }
+            if ( ! isset( $transient->no_update ) || ! is_array( $transient->no_update ) ) {
+                $transient->no_update = [];
+            }
+            $transient->no_update[ $plugin_file ] = (object) [
+                'id'          => 0,
+                'slug'        => dirname( $plugin_file ),
+                'plugin'      => $plugin_file,
+                'new_version' => ltrim( CHURCHTOOLS_SUITE_VERSION, 'vV' ),
+                'package'     => '',
+                'url'         => '',
+            ];
             return $transient;
         }
-
-        $plugin_file = plugin_basename( CHURCHTOOLS_SUITE_PATH . 'churchtools-suite.php' );
 
         // If response already set for this plugin, don't overwrite (allows other sources to take precedence)
         if ( isset( $transient->response ) && is_object( $transient->response ) && isset( $transient->response->{$plugin_file} ) ) {
@@ -489,6 +504,9 @@ class ChurchTools_Suite_Auto_Updater {
         if ( ! isset( $transient->response ) || ! is_array( $transient->response ) ) {
             $transient->response = [];
         }
+		if ( isset( $transient->no_update ) && is_array( $transient->no_update ) ) {
+			unset( $transient->no_update[ $plugin_file ] );
+		}
 
         $transient->response[$plugin_file] = $update;
 
