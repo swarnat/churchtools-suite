@@ -200,7 +200,7 @@ $tables_missing = ( $wpdb->last_error !== '' );
 				<p style="margin:8px 0 0; padding:8px 12px; background:#fff3cd; border-radius:4px; font-size:13px; color:#856404;">
 					⚠️ <?php 
 					printf(
-						esc_html__( 'Auto-Update ist deaktiviert. %sJetzt aktivieren%s', 'churchtools-suite' ),
+						esc_html__( 'Auto-Update ist deaktiviert. Manuelle Installation bleibt möglich. %sJetzt aktivieren%s', 'churchtools-suite' ),
 						'<a href="?page=churchtools-suite&tab=settings&subtab=advanced">',
 						'</a>'
 					); 
@@ -210,7 +210,7 @@ $tables_missing = ( $wpdb->last_error !== '' );
 				<p style="margin:8px 0 0; padding:8px 12px; background:#e0f2fe; border-radius:4px; font-size:13px; color:#0c4a6e;">
 					ℹ️ <?php 
 					printf(
-						esc_html__( 'Dieses Update wird nicht automatisch installiert (Stufe: %s). %sEinstellungen ändern%s', 'churchtools-suite' ),
+						esc_html__( 'Dieses Update wird nicht automatisch installiert (Stufe: %s). Manuelle Installation ist weiterhin möglich. %sEinstellungen ändern%s', 'churchtools-suite' ),
 						'<strong>' . esc_html( $auto_update_level ) . '</strong>',
 						'<a href="?page=churchtools-suite&tab=settings&subtab=advanced">',
 						'</a>'
@@ -220,19 +220,9 @@ $tables_missing = ( $wpdb->last_error !== '' );
 			<?php endif; ?>
 		</div>
 		<div class="cts-card-footer">
-			<?php if ( $auto_update_enabled && $update_allowed ) : ?>
-				<button id="cts_install_update_btn" class="cts-button cts-button-danger">
-					<?php echo $update_icon; ?> <?php esc_html_e( 'Jetzt installieren', 'churchtools-suite' ); ?>
-				</button>
-			<?php else : ?>
-				<a href="?page=churchtools-suite&tab=settings&subtab=advanced" class="cts-button cts-button-secondary">
-					<?php if ( ! $auto_update_enabled ) : ?>
-						⚙️ <?php esc_html_e( 'Auto-Update aktivieren', 'churchtools-suite' ); ?>
-					<?php else : ?>
-						⚙️ <?php esc_html_e( 'Update-Stufe anpassen', 'churchtools-suite' ); ?>
-					<?php endif; ?>
-				</a>
-			<?php endif; ?>
+			<button id="cts_install_update_btn" class="cts-button cts-button-danger">
+				<?php echo $update_icon; ?> <?php esc_html_e( 'Jetzt installieren', 'churchtools-suite' ); ?>
+			</button>
 			<a href="?page=churchtools-suite&tab=settings" class="cts-button" style="margin-left:8px;"><?php esc_html_e( 'Einstellungen', 'churchtools-suite' ); ?></a>
 		</div>
 	</div>
