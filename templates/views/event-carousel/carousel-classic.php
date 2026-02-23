@@ -167,7 +167,6 @@ if ( ! function_exists( 'cts_carousel_get_image_url' ) ) {
 							[
 								'event_id' => $event['id'],
 								'template' => $single_event_template,
-								'ctse_context' => 'elementor',
 							],
 							$single_event_base
 						);
