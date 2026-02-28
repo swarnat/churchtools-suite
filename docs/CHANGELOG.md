@@ -1,5 +1,16 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.1 - Hotfix Grid Template Parse Error (28. Februar 2026)
+
+### 🐛 Kritischer Bugfix
+- **Parse Error in Grid-Template behoben**
+  - Fix für fehlerhafte PHP-Control-Structure in `templates/views/event-grid/grid-background-images.php`
+  - Ursache war ein ungültiger Blockabschluss (`if/endif`) im Meta-Bereich der Card
+  - Kritischer Fehler beim Laden der betroffenen Grid-Ansicht wird damit verhindert
+
+### ✅ Qualitätssicherung
+- PHP-Lint erneut auf allen Plugin-Dateien ausgeführt
+
 ## v1.2.0.0 - Sync Module Platform (27. Februar 2026)
 
 ### ✨ Neue Features

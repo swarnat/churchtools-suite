@@ -132,8 +132,10 @@ $use_calendar_colors = isset( $args['use_calendar_colors'] ) ? ChurchTools_Suite
 		
 		<!-- Date Badge -->
 		<div class="cts-grid-card-date">
-		<div class="cts-grid-card-day"><?php echo esc_html( get_date_from_gmt( $event['start_datetime'], 'd' ) ); ?></div>
-		<div class="cts-grid-card-month"><?php echo esc_html( get_date_from_gmt( $event['start_datetime'], 'M' ) ); ?></div>
+			<div class="cts-grid-card-day"><?php echo esc_html( get_date_from_gmt( $event['start_datetime'], 'd' ) ); ?></div>
+			<div class="cts-grid-card-month"><?php echo esc_html( get_date_from_gmt( $event['start_datetime'], 'M' ) ); ?></div>
+		</div>
+
 		<!-- Title -->
 		<h3 class="cts-grid-card-title"><?php echo esc_html( $event['title'] ); ?></h3>
 		
@@ -141,8 +143,10 @@ $use_calendar_colors = isset( $args['use_calendar_colors'] ) ? ChurchTools_Suite
 		<div class="cts-grid-card-meta">
 			<?php if ( $show_time ) : ?>
 				<span class="cts-grid-card-time">
-				🕐 <?php echo esc_html( get_date_from_gmt( $event['start_datetime'], 'H:i' ) ); ?>
-			
+					🕐 <?php echo esc_html( get_date_from_gmt( $event['start_datetime'], 'H:i' ) ); ?>
+				</span>
+			<?php endif; ?>
+
 			<?php if ( $show_location && ! empty( $event['location_name'] ) ) : ?>
 				<span class="cts-grid-card-location">
 					📍 <?php echo esc_html( $event['location_name'] ); ?>
@@ -170,7 +174,7 @@ $use_calendar_colors = isset( $args['use_calendar_colors'] ) ? ChurchTools_Suite
 		<?php endif; ?>
 		
 	</div>
-	
+
 </div>
 
 		<?php endforeach; ?>
