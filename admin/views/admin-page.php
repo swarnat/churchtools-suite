@@ -13,7 +13,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 $active_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'dashboard';
 $advanced_mode = get_option( 'churchtools_suite_advanced_mode', 0 );
 $feedback_state = get_option( 'churchtools_suite_feedback_status', [] );
-$feedback_status = is_array( $feedback_state ) ? ( $feedback_state['status'] ?? '' ) : '';
+$feedback_status = '';
+if ( is_array( $feedback_state ) ) {
+	$feedback_status = (string) ( $feedback_state['status'] ?? '' );
+} elseif ( is_string( $feedback_state ) ) {
+	// Backward compatibility for older plain-string option values.
+	$feedback_status = $feedback_state;
+}
 $feedback_result = get_transient( 'churchtools_suite_feedback_flash' );
 if ( ! empty( $feedback_result ) ) {
 	delete_transient( 'churchtools_suite_feedback_flash' );
@@ -42,7 +48,7 @@ $feedback_redirect = add_query_arg( [
 		<div class="notice notice-error" style="margin: 12px 0 16px;"><p><?php esc_html_e( 'Die Mail konnte nicht gesendet werden. Bitte Mail-Konfiguration prüfen.', 'churchtools-suite' ); ?></p></div>
 	<?php endif; ?>
 
-	<?php if ( $feedback_status !== 'sent' && $feedback_status !== 'declined' ) : ?>
+	<?php if ( ! in_array( $feedback_status, [ 'sent', 'declined', 'answered', 'error' ], true ) ) : ?>
 	<div class="notice notice-info" style="margin: 12px 0 16px;">
 		<p><strong><?php esc_html_e( 'Kurze Rückfrage:', 'churchtools-suite' ); ?></strong> <?php esc_html_e( 'Dürfen wir eine automatische Mail senden, dass das Plugin bei dir installiert/getestet/genutzt wird?', 'churchtools-suite' ); ?></p>
 		<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>" style="margin-top:8px;">
@@ -79,8 +85,8 @@ $feedback_redirect = add_query_arg( [
 		</a>
 		<!-- Daten tab removed from main navigation; moved to separate submenu -->
 		<a href="?page=churchtools-suite&tab=sync" class="cts-tab <?php echo $active_tab === 'sync' ? 'active' : ''; ?>">
-			<span>📋</span>
-			<?php esc_html_e( 'Events', 'churchtools-suite' ); ?>
+			<span>🔄</span>
+			<?php esc_html_e( 'Synchronisation', 'churchtools-suite' ); ?>
 		</a>
 		   <!-- Dokumentation Tab entfernt -->
 		<?php if ( $advanced_mode ) : ?>

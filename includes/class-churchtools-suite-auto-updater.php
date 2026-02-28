@@ -15,6 +15,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ChurchTools_Suite_Auto_Updater {
 
     const CRON_HOOK = 'churchtools_suite_check_updates';
+    const GITHUB_API_RELEASES = 'https://api.github.com/repos/FEGAschaffenburg/churchtools-suite/releases?per_page=30';
     const GITHUB_API_RELEASES_LATEST = 'https://api.github.com/repos/FEGAschaffenburg/churchtools-suite/releases/latest';
 
     public static function init(): void {
@@ -187,13 +188,27 @@ class ChurchTools_Suite_Auto_Updater {
             $headers['Authorization'] = 'token ' . $token;
         }
 
-        $response = wp_remote_get( self::GITHUB_API_RELEASES_LATEST, [ 'headers' => $headers, 'timeout' => 20 ] );
-        if ( is_wp_error( $response ) ) {
-            return $response;
+        // Prefer full releases list and pick highest stable version (more reliable than /latest for this repo)
+        $response = wp_remote_get( self::GITHUB_API_RELEASES, [ 'headers' => $headers, 'timeout' => 20 ] );
+        if ( ! is_wp_error( $response ) && (int) wp_remote_retrieve_response_code( $response ) === 200 ) {
+            $body = wp_remote_retrieve_body( $response );
+            $releases = json_decode( $body, true );
+            $selected = self::select_highest_stable_release( $releases );
+            if ( ! empty( $selected['tag_name'] ) ) {
+                $data = $selected;
+            }
         }
 
-        $body = wp_remote_retrieve_body( $response );
-        $data = json_decode( $body, true );
+        // Fallback to GitHub /latest endpoint
+        if ( empty( $data ) || ! is_array( $data ) || empty( $data['tag_name'] ) ) {
+            $response = wp_remote_get( self::GITHUB_API_RELEASES_LATEST, [ 'headers' => $headers, 'timeout' => 20 ] );
+            if ( is_wp_error( $response ) ) {
+                return $response;
+            }
+
+            $body = wp_remote_retrieve_body( $response );
+            $data = json_decode( $body, true );
+        }
 
         // If the Releases API didn't return a valid release, attempt to fall back to the tags API
         if ( ! is_array( $data ) || empty( $data['tag_name'] ) ) {
@@ -232,16 +247,8 @@ class ChurchTools_Suite_Auto_Updater {
         $current = ltrim( CHURCHTOOLS_SUITE_VERSION, 'v' );
         $is_update = version_compare( $latest_tag, $current, '>' );
 
-        // Determine zip URL (prefer release asset matching plugin zip, fallback to zipball_url)
-        $zip_url = '';
-        if ( ! empty( $data['assets'] ) && is_array( $data['assets'] ) ) {
-            foreach ( $data['assets'] as $asset ) {
-                if ( isset( $asset['browser_download_url'] ) ) {
-                    $zip_url = $asset['browser_download_url'];
-                    break;
-                }
-            }
-        }
+        // Determine zip URL (prefer main plugin ZIP in monorepo releases)
+        $zip_url = self::select_main_plugin_zip_url( $data['assets'] ?? [] );
 
         if ( empty( $zip_url ) && ! empty( $data['zipball_url'] ) ) {
             $zip_url = $data['zipball_url'];
@@ -255,6 +262,73 @@ class ChurchTools_Suite_Auto_Updater {
             'html_url' => $data['html_url'] ?? '',
             'assets' => $data['assets'] ?? [],
         ];
+    }
+
+    /**
+     * Select highest stable release by semantic version from GitHub releases list.
+     *
+     * @param array $releases
+     * @return array
+     */
+    private static function select_highest_stable_release( array $releases ): array {
+        $selected = [];
+        $selected_version = '0.0.0';
+
+        foreach ( $releases as $release ) {
+            if ( ! is_array( $release ) ) {
+                continue;
+            }
+            if ( ! empty( $release['draft'] ) || ! empty( $release['prerelease'] ) ) {
+                continue;
+            }
+            if ( empty( $release['tag_name'] ) ) {
+                continue;
+            }
+
+            $version = ltrim( (string) $release['tag_name'], 'vV' );
+            if ( ! preg_match( '/^\d+(?:\.\d+)+$/', $version ) ) {
+                continue;
+            }
+
+            if ( empty( $selected ) || version_compare( $version, $selected_version, '>' ) ) {
+                $selected = $release;
+                $selected_version = $version;
+            }
+        }
+
+        return $selected;
+    }
+
+    /**
+     * Select the main plugin ZIP from release assets.
+     *
+     * @param array $assets
+     * @return string
+     */
+    private static function select_main_plugin_zip_url( array $assets ): string {
+        if ( empty( $assets ) ) {
+            return '';
+        }
+
+        foreach ( $assets as $asset ) {
+            if ( empty( $asset['name'] ) || empty( $asset['browser_download_url'] ) ) {
+                continue;
+            }
+
+            $name = (string) $asset['name'];
+            if ( preg_match( '/^churchtools-suite-\d+(?:\.\d+)+\.zip$/i', $name ) ) {
+                return (string) $asset['browser_download_url'];
+            }
+        }
+
+        // Fallback: first ZIP asset
+        foreach ( $assets as $asset ) {
+            if ( ! empty( $asset['name'] ) && ! empty( $asset['browser_download_url'] ) && preg_match( '/\.zip$/i', (string) $asset['name'] ) ) {
+                return (string) $asset['browser_download_url'];
+            }
+        }
+
+        return '';
     }
 
     /**

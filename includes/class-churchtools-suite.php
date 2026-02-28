@@ -46,6 +46,8 @@ class ChurchTools_Suite {
 		require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-loader.php';
 		require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-logger.php';
 		require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-migrations.php';
+		require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-sync-modules.php';
+		require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-sync-runtime.php';
 		require_once CHURCHTOOLS_SUITE_PATH . 'admin/class-churchtools-suite-admin.php';
 		
 		// Repository base class

@@ -14,7 +14,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ChurchTools_Suite_Update_Checker {
 
     const TRANSIENT_KEY = 'churchtools_suite_github_release';
-    const GITHUB_API_URL = 'https://api.github.com/repos/FEGAschaffenburg/churchtools-suite/releases/latest';
+    const GITHUB_API_RELEASES_URL = 'https://api.github.com/repos/FEGAschaffenburg/churchtools-suite/releases?per_page=30';
+    const GITHUB_API_LATEST_URL = 'https://api.github.com/repos/FEGAschaffenburg/churchtools-suite/releases/latest';
 
     public static function init(): void {
         // Hook both pre_set and site_transient variants to ensure compatibility
@@ -26,6 +27,8 @@ class ChurchTools_Suite_Update_Checker {
         
         // Force cache refresh on plugins page (v1.0.3.14)
         add_action( 'load-plugins.php', [ __CLASS__, 'force_cache_refresh' ] );
+        // Force cache refresh on WordPress update-core page as well
+        add_action( 'load-update-core.php', [ __CLASS__, 'force_cache_refresh' ] );
     }
     
     /**
@@ -36,6 +39,7 @@ class ChurchTools_Suite_Update_Checker {
         delete_transient( self::TRANSIENT_KEY );
         delete_site_transient( 'update_plugins' );
         wp_clean_plugins_cache();
+        wp_update_plugins();
     }
 
     /**
@@ -47,6 +51,14 @@ class ChurchTools_Suite_Update_Checker {
     public static function check_for_update( $transient ) {
         if ( empty( $transient ) || empty( $transient->checked ) ) {
             return $transient;
+        }
+
+        if ( ! isset( $transient->response ) || ! is_array( $transient->response ) ) {
+            $transient->response = [];
+        }
+
+        if ( ! isset( $transient->no_update ) || ! is_array( $transient->no_update ) ) {
+            $transient->no_update = [];
         }
 
         $cache = get_transient( self::TRANSIENT_KEY );
@@ -68,16 +80,8 @@ class ChurchTools_Suite_Update_Checker {
         $latest_version = ltrim( $release['tag_name'], 'v' );
 
         if ( version_compare( CHURCHTOOLS_SUITE_VERSION, $latest_version, '<' ) ) {
-            // Find asset URL (first asset with browser_download_url)
-            $asset_url = '';
-            if ( ! empty( $release['assets'] ) && is_array( $release['assets'] ) ) {
-                foreach ( $release['assets'] as $asset ) {
-                    if ( ! empty( $asset['browser_download_url'] ) ) {
-                        $asset_url = $asset['browser_download_url'];
-                        break;
-                    }
-                }
-            }
+            // Find asset URL (prefer main plugin ZIP in monorepo releases)
+            $asset_url = self::select_main_plugin_zip_url( $release['assets'] ?? [] );
 
             if ( empty( $asset_url ) ) {
                 return $transient;
@@ -87,18 +91,53 @@ class ChurchTools_Suite_Update_Checker {
             $plugin_file = self::find_plugin_file_key( $transient );
 
             $update = new stdClass();
+            $update->id = 0;
             $update->slug = dirname( CHURCHTOOLS_SUITE_BASENAME );
+            $update->plugin = $plugin_file;
             $update->new_version = $latest_version;
             $update->url = $release['html_url'] ?? 'https://github.com/FEGAschaffenburg/churchtools-suite';
             $update->package = $asset_url;
 
             $transient->response[ $plugin_file ] = $update;
+            unset( $transient->no_update[ $plugin_file ] );
             if ( class_exists( 'ChurchTools_Suite_Logger' ) ) {
                 ChurchTools_Suite_Logger::debug( 'update_checker', 'Injected update for plugin', [ 'plugin_file' => $plugin_file, 'new_version' => $latest_version, 'package' => $asset_url ] );
             }
         }
 
         return $transient;
+    }
+
+    /**
+     * Select the main plugin ZIP from release assets.
+     *
+     * @param array $assets
+     * @return string
+     */
+    private static function select_main_plugin_zip_url( array $assets ): string {
+        if ( empty( $assets ) ) {
+            return '';
+        }
+
+        foreach ( $assets as $asset ) {
+            if ( empty( $asset['name'] ) || empty( $asset['browser_download_url'] ) ) {
+                continue;
+            }
+
+            $name = (string) $asset['name'];
+            if ( preg_match( '/^churchtools-suite-\d+(?:\.\d+)+\.zip$/i', $name ) ) {
+                return (string) $asset['browser_download_url'];
+            }
+        }
+
+        // Fallback: first ZIP asset
+        foreach ( $assets as $asset ) {
+            if ( ! empty( $asset['name'] ) && ! empty( $asset['browser_download_url'] ) && preg_match( '/\.zip$/i', (string) $asset['name'] ) ) {
+                return (string) $asset['browser_download_url'];
+            }
+        }
+
+        return '';
     }
 
     /**
@@ -125,7 +164,26 @@ class ChurchTools_Suite_Update_Checker {
             $args['headers']['Authorization'] = 'token ' . $token;
         }
 
-        $response = wp_remote_get( self::GITHUB_API_URL, $args );
+        // Prefer full releases list and pick highest stable version
+        $response = wp_remote_get( self::GITHUB_API_RELEASES_URL, $args );
+
+        if ( ! is_wp_error( $response ) ) {
+            $code = wp_remote_retrieve_response_code( $response );
+            $body = wp_remote_retrieve_body( $response );
+
+            if ( $code === 200 ) {
+                $releases = json_decode( $body, true );
+                if ( json_last_error() === JSON_ERROR_NONE && is_array( $releases ) ) {
+                    $selected = self::select_highest_stable_release( $releases );
+                    if ( ! empty( $selected['tag_name'] ) ) {
+                        return $selected;
+                    }
+                }
+            }
+        }
+
+        // Fallback: GitHub /latest
+        $response = wp_remote_get( self::GITHUB_API_LATEST_URL, $args );
 
         if ( is_wp_error( $response ) ) {
             return $response;
@@ -144,6 +202,41 @@ class ChurchTools_Suite_Update_Checker {
         }
 
         return $data;
+    }
+
+    /**
+     * Select highest stable release by semantic version from GitHub releases list.
+     *
+     * @param array $releases
+     * @return array
+     */
+    private static function select_highest_stable_release( array $releases ): array {
+        $selected = [];
+        $selected_version = '0.0.0';
+
+        foreach ( $releases as $release ) {
+            if ( ! is_array( $release ) ) {
+                continue;
+            }
+            if ( ! empty( $release['draft'] ) || ! empty( $release['prerelease'] ) ) {
+                continue;
+            }
+            if ( empty( $release['tag_name'] ) ) {
+                continue;
+            }
+
+            $version = ltrim( (string) $release['tag_name'], 'vV' );
+            if ( ! preg_match( '/^\d+(?:\.\d+)+$/', $version ) ) {
+                continue;
+            }
+
+            if ( empty( $selected ) || version_compare( $version, $selected_version, '>' ) ) {
+                $selected = $release;
+                $selected_version = $version;
+            }
+        }
+
+        return $selected;
     }
 
     /**

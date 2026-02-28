@@ -18,6 +18,9 @@ if ( isset( $_POST['cts_save_sync'] ) && check_admin_referer( 'cts_settings' ) )
 	$auto_sync_enabled = isset( $_POST['auto_sync_enabled'] ) ? 1 : 0;
 	update_option( 'churchtools_suite_auto_sync_enabled', $auto_sync_enabled );
 	update_option( 'churchtools_suite_auto_sync_interval', sanitize_text_field( $_POST['auto_sync_interval'] ?? 'hourly' ) );
+
+	// Allow addons to save their own sync-related settings in this existing tab.
+	do_action( 'cts_sync_settings_save', $_POST );
 	
 	require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-cron.php';
 	ChurchTools_Suite_Cron::update_sync_schedule();
@@ -30,10 +33,79 @@ $sync_days_future = get_option( 'churchtools_suite_sync_days_future', 90 );
 $auto_sync_enabled = get_option( 'churchtools_suite_auto_sync_enabled', 0 );
 $auto_sync_interval = get_option( 'churchtools_suite_auto_sync_interval', 'daily' ); // v0.10.2.0: Default 'daily'
 $last_auto_sync = get_option( 'churchtools_suite_last_auto_sync', '' );
+
+$registered_modules = class_exists( 'ChurchTools_Suite_Sync_Modules' ) ? ChurchTools_Suite_Sync_Modules::get_registered_modules() : [];
+$module_statuses = [];
+if ( ! empty( $registered_modules ) && class_exists( 'ChurchTools_Suite_Sync_Modules' ) ) {
+	foreach ( $registered_modules as $module_id => $module_config ) {
+		$module_statuses[ $module_id ] = ChurchTools_Suite_Sync_Modules::get_module_status( (string) $module_id );
+	}
+}
 ?>
 
 <form method="post" action="" class="cts-form">
 	<?php wp_nonce_field( 'cts_settings' ); ?>
+
+	<div class="cts-card" style="margin-bottom: 20px;">
+		<div class="cts-card-header">
+			<span class="cts-card-icon">🧩</span>
+			<h3><?php esc_html_e( 'Modulstatus', 'churchtools-suite' ); ?></h3>
+		</div>
+		<div class="cts-card-body">
+			<?php if ( empty( $registered_modules ) ) : ?>
+				<div class="notice notice-info inline" style="margin: 0;">
+					<p><?php esc_html_e( 'Aktuell sind keine Sync-Module registriert. Aktiviere ein Addon (z. B. Posts Sync), damit hier Modulstatus angezeigt wird.', 'churchtools-suite' ); ?></p>
+				</div>
+			<?php else : ?>
+			<table class="widefat striped">
+				<thead>
+					<tr>
+						<th><?php esc_html_e( 'Modul', 'churchtools-suite' ); ?></th>
+						<th><?php esc_html_e( 'Status', 'churchtools-suite' ); ?></th>
+						<th><?php esc_html_e( 'Letzter Source-Sync', 'churchtools-suite' ); ?></th>
+						<th><?php esc_html_e( 'Letzter Daten-Sync', 'churchtools-suite' ); ?></th>
+						<th><?php esc_html_e( 'Letzte Meldung', 'churchtools-suite' ); ?></th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ( $registered_modules as $module_id => $module_config ) : ?>
+						<?php
+						$module_status = isset( $module_statuses[ $module_id ] ) && is_array( $module_statuses[ $module_id ] ) ? $module_statuses[ $module_id ] : [];
+						$module_label = isset( $module_config['label'] ) ? (string) $module_config['label'] : (string) $module_id;
+						$state = isset( $module_status['state'] ) ? (string) $module_status['state'] : 'idle';
+						$state_label_map = [
+							'idle' => __( 'Bereit', 'churchtools-suite' ),
+							'running' => __( 'Läuft', 'churchtools-suite' ),
+							'ok' => __( 'OK', 'churchtools-suite' ),
+							'error' => __( 'Fehler', 'churchtools-suite' ),
+							'disabled' => __( 'Deaktiviert', 'churchtools-suite' ),
+						];
+						$state_label = isset( $state_label_map[ $state ] ) ? (string) $state_label_map[ $state ] : $state;
+						$last_source_sync_at = isset( $module_status['last_source_sync_at'] ) ? (string) $module_status['last_source_sync_at'] : '';
+						$last_data_sync_at = isset( $module_status['last_data_sync_at'] ) ? (string) $module_status['last_data_sync_at'] : '';
+						$last_result = isset( $module_status['last_result'] ) && is_array( $module_status['last_result'] ) ? $module_status['last_result'] : [];
+						$last_message = isset( $last_result['message'] ) ? (string) $last_result['message'] : '';
+
+						if ( $last_source_sync_at !== '' ) {
+							$last_source_sync_at = get_date_from_gmt( $last_source_sync_at, get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) );
+						}
+						if ( $last_data_sync_at !== '' ) {
+							$last_data_sync_at = get_date_from_gmt( $last_data_sync_at, get_option( 'date_format' ) . ' ' . get_option( 'time_format' ) );
+						}
+						?>
+						<tr>
+							<td><strong><?php echo esc_html( $module_label ); ?></strong> <code><?php echo esc_html( (string) $module_id ); ?></code></td>
+							<td><?php echo esc_html( $state_label ); ?></td>
+							<td><?php echo esc_html( $last_source_sync_at !== '' ? $last_source_sync_at : '—' ); ?></td>
+							<td><?php echo esc_html( $last_data_sync_at !== '' ? $last_data_sync_at : '—' ); ?></td>
+							<td><?php echo esc_html( $last_message !== '' ? $last_message : '—' ); ?></td>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+			<?php endif; ?>
+		</div>
+	</div>
 	
 	<div class="cts-card">
 		<div class="cts-card-header">
@@ -170,6 +242,8 @@ $last_auto_sync = get_option( 'churchtools_suite_last_auto_sync', '' );
 		</div>
 		<?php endif; ?>
 	</div>
+
+		<?php do_action( 'cts_sync_settings_render' ); ?>
 
 	<div class="cts-submit">
 		<button type="submit" name="cts_save_sync" class="cts-button cts-button-primary">

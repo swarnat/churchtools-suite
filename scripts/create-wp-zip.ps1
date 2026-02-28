@@ -1,21 +1,64 @@
 param(
     [Parameter(Mandatory = $true)]
-    [string]$Version
+    [string]$Version,
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('main', 'elementor', 'posts-sync')]
+    [string]$Plugin = 'main'
 )
 
 $ScriptDir = Split-Path -Path $MyInvocation.MyCommand.Definition -Parent
 $RepoRoot = Resolve-Path (Join-Path $ScriptDir "..") | Select-Object -ExpandProperty Path
 $ArchiveDir = "C:\privat\archiv"
-$TempDir = Join-Path $env:TEMP "churchtools-suite-wp-$Version"
-$PluginDir = Join-Path $TempDir "churchtools-suite"
-$OutputZip = Join-Path "C:\privat" "churchtools-suite-$Version.zip"
 
-Write-Host "=== ChurchTools Suite ZIP Creator ===" -ForegroundColor Cyan
+switch ($Plugin) {
+    'main' {
+        $PluginSlug = 'churchtools-suite'
+        $SourceRoot = $RepoRoot
+        $ExcludeItems = @(
+            '.git', '.github', '.gitignore', '.editorconfig', '.gitattributes',
+            'scripts', 'tests', 'node_modules', 'addons',
+            '*.zip', '*.log', '.vscode', '.idea',
+            'phpunit.xml', 'phpcs.xml', '.phpcs.xml.dist',
+            'composer.json', 'composer.lock', 'package.json', 'package-lock.json',
+            'clear-cache.php', 'clear-opcache.php',
+            'RELEASE-NOTES*.md', 'release-notes*.md'
+        )
+    }
+    'elementor' {
+        $PluginSlug = 'churchtools-suite-elementor'
+        $SourceRoot = Join-Path $RepoRoot 'addons\churchtools-suite-elementor'
+        $ExcludeItems = @(
+            '.git', '.github', '.gitignore', '.editorconfig', '.gitattributes',
+            'scripts', 'tests', 'node_modules', '*.zip', '*.log', '.vscode', '.idea',
+            '*.backup-*', 'composer.json', 'composer.lock', 'package.json', 'package-lock.json'
+        )
+    }
+    'posts-sync' {
+        $PluginSlug = 'churchtools-suite-posts-sync'
+        $SourceRoot = Join-Path $RepoRoot 'addons\churchtools-suite-posts-sync'
+        $ExcludeItems = @(
+            '.git', '.github', '.gitignore', '.editorconfig', '.gitattributes',
+            'scripts', 'tests', 'node_modules', '*.zip', '*.log', '.vscode', '.idea',
+            'composer.json', 'composer.lock', 'package.json', 'package-lock.json'
+        )
+    }
+}
+
+if ( -not (Test-Path $SourceRoot) ) {
+    throw "Source path not found: $SourceRoot"
+}
+
+$TempDir = Join-Path $env:TEMP "$PluginSlug-wp-$Version"
+$PluginDir = Join-Path $TempDir $PluginSlug
+$OutputZip = Join-Path "C:\privat" "$PluginSlug-$Version.zip"
+
+Write-Host "=== ChurchTools Suite Monorepo ZIP Creator ===" -ForegroundColor Cyan
+Write-Host "Plugin: $PluginSlug"
 Write-Host "Version: $Version"
 Write-Host ""
 
-# Archive ALL old ZIPs
-$oldZips = Get-ChildItem -Path "C:\privat" -Filter "churchtools-suite-*.zip" -ErrorAction SilentlyContinue
+# Archive old ZIPs for selected plugin
+$oldZips = Get-ChildItem -Path "C:\privat" -Filter "$PluginSlug-*.zip" -ErrorAction SilentlyContinue
 if ($oldZips) {
     if (-not (Test-Path $ArchiveDir)) {
         New-Item -ItemType Directory -Path $ArchiveDir -Force | Out-Null
@@ -34,35 +77,8 @@ if (Test-Path $TempDir) { Remove-Item -Recurse -Force $TempDir }
 # Create temp dir structure
 New-Item -ItemType Directory -Path $PluginDir -Force | Out-Null
 
-# Copy files - Exclude development files
-$ExcludeItems = @(
-    '.git',
-    '.github',
-    '.gitignore',
-    '.editorconfig',
-    '.gitattributes',
-    'scripts',
-    'tests',
-    'node_modules',
-    'churchtools-suite*.zip',
-    '*.log',
-    '.vscode',
-    '.idea',
-    'phpunit.xml',
-    'phpcs.xml',
-    '.phpcs.xml.dist',
-    'composer.json',
-    'composer.lock',
-    'package.json',
-    'package-lock.json',
-    'clear-cache.php',
-    'clear-opcache.php',
-    'RELEASE-NOTES*.md',
-    'release-notes*.md'
-)
-
 Write-Host "Copying files..."
-Get-ChildItem -Path $RepoRoot -Force | Where-Object {
+Get-ChildItem -Path $SourceRoot -Force | Where-Object {
     $item = $_
     $exclude = $false
     foreach ($pattern in $ExcludeItems) {
@@ -136,19 +152,20 @@ $zip.Entries | Select-Object -First 5 | ForEach-Object {
     Write-Host "  $($_.FullName)"
 }
 
-# Look for the main file with forward slashes (WordPress standard)
-$mainFile = $zip.Entries | Where-Object { $_.FullName -eq "churchtools-suite/churchtools-suite.php" }
-$mainFileAlt = $zip.Entries | Where-Object { $_.Name -eq "churchtools-suite.php" }
+# Look for plugin main file with forward slashes (WordPress standard)
+$expectedMainFile = "$PluginSlug/$PluginSlug.php"
+$mainFile = $zip.Entries | Where-Object { $_.FullName -eq $expectedMainFile }
+$mainFileAlt = $zip.Entries | Where-Object { $_.Name -eq "$PluginSlug.php" }
 
 Write-Host ""
 Write-Host "Validating WordPress structure..."
-Write-Host "Found with path 'churchtools-suite/churchtools-suite.php': $($null -ne $mainFile)"
-Write-Host "Found with name 'churchtools-suite.php': $($null -ne $mainFileAlt)"
+Write-Host "Found with path '$expectedMainFile': $($null -ne $mainFile)"
+Write-Host "Found with name '$PluginSlug.php': $($null -ne $mainFileAlt)"
 
 if ($mainFile) {
     Write-Host "SUCCESS: WordPress structure OK (forward slashes)" -ForegroundColor Green
 } else {
-    Write-Host "ERROR: churchtools-suite/churchtools-suite.php not found!" -ForegroundColor Red
+    Write-Host "ERROR: $expectedMainFile not found!" -ForegroundColor Red
 }
 
 $totalEntries = $zip.Entries.Count

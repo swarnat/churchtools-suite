@@ -18,9 +18,9 @@ $active_subtab = isset( $_GET['subtab'] ) ? sanitize_key( $_GET['subtab'] ) : 'e
 	<div class="cts-header">
 		<h1>
 			<span>📋</span>
-			<?php esc_html_e( 'Daten', 'churchtools-suite' ); ?>
+			<?php esc_html_e( 'Event Übersicht', 'churchtools-suite' ); ?>
 		</h1>
-		<p class="cts-subtitle"><?php esc_html_e( 'Verwalte importierte Termine und Services', 'churchtools-suite' ); ?></p>
+		<p class="cts-subtitle"><?php esc_html_e( 'Verwalte importierte Events und Services', 'churchtools-suite' ); ?></p>
 	</div>
 
 	<div class="cts-data">
@@ -46,8 +46,8 @@ $active_subtab = isset( $_GET['subtab'] ) ? sanitize_key( $_GET['subtab'] ) : 'e
 	?>
 	<div class="cts-section-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:18px;">
 		<div>
-			<h2><?php esc_html_e( 'Daten', 'churchtools-suite' ); ?></h2>
-			<p class="cts-section-description"><?php esc_html_e( 'Verwalte importierte Termine und Services.', 'churchtools-suite' ); ?></p>
+			<h2><?php esc_html_e( 'Event Übersicht', 'churchtools-suite' ); ?></h2>
+			<p class="cts-section-description"><?php esc_html_e( 'Verwalte importierte Events und Services.', 'churchtools-suite' ); ?></p>
 		</div>
 		<?php if ( $is_connected ) : ?>
 		<div style="display:flex; gap:10px; align-items:center;">

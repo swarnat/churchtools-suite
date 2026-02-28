@@ -91,6 +91,12 @@ class ChurchTools_Suite_Admin {
 				   require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-auto-updater.php';
 			   }
 
+			   // Force fresh update check to avoid stale transients after release publication
+			   delete_transient( 'churchtools_suite_github_release' );
+			   delete_site_transient( 'update_plugins' );
+			   wp_clean_plugins_cache();
+			   wp_update_plugins();
+
 			   // Logging: Start manuelle Update-Prüfung
 			   if ( class_exists( 'ChurchTools_Suite_Logger' ) ) {
 				   ChurchTools_Suite_Logger::info('updater', 'Manuelle Update-Prüfung gestartet', [
@@ -154,6 +160,43 @@ class ChurchTools_Suite_Admin {
 			[ 'churchtools-suite-public' ],
 			$this->version
 		);
+
+		wp_add_inline_style(
+			'churchtools-suite-admin',
+			'
+#adminmenu #toplevel_page_churchtools-suite .wp-submenu li.cts-overviews-parent { position: relative; }
+#adminmenu #toplevel_page_churchtools-suite .wp-submenu li.cts-overviews-parent > a { display: flex; justify-content: space-between; align-items: center; }
+#adminmenu #toplevel_page_churchtools-suite .wp-submenu li.cts-overviews-parent > a::after { content: "›"; opacity: 0.8; font-size: 14px; margin-left: 10px; }
+#adminmenu #toplevel_page_churchtools-suite .wp-submenu li.cts-overviews-parent .cts-overviews-flyout {
+	display: none;
+	position: absolute;
+	left: 100%;
+	top: 0;
+	min-width: 220px;
+	margin: 0;
+	padding: 6px 0;
+	list-style: none;
+	background: #1d2327;
+	border-radius: 3px;
+	box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+	z-index: 100000;
+}
+#adminmenu #toplevel_page_churchtools-suite .wp-submenu li.cts-overviews-parent .cts-overviews-flyout li { margin: 0; padding: 0; }
+#adminmenu #toplevel_page_churchtools-suite .wp-submenu li.cts-overviews-parent .cts-overviews-flyout a {
+	display: block;
+	padding: 8px 12px;
+	color: #f0f0f1;
+	text-decoration: none;
+	white-space: nowrap;
+}
+#adminmenu #toplevel_page_churchtools-suite .wp-submenu li.cts-overviews-parent .cts-overviews-flyout a:hover,
+#adminmenu #toplevel_page_churchtools-suite .wp-submenu li.cts-overviews-parent .cts-overviews-flyout a:focus {
+	background: #2271b1;
+	color: #fff;
+}
+#adminmenu #toplevel_page_churchtools-suite .wp-submenu li.cts-overviews-parent.cts-flyout-open > .cts-overviews-flyout { display: block; }
+'
+		);
 	}
 	
 	/**
@@ -206,6 +249,72 @@ class ChurchTools_Suite_Admin {
 				'nonce'   => wp_create_nonce( 'churchtools_suite_admin' ),
 				'version' => $this->version,
 			]
+		);
+
+		$events_overview_url = admin_url( 'admin.php?page=churchtools-suite-data&subtab=events' );
+		$posts_overview_url = admin_url( 'admin.php?page=churchtools-suite-posts-overview' );
+		$documentation_url = 'https://plugin.feg-aschaffenburg.de/';
+		$events_overview_url_js = wp_json_encode( $events_overview_url );
+		$posts_overview_url_js = wp_json_encode( $posts_overview_url );
+		$documentation_url_js = wp_json_encode( $documentation_url );
+
+		$inline_menu_script = 'jQuery(function($){
+			var menuRoot = $("#toplevel_page_churchtools-suite");
+			if (!menuRoot.length) { return; }
+
+			var parentLink = menuRoot.find(".wp-submenu a[href*=\"page=churchtools-suite-overviews\"]").first();
+			if (!parentLink.length) { return; }
+
+			var parentItem = parentLink.parent("li");
+			if (!parentItem.length || parentItem.find(".cts-overviews-flyout").length) { return; }
+
+			parentItem.addClass("cts-overviews-parent");
+
+			var eventsUrl = ' . $events_overview_url_js . ';
+			var postsUrl = ' . $posts_overview_url_js . ';
+
+			var flyout = $("<ul class=\"cts-overviews-flyout\" />");
+			flyout.append("<li><a href=\"" + eventsUrl + "\">📋 Übersicht Termine</a></li>");
+			flyout.append("<li><a href=\"" + postsUrl + "\">📝 Übersicht Berichte</a></li>");
+			parentItem.append(flyout);
+
+			var closeTimer = null;
+			function openFlyout() {
+				if (closeTimer) { clearTimeout(closeTimer); }
+				parentItem.addClass("cts-flyout-open");
+			}
+
+			function closeFlyout() {
+				closeTimer = setTimeout(function(){
+					parentItem.removeClass("cts-flyout-open");
+				}, 120);
+			}
+
+			parentLink.on("click", function(e){
+				e.preventDefault();
+				parentItem.toggleClass("cts-flyout-open");
+			});
+
+			parentItem.on("mouseenter focusin", openFlyout);
+			parentItem.on("mouseleave focusout", closeFlyout);
+
+			$(document).on("click", function(e){
+				if (!parentItem.is(e.target) && parentItem.has(e.target).length === 0) {
+					parentItem.removeClass("cts-flyout-open");
+				}
+			});
+
+			var docsLink = menuRoot.find(".wp-submenu a[href*=\"page=churchtools-suite-docs\"]").first();
+			if (docsLink.length) {
+				docsLink.attr("href", ' . $documentation_url_js . ');
+				docsLink.attr("target", "_blank");
+				docsLink.attr("rel", "noopener noreferrer");
+			}
+		});';
+
+		wp_add_inline_script(
+			'churchtools-suite-admin',
+			$inline_menu_script
 		);
 	}
 
@@ -262,11 +371,22 @@ class ChurchTools_Suite_Admin {
 		
 		// Shortcode Demo removed as separate submenu — demo is now integrated into Shortcode Manager
 
-		// Add Data subpage (separate admin page for large lists)
+		// Zweistufiger Einstieg: Übersichten
 		add_submenu_page(
 			'churchtools-suite',
-			__( 'Daten', 'churchtools-suite' ),
-			__( '📋 Daten', 'churchtools-suite' ),
+			__( 'Übersichten', 'churchtools-suite' ),
+			__( '📚 Übersichten', 'churchtools-suite' ),
+			'manage_churchtools_suite',
+			'churchtools-suite-overviews',
+			[ $this, 'display_overviews_page' ],
+			6
+		);
+
+		// Versteckte Zielseite: Übersicht Termine
+		add_submenu_page(
+			null,
+			__( 'Übersicht Termine', 'churchtools-suite' ),
+			__( 'Übersicht Termine', 'churchtools-suite' ),
 			'manage_churchtools_suite',
 			'churchtools-suite-data',
 			[ $this, 'display_data_page' ]
@@ -417,6 +537,13 @@ class ChurchTools_Suite_Admin {
 			exit;
 		}
 
+		// User has answered "send"; do not ask again even if sending fails.
+		update_option( 'churchtools_suite_feedback_status', [
+			'status' => 'error',
+			'stages' => $selected_stages,
+			'attempted_at' => current_time( 'mysql' ),
+		], false );
+
 		set_transient( 'churchtools_suite_feedback_flash', 'error', 120 );
 		wp_safe_redirect( $redirect_url );
 		exit;
@@ -497,6 +624,24 @@ class ChurchTools_Suite_Admin {
 	}
 
 	/**
+	 * Display overviews landing page (2nd level navigation)
+	 */
+	public function display_overviews_page() {
+		if ( ! current_user_can( 'manage_churchtools_suite' ) ) {
+			wp_die( esc_html__( 'Keine Berechtigung.', 'churchtools-suite' ) );
+		}
+
+		echo '<div class="wrap">';
+		echo '<h1>' . esc_html__( 'Übersichten', 'churchtools-suite' ) . '</h1>';
+		echo '<p>' . esc_html__( 'Bitte wählen Sie die gewünschte Übersicht:', 'churchtools-suite' ) . '</p>';
+		echo '<p>';
+		echo '<a class="button button-primary" href="' . esc_url( admin_url( 'admin.php?page=churchtools-suite-data&subtab=events' ) ) . '">📋 ' . esc_html__( 'Übersicht Termine', 'churchtools-suite' ) . '</a> ';
+		echo '<a class="button" href="' . esc_url( admin_url( 'admin.php?page=churchtools-suite-posts-overview' ) ) . '">📝 ' . esc_html__( 'Übersicht Berichte', 'churchtools-suite' ) . '</a>';
+		echo '</p>';
+		echo '</div>';
+	}
+
+	/**
 	 * Display Addons overview page (v1.0.9.0)
 	 */
 	public function display_addons_page() {
@@ -515,6 +660,10 @@ class ChurchTools_Suite_Admin {
 	 * Register AJAX handlers
 	 */
 	public function register_ajax_handlers() {
+		// Hide source-only addon plugin files from WordPress plugin runtime lists
+		add_filter( 'all_plugins', [ $this, 'filter_source_addons_from_plugin_list' ], 20 );
+		add_action( 'admin_init', [ $this, 'deactivate_source_addons_if_active' ], 5 );
+
 		// Main AJAX handlers for Settings, Calendars, Events, Services
 		add_action( 'wp_ajax_cts_test_connection', [ $this, 'ajax_test_connection' ] );
 		add_action( 'wp_ajax_cts_sync_calendars', [ $this, 'ajax_sync_calendars' ] );
@@ -565,6 +714,43 @@ class ChurchTools_Suite_Admin {
 		add_action( 'wp_ajax_cts_install_addon', [ $this, 'ajax_install_addon' ] );
 		add_action( 'wp_ajax_cts_update_addon', [ $this, 'ajax_update_addon' ] ); // v1.1.0.1
 		add_action( 'wp_ajax_cts_clear_addon_update_cache', [ $this, 'ajax_clear_addon_update_cache' ] ); // v1.1.0.1
+	}
+
+	/**
+	 * Remove source-only addon plugins (inside main plugin folder) from plugin lists.
+	 * Keeps a single runtime plugin instance per addon.
+	 *
+	 * @param array $plugins
+	 * @return array
+	 */
+	public function filter_source_addons_from_plugin_list( array $plugins ): array {
+		foreach ( array_keys( $plugins ) as $plugin_file ) {
+			if ( strpos( (string) $plugin_file, 'churchtools-suite/addons/' ) === 0 ) {
+				unset( $plugins[ $plugin_file ] );
+			}
+		}
+
+		return $plugins;
+	}
+
+	/**
+	 * Safety cleanup: deactivate source-only addon plugin entries if accidentally active.
+	 */
+	public function deactivate_source_addons_if_active(): void {
+		if ( ! function_exists( 'is_plugin_active' ) || ! function_exists( 'deactivate_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$source_addons = [
+			'churchtools-suite/addons/churchtools-suite-elementor/churchtools-suite-elementor.php',
+			'churchtools-suite/addons/churchtools-suite-posts-sync/churchtools-suite-posts-sync.php',
+		];
+
+		foreach ( $source_addons as $source_plugin_file ) {
+			if ( function_exists( 'is_plugin_active' ) && is_plugin_active( $source_plugin_file ) ) {
+				deactivate_plugins( $source_plugin_file, true );
+			}
+		}
 	}
 	
 	/**
@@ -1149,6 +1335,9 @@ class ChurchTools_Suite_Admin {
 				] );
 				return;
 			}
+
+			// Posts sync triggered via Hook 'cts_do_sync_posts' (if addon is active)
+			do_action( 'cts_do_sync_posts', $client, $result );
 			
 			// Mark sync as successful
 			if ( $sync_id ) {
@@ -1156,8 +1345,7 @@ class ChurchTools_Suite_Admin {
 			}
 			
 			ob_end_clean(); // v0.10.4.23
-			wp_send_json_success( [
-				'message' => sprintf(
+			$message = sprintf(
 					__( 'Synchronisation erfolgreich! %d Kalender verarbeitet, %d Events gefunden, %d Appointments gefunden, %d neu, %d aktualisiert, %d übersprungen, %d Fehler.', 'churchtools-suite' ),
 					$result['calendars_processed'],
 					$result['events_found'],
@@ -1166,7 +1354,23 @@ class ChurchTools_Suite_Admin {
 					$result['events_updated'],
 					$result['events_skipped'],
 					$result['errors']
-				),
+				);
+
+			if ( isset( $result['ct_posts_error'] ) ) {
+				$message .= ' ' . sprintf( __( 'Posts-Sync Fehler: %s', 'churchtools-suite' ), $result['ct_posts_error'] );
+			} elseif ( isset( $result['ct_posts_found'] ) ) {
+				$message .= ' ' . sprintf(
+					__( 'ChurchTools-Posts: %d gefunden, %d neu, %d aktualisiert, %d übersprungen, %d Fehler.', 'churchtools-suite' ),
+					$result['ct_posts_found'] ?? 0,
+					$result['ct_posts_created'] ?? 0,
+					$result['ct_posts_updated'] ?? 0,
+					$result['ct_posts_skipped'] ?? 0,
+					$result['ct_posts_errors'] ?? 0
+				);
+			}
+
+			wp_send_json_success( [
+				'message' => $message,
 				'stats' => $result,
 				'sync_type' => $result['sync_type'] ?? 'full', // v0.7.1.0: Pass sync type to frontend
 			] );
@@ -1445,16 +1649,35 @@ class ChurchTools_Suite_Admin {
 	 * Führt sofortigen Cron-Sync aus
 	 */
 	public function ajax_trigger_manual_sync() {
-		// Clean output buffer
-		if (ob_get_level() > 0) {
-			ob_clean();
+		// Reset output buffers and start a fresh buffer to avoid polluted JSON responses.
+		while ( ob_get_level() > 0 ) {
+			ob_end_clean();
 		}
-		
-		check_ajax_referer( 'churchtools_suite_admin', 'nonce' );
+		ob_start();
+
+		$send_json = static function( $success, $payload ) {
+			while ( ob_get_level() > 0 ) {
+				ob_end_clean();
+			}
+
+			if ( $success ) {
+				wp_send_json_success( $payload );
+			}
+
+			wp_send_json_error( $payload );
+		};
+
+		$nonce_ok = check_ajax_referer( 'churchtools_suite_admin', 'nonce', false );
+		if ( false === $nonce_ok ) {
+			$send_json( false, [
+				'message' => __( 'Ungültiger oder fehlender Nonce.', 'churchtools-suite' )
+			] );
+			return;
+		}
 		
 		// Permission: sync_churchtools_events (Event Sync)
 		if ( ! current_user_can( 'sync_churchtools_events' ) ) {
-			wp_send_json_error( [
+			$send_json( false, [
 				'message' => __( 'Keine Berechtigung.', 'churchtools-suite' )
 			] );
 			return;
@@ -1529,11 +1752,15 @@ class ChurchTools_Suite_Admin {
 					$history_repo->complete_sync($sync_id, [], $result->get_error_message());
 				}
 				
-				wp_send_json_error( [
+				$send_json( false, [
 					'message' => __( 'Sync fehlgeschlagen: ', 'churchtools-suite' ) . $result->get_error_message()
 				] );
 				return;
 			}
+
+			// Posts sync triggered via Hook 'cts_do_sync_posts' (if addon is active)
+			@ChurchTools_Suite_Logger::log('Triggering posts sync hook', 'info');
+			do_action( 'cts_do_sync_posts', $ct_client, $result );
 			
 			// Erfolg - Stats zusammenstellen
 			@ChurchTools_Suite_Logger::log(sprintf('Processing results - Keys: %s', implode(', ', array_keys($result))), 'info');
@@ -1545,10 +1772,16 @@ class ChurchTools_Suite_Admin {
 				'events_updated' => $result['events_updated'] ?? 0,
 				'events_skipped' => $result['events_skipped'] ?? 0,
 				'services_imported' => $result['services_imported'] ?? 0,
+				'ct_posts_found' => $result['ct_posts_found'] ?? 0,
+				'ct_posts_created' => $result['ct_posts_created'] ?? 0,
+				'ct_posts_updated' => $result['ct_posts_updated'] ?? 0,
+				'ct_posts_skipped' => $result['ct_posts_skipped'] ?? 0,
+				'ct_posts_errors' => $result['ct_posts_errors'] ?? 0,
+				'ct_posts_error' => $result['ct_posts_error'] ?? '',
 				'started_at' => $start_time,
 				'completed_at' => current_time('mysql')
 			];
-			
+
 			@ChurchTools_Suite_Logger::log(sprintf('Stats: %d calendars, %d events, %d services', 
 				$stats['calendars_processed'], 
 				$stats['events_found'], 
@@ -1563,8 +1796,7 @@ class ChurchTools_Suite_Admin {
 			
 			@ChurchTools_Suite_Logger::log('=== MANUAL SYNC SUCCESS ===', 'info');
 			
-			wp_send_json_success( [
-				'message' => sprintf(
+			$message = sprintf(
 					__( '✅ Manueller Sync erfolgreich! %d Kalender, %d Events gefunden, %d neu, %d aktualisiert, %d übersprungen, %d Services importiert', 'churchtools-suite' ),
 					$stats['calendars_processed'],
 					$stats['events_found'],
@@ -1572,7 +1804,23 @@ class ChurchTools_Suite_Admin {
 					$stats['events_updated'],
 					$stats['events_skipped'],
 					$stats['services_imported']
-				),
+				);
+
+			if ( ! empty( $stats['ct_posts_error'] ) ) {
+				$message .= ' ' . sprintf( __( 'Posts-Sync Fehler: %s', 'churchtools-suite' ), $stats['ct_posts_error'] );
+			} elseif ( $stats['ct_posts_found'] > 0 || $stats['ct_posts_created'] > 0 || $stats['ct_posts_updated'] > 0 ) {
+				$message .= ' ' . sprintf(
+					__( 'ChurchTools-Posts: %d gefunden, %d neu, %d aktualisiert, %d übersprungen, %d Fehler.', 'churchtools-suite' ),
+					$stats['ct_posts_found'],
+					$stats['ct_posts_created'],
+					$stats['ct_posts_updated'],
+					$stats['ct_posts_skipped'],
+					$stats['ct_posts_errors']
+				);
+			}
+
+			$send_json( true, [
+				'message' => $message,
 				'stats' => $stats
 			] );
 			
@@ -1590,7 +1838,7 @@ class ChurchTools_Suite_Admin {
 				}
 			}
 			
-			wp_send_json_error( [
+			$send_json( false, [
 				'message' => __( 'Fehler: ', 'churchtools-suite' ) . $e->getMessage()
 			] );
 		} catch ( Error $e ) {
@@ -1599,7 +1847,7 @@ class ChurchTools_Suite_Admin {
 			@ChurchTools_Suite_Logger::log('Fatal Error: ' . $e->getMessage(), 'error');
 			@ChurchTools_Suite_Logger::log('File: ' . $e->getFile() . ':' . $e->getLine(), 'error');
 			
-			wp_send_json_error( [
+			$send_json( false, [
 				'message' => __( 'Fataler Fehler: ', 'churchtools-suite' ) . $e->getMessage() . ' in ' . basename($e->getFile()) . ':' . $e->getLine()
 			] );
 		}
@@ -3000,6 +3248,10 @@ class ChurchTools_Suite_Admin {
 	 * @since 1.0.3.16
 	 */
 	public function redirect_to_documentation() {
+		if ( ! current_user_can( 'manage_churchtools_suite' ) ) {
+			wp_die( esc_html__( 'Sie haben keine Berechtigung, auf diese Seite zuzugreifen.', 'churchtools-suite' ) );
+		}
+
 		wp_redirect( 'https://plugin.feg-aschaffenburg.de/' );
 		exit;
 	}
@@ -3116,51 +3368,123 @@ class ChurchTools_Suite_Admin {
 			wp_send_json_error( [ 'message' => __( 'Addon-Slug fehlt.', 'churchtools-suite' ) ] );
 			return;
 		}
-		
-		// Map known addons to their GitHub repos
-		$addon_repos = [
-			'churchtools-suite-elementor' => 'FEGAschaffenburg/churchtools-suite-elementor',
-		];
-		
-		if ( ! isset( $addon_repos[ $addon_slug ] ) ) {
-			wp_send_json_error( [ 'message' => __( 'Unbekanntes Addon.', 'churchtools-suite' ) ] );
+
+		if ( $addon_slug === 'churchtools-suite-posts-sync' ) {
+			wp_send_json_error( [ 'message' => __( 'Das Posts Sync Addon ist aktuell deaktiviert (comming soon) und noch nicht zur Installation freigegeben.', 'churchtools-suite' ) ] );
 			return;
 		}
 		
-		$repo = $addon_repos[ $addon_slug ];
+		// Map known addons to their release ZIP name prefixes (monorepo assets)
+		$addon_asset_prefixes = [
+			'churchtools-suite-elementor' => 'churchtools-suite-elementor-',
+			'churchtools-suite-posts-sync' => 'churchtools-suite-posts-sync-',
+		];
+
+		if ( ! isset( $addon_asset_prefixes[ $addon_slug ] ) ) {
+			wp_send_json_error( [ 'message' => __( 'Unbekanntes Addon.', 'churchtools-suite' ) ] );
+			return;
+		}
+
+		$repo = 'FEGAschaffenburg/churchtools-suite';
+		$asset_prefix = $addon_asset_prefixes[ $addon_slug ];
 		
 		try {
-			// Get latest release from GitHub
-			$api_url = "https://api.github.com/repos/{$repo}/releases/latest";
+			$headers = [
+				'User-Agent' => 'ChurchTools-Suite-WordPress-Plugin',
+				'Accept' => 'application/vnd.github.v3+json',
+			];
+
+			$token = get_option( 'churchtools_suite_github_token', '' );
+			if ( empty( $token ) && defined( 'WP_CHURCHTOOLS_SUITE_GITHUB_TOKEN' ) ) {
+				$token = WP_CHURCHTOOLS_SUITE_GITHUB_TOKEN;
+			}
+			if ( ! empty( $token ) ) {
+				$headers['Authorization'] = 'token ' . $token;
+			}
+
+			// Prefer full releases list and choose highest stable release containing addon ZIP
+			$api_url = "https://api.github.com/repos/{$repo}/releases?per_page=30";
 			$response = wp_remote_get( $api_url, [
-				'timeout' => 15,
-				'headers' => [
-					'User-Agent' => 'ChurchTools-Suite-WordPress-Plugin',
-				],
+				'timeout' => 20,
+				'headers' => $headers,
 			] );
-			
-			if ( is_wp_error( $response ) ) {
-				throw new Exception( $response->get_error_message() );
-			}
-			
-			$body = wp_remote_retrieve_body( $response );
-			$data = json_decode( $body, true );
-			
-			if ( empty( $data['assets'] ) ) {
-				throw new Exception( __( 'Keine Download-Dateien gefunden.', 'churchtools-suite' ) );
-			}
-			
-			// Find ZIP asset
+
 			$zip_url = null;
-			foreach ( $data['assets'] as $asset ) {
-				if ( str_ends_with( $asset['name'], '.zip' ) ) {
-					$zip_url = $asset['browser_download_url'];
-					break;
+			$data = [];
+			$best_version = '0.0.0';
+
+			if ( ! is_wp_error( $response ) && (int) wp_remote_retrieve_response_code( $response ) === 200 ) {
+				$body = wp_remote_retrieve_body( $response );
+				$releases = json_decode( $body, true );
+
+				if ( is_array( $releases ) ) {
+					foreach ( $releases as $release ) {
+						if ( ! is_array( $release ) || ! empty( $release['draft'] ) || ! empty( $release['prerelease'] ) ) {
+							continue;
+						}
+
+						$release_version = ltrim( (string) ( $release['tag_name'] ?? '' ), 'vV' );
+						if ( $release_version === '' || ! preg_match( '/^\d+(?:\.\d+)+$/', $release_version ) ) {
+							continue;
+						}
+
+						$release_zip_url = null;
+						$assets = $release['assets'] ?? [];
+						if ( is_array( $assets ) ) {
+							foreach ( $assets as $asset ) {
+								if ( ! empty( $asset['name'] ) && ! empty( $asset['browser_download_url'] )
+									&& strpos( (string) $asset['name'], $asset_prefix ) === 0
+									&& str_ends_with( (string) $asset['name'], '.zip' ) ) {
+									$release_zip_url = (string) $asset['browser_download_url'];
+									break;
+								}
+							}
+						}
+
+						if ( $release_zip_url && version_compare( $release_version, $best_version, '>' ) ) {
+							$best_version = $release_version;
+							$zip_url = $release_zip_url;
+							$data = $release;
+						}
+					}
+				}
+			}
+
+			// Fallback to /latest (legacy behavior)
+			if ( ! $zip_url ) {
+				$latest_url = "https://api.github.com/repos/{$repo}/releases/latest";
+				$response = wp_remote_get( $latest_url, [
+					'timeout' => 20,
+					'headers' => $headers,
+				] );
+
+				if ( is_wp_error( $response ) ) {
+					throw new Exception( $response->get_error_message() );
+				}
+
+				$code = (int) wp_remote_retrieve_response_code( $response );
+				$body = wp_remote_retrieve_body( $response );
+				$data = json_decode( $body, true );
+
+				if ( $code === 403 || $code === 429 ) {
+					$message = is_array( $data ) && ! empty( $data['message'] ) ? (string) $data['message'] : __( 'GitHub API Rate Limit erreicht.', 'churchtools-suite' );
+					throw new Exception( $message );
+				}
+
+				if ( ! empty( $data['assets'] ) && is_array( $data['assets'] ) ) {
+					foreach ( $data['assets'] as $asset ) {
+						if ( ! empty( $asset['name'] ) && ! empty( $asset['browser_download_url'] )
+							&& strpos( (string) $asset['name'], $asset_prefix ) === 0
+							&& str_ends_with( (string) $asset['name'], '.zip' ) ) {
+							$zip_url = (string) $asset['browser_download_url'];
+							break;
+						}
+					}
 				}
 			}
 			
 			if ( ! $zip_url ) {
-				throw new Exception( __( 'Keine ZIP-Datei im Release gefunden.', 'churchtools-suite' ) );
+				throw new Exception( __( 'Keine passende Addon-ZIP-Datei in den Releases gefunden.', 'churchtools-suite' ) );
 			}
 			
 			// Download ZIP
@@ -3248,7 +3572,7 @@ class ChurchTools_Suite_Admin {
 						$activation_result->get_error_message()
 					),
 					'plugin_file' => $plugin_file,
-					'version' => $data['tag_name'] ?? 'unknown',
+					'version' => ltrim( (string) ( $data['tag_name'] ?? '' ), 'v' ),
 					'activated' => false,
 				] );
 			} else {
@@ -3259,7 +3583,7 @@ class ChurchTools_Suite_Admin {
 						$data['name'] ?? $addon_slug
 					),
 					'plugin_file' => $plugin_file,
-					'version' => $data['tag_name'] ?? 'unknown',
+					'version' => ltrim( (string) ( $data['tag_name'] ?? '' ), 'v' ),
 					'activated' => true,
 				] );
 			}
@@ -3279,19 +3603,60 @@ class ChurchTools_Suite_Admin {
 	 * @since 1.1.0.1
 	 */
 	public function ajax_clear_addon_update_cache() {
-		check_ajax_referer( 'churchtools_suite_admin', 'nonce' );
+		while ( ob_get_level() ) {
+			ob_end_clean();
+		}
+
+		$nonce_ok = check_ajax_referer( 'churchtools_suite_admin', 'nonce', false );
+		if ( $nonce_ok === false ) {
+			wp_send_json_error( [ 'message' => __( 'Sicherheitsprüfung fehlgeschlagen. Bitte Seite neu laden.', 'churchtools-suite' ) ] );
+			return;
+		}
 		
 		if ( ! current_user_can( 'manage_churchtools_suite' ) ) {
 			wp_send_json_error( [ 'message' => __( 'Keine Berechtigung.', 'churchtools-suite' ) ] );
 			return;
 		}
+
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$cleared = 0;
+		$repo = 'FEGAschaffenburg/churchtools-suite';
+		$known_slugs = [
+			'churchtools-suite-elementor',
+			'churchtools-suite-posts-sync',
+		];
+
+		$all_plugins = get_plugins();
+
+		foreach ( $known_slugs as $slug ) {
+			$legacy_key = 'cts_addon_update_' . sanitize_key( $repo . '_' . $slug );
+			if ( delete_transient( $legacy_key ) ) {
+				$cleared++;
+			}
+
+			$plugin_file = $slug . '/' . $slug . '.php';
+			if ( isset( $all_plugins[ $plugin_file ]['Version'] ) ) {
+				$version = ltrim( (string) $all_plugins[ $plugin_file ]['Version'], 'vV' );
+				if ( $version !== '' ) {
+					$key = 'cts_addon_update_' . sanitize_key( $repo . '_' . $slug . '_' . $version );
+					if ( delete_transient( $key ) ) {
+						$cleared++;
+					}
+				}
+			}
+		}
+
+		delete_site_transient( 'update_plugins' );
+		wp_clean_plugins_cache();
+		wp_update_plugins();
 		
-		global $wpdb;
-		
-		// Delete all addon update transients
-		$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_cts_addon_update_%' OR option_name LIKE '_transient_timeout_cts_addon_update_%'" );
-		
-		wp_send_json_success( [ 'message' => __( 'Cache gelöscht', 'churchtools-suite' ) ] );
+		wp_send_json_success( [
+			'message' => __( 'Update-Cache erfolgreich geleert.', 'churchtools-suite' ),
+			'cleared' => $cleared,
+		] );
 	}
 	
 	/**
@@ -3365,7 +3730,8 @@ class ChurchTools_Suite_Admin {
 			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 			require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 			
-			$upgrader = new Plugin_Upgrader( new WP_Ajax_Upgrader_Skin() );
+			$skin = new Automatic_Upgrader_Skin();
+			$upgrader = new Plugin_Upgrader( $skin );
 			$result = $upgrader->run( [
 				'package' => $temp_file,
 				'destination' => WP_PLUGIN_DIR,
@@ -3382,15 +3748,33 @@ class ChurchTools_Suite_Admin {
 			@unlink( $temp_file );
 			
 			if ( is_wp_error( $result ) ) {
-				throw new Exception( $result->get_error_message() );
+				$error_message = (string) $result->get_error_message();
+
+				// Some hosts/upgrader skins return JSON success payload inside error text
+				$normalized_message = preg_replace( '/^\xEF\xBB\xBF/', '', trim( $error_message ) );
+				$decoded = json_decode( $normalized_message, true );
+				if ( is_array( $decoded ) && ! empty( $decoded['success'] ) ) {
+					$result = true;
+				} else {
+					throw new Exception( $error_message );
+				}
 			}
 			
 			if ( ! $result ) {
 				throw new Exception( __( 'Update fehlgeschlagen.', 'churchtools-suite' ) );
 			}
 			
-			// Clear update cache
-			delete_transient( 'cts_addon_update_' . sanitize_key( str_replace( '/', '_', dirname( $plugin_file ) ) ) );
+			// Clear addon update cache (legacy + new keys)
+			$plugin_slug = dirname( $plugin_file );
+			$repo = 'FEGAschaffenburg/churchtools-suite';
+			delete_transient( 'cts_addon_update_' . sanitize_key( $repo . '_' . $plugin_slug ) );
+			delete_transient( 'cts_addon_update_' . sanitize_key( $repo . '_' . $plugin_slug . '_' . ltrim( (string) $version, 'vV' ) ) );
+			delete_site_transient( 'update_plugins' );
+			wp_clean_plugins_cache();
+
+			while ( ob_get_level() ) {
+				ob_end_clean();
+			}
 			
 			wp_send_json_success( [
 				'message' => sprintf(
@@ -3406,7 +3790,7 @@ class ChurchTools_Suite_Admin {
 			] );
 		}
 	}
-	
+
 }
 
 

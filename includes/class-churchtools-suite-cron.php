@@ -334,6 +334,9 @@ class ChurchTools_Suite_Cron {
             if (is_wp_error($result)) {
                 throw new Exception($result->get_error_message());
             }
+
+            // Posts sync triggered via Hook 'cts_do_sync_posts' (if addon is active)
+            do_action( 'cts_do_sync_posts', $ct_client, $result );
             
             // Success - Fehler löschen und Stats speichern
             delete_option('churchtools_suite_last_sync_error');

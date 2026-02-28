@@ -24,11 +24,14 @@ $active_subtab = isset( $_GET['subtab'] ) ? sanitize_key( $_GET['subtab'] ) : 'a
 		<a href="?page=churchtools-suite&tab=settings&subtab=sync" class="cts-sub-tab <?php echo $active_subtab === 'sync' ? 'active' : ''; ?>">
 			<?php esc_html_e( 'Synchronisation', 'churchtools-suite' ); ?>
 		</a>
+		<a href="?page=churchtools-suite&tab=settings&subtab=posts" class="cts-sub-tab <?php echo $active_subtab === 'posts' ? 'active' : ''; ?>">
+			<?php esc_html_e( 'Berichte', 'churchtools-suite' ); ?>
+		</a>
 		<a href="?page=churchtools-suite&tab=settings&subtab=calendars" class="cts-sub-tab <?php echo $active_subtab === 'calendars' ? 'active' : ''; ?>">
 			<?php esc_html_e( 'Kalender', 'churchtools-suite' ); ?>
 		</a>
 		<a href="?page=churchtools-suite&tab=settings&subtab=services" class="cts-sub-tab <?php echo $active_subtab === 'services' ? 'active' : ''; ?>">
-			<?php esc_html_e( 'Services', 'churchtools-suite' ); ?>
+			<?php esc_html_e( 'Dienste', 'churchtools-suite' ); ?>
 		</a>
 		<a href="?page=churchtools-suite&tab=settings&subtab=templates" class="cts-sub-tab <?php echo $active_subtab === 'templates' ? 'active' : ''; ?>">
 			<?php esc_html_e( 'Templates', 'churchtools-suite' ); ?>
@@ -45,6 +48,9 @@ $active_subtab = isset( $_GET['subtab'] ) ? sanitize_key( $_GET['subtab'] ) : 'a
 	<div class="cts-subtab-content">
 		<?php
 		switch ( $active_subtab ) {
+			case 'posts':
+				include __DIR__ . '/settings/subtab-posts.php';
+				break;
 			case 'sync':
 				include __DIR__ . '/settings/subtab-sync.php';
 				break;

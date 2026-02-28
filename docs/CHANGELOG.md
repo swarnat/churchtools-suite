@@ -1,5 +1,38 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.0 - Sync Module Platform (27. Februar 2026)
+
+### ✨ Neue Features
+- **Sync-Module Registry im Core**
+  - Einführung einer zentralen Modul-Registry über `ChurchTools_Suite_Sync_Modules`
+  - Addon-Module werden über `cts_register_sync_modules` registriert
+  - Core-Modul `events` (Termine) wird immer als Basis-Modul bereitgestellt
+
+- **Sync Runtime (Status + Locks)**
+  - Neue Runtime-Klasse `ChurchTools_Suite_Sync_Runtime`
+  - Einheitliches Statusmodell pro Modul (`state`, letzte Läufe, Ergebnis)
+  - Locking für modulbezogene Aktionen zur Vermeidung paralleler Läufe
+
+### 🔧 Verbesserungen
+- **Posts-Sync Addon in Modul-Contract integriert**
+  - Modul-Manifest + Status-Callback für `posts`
+  - Runtime-gestützte Status-/Result-Integration
+
+- **Modulstatus sichtbar in beiden Bereichen**
+  - Modulstatus-Tabelle im Tab `Synchronisation`
+  - Modulstatus-Tabelle auch in `Einstellungen > Synchronisation`
+  - Karten werden immer angezeigt (inkl. Hinweis, falls keine Module vorhanden)
+
+- **Statusdarstellung vereinheitlicht**
+  - Lesbare Statuslabels: `Bereit`, `Läuft`, `OK`, `Fehler`, `Deaktiviert`
+
+### 🧩 Monorepo / Runtime
+- **Addon-Stand vereinheitlicht**
+  - Sync der Monorepo-Addon-Quellen in Runtime-Plugin-Ordner über `scripts/sync-runtime-addons.ps1`
+
+### ✅ Qualitätssicherung
+- PHP-Lint für alle betroffenen Dateien ohne Syntaxfehler
+
 ## v1.1.4.2 - Logger Simplification (19. Februar 2026)
 
 ### 🔧 Optimierungen

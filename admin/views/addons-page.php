@@ -18,21 +18,88 @@ if ( ! function_exists( 'get_plugins' ) ) {
 }
 
 /**
+ * Resolve canonical addon metadata for monorepo setup.
+ *
+ * @param string $plugin_slug Addon slug
+ * @param string $plugin_uri  Plugin URI from header
+ * @param string $plugin_file Plugin file path key from get_plugins()
+ * @return array{github_repo:string,details_url:string}
+ */
+function cts_resolve_addon_meta( $plugin_slug, $plugin_uri = '', $plugin_file = '' ) {
+	$plugin_slug = (string) $plugin_slug;
+	$plugin_file = (string) $plugin_file;
+
+	if (
+		strpos( $plugin_slug, 'churchtools-suite-elementor' ) === 0
+		|| strpos( $plugin_file, '/churchtools-suite-elementor.php' ) !== false
+	) {
+		return [
+			'github_repo' => 'FEGAschaffenburg/churchtools-suite',
+			'details_url' => 'https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-elementor',
+		];
+	}
+
+	if (
+		strpos( $plugin_slug, 'churchtools-suite-posts-sync' ) === 0
+		|| strpos( $plugin_file, '/churchtools-suite-posts-sync.php' ) !== false
+	) {
+		return [
+			'github_repo' => 'FEGAschaffenburg/churchtools-suite',
+			'details_url' => 'https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-posts-sync',
+		];
+	}
+
+	$known_addons = [
+		'churchtools-suite-elementor' => [
+			'github_repo' => 'FEGAschaffenburg/churchtools-suite',
+			'details_url' => 'https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-elementor',
+		],
+		'churchtools-suite-posts-sync' => [
+			'github_repo' => 'FEGAschaffenburg/churchtools-suite',
+			'details_url' => 'https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-posts-sync',
+		],
+	];
+
+	if ( isset( $known_addons[ $plugin_slug ] ) ) {
+		return $known_addons[ $plugin_slug ];
+	}
+
+	$github_repo = '';
+	if ( ! empty( $plugin_uri ) && preg_match( '#github\.com/([^/]+/[^/]+)#', $plugin_uri, $matches ) ) {
+		$github_repo = $matches[1];
+	}
+
+	return [
+		'github_repo' => $github_repo,
+		'details_url' => (string) $plugin_uri,
+	];
+}
+
+/**
  * Check for addon updates via GitHub API
  * 
  * @param string $github_repo Repository in format 'owner/repo'
  * @param string $current_version Current plugin version
+ * @param string $plugin_slug Addon plugin slug for asset prefix matching
  * @return array|false Update info or false if no update
  */
-function cts_check_addon_update( $github_repo, $current_version ) {
-	if ( empty( $github_repo ) || empty( $current_version ) ) {
+function cts_check_addon_update( $github_repo, $current_version, $plugin_slug = '' ) {
+	if ( empty( $github_repo ) || empty( $current_version ) || empty( $plugin_slug ) ) {
 		return false;
 	}
+
+	$current_clean = ltrim( (string) $current_version, 'vV' );
 	
 	// Check transient cache first (1 hour)
-	$cache_key = 'cts_addon_update_' . sanitize_key( $github_repo );
+	$cache_key = 'cts_addon_update_' . sanitize_key( $github_repo . '_' . $plugin_slug . '_' . $current_clean );
 	$cached = get_transient( $cache_key );
 	if ( $cached !== false ) {
+		if ( is_array( $cached ) && ! empty( $cached['latest_version'] ) ) {
+			$cached_latest = ltrim( (string) $cached['latest_version'], 'vV' );
+			if ( ! version_compare( $cached_latest, $current_clean, '>' ) ) {
+				return false;
+			}
+		}
 		return $cached;
 	}
 	
@@ -53,39 +120,55 @@ function cts_check_addon_update( $github_repo, $current_version ) {
 		return false;
 	}
 	
-	$latest_version = ltrim( $data['tag_name'], 'v' );
-	$current_clean = ltrim( $current_version, 'v' );
-	
-	if ( version_compare( $latest_version, $current_clean, '>' ) ) {
-		// Find ZIP asset
-		$zip_url = '';
-		if ( ! empty( $data['assets'] ) && is_array( $data['assets'] ) ) {
-			foreach ( $data['assets'] as $asset ) {
-				if ( isset( $asset['browser_download_url'] ) && strpos( $asset['name'], '.zip' ) !== false ) {
-					$zip_url = $asset['browser_download_url'];
-					break;
+	$release_version = ltrim( $data['tag_name'], 'v' );
+	$current_clean = ltrim( $current_version, 'vV' );
+
+	$asset_prefix = $plugin_slug . '-';
+
+	// Find ZIP asset and derive addon version from asset name in monorepo releases
+	$zip_url = '';
+	$asset_version = '';
+	if ( ! empty( $data['assets'] ) && is_array( $data['assets'] ) ) {
+		foreach ( $data['assets'] as $asset ) {
+			if ( isset( $asset['browser_download_url'], $asset['name'] )
+				&& strpos( $asset['name'], $asset_prefix ) === 0
+				&& str_ends_with( $asset['name'], '.zip' ) ) {
+				$zip_url = $asset['browser_download_url'];
+
+				if ( preg_match( '/^' . preg_quote( $plugin_slug, '/' ) . '-(.+)\\.zip$/', (string) $asset['name'], $matches ) ) {
+					$asset_version = ltrim( (string) $matches[1], 'v' );
 				}
+
+				break;
 			}
 		}
-		
-		if ( empty( $zip_url ) && ! empty( $data['zipball_url'] ) ) {
-			$zip_url = $data['zipball_url'];
-		}
-		
-		$update_info = [
-			'current_version' => $current_clean,
-			'latest_version' => $latest_version,
-			'tag_name' => $data['tag_name'],
-			'zip_url' => $zip_url,
-			'html_url' => $data['html_url'] ?? '',
-			'body' => $data['body'] ?? '',
-		];
-		
-		// Cache for 1 hour
-		set_transient( $cache_key, $update_info, HOUR_IN_SECONDS );
-		
-		return $update_info;
 	}
+
+	if ( empty( $zip_url ) ) {
+		set_transient( $cache_key, false, HOUR_IN_SECONDS );
+		return false;
+	}
+
+	$latest_version = $asset_version !== '' ? $asset_version : $release_version;
+
+	if ( ! version_compare( $latest_version, $current_clean, '>' ) ) {
+		set_transient( $cache_key, false, HOUR_IN_SECONDS );
+		return false;
+	}
+
+	$update_info = [
+		'current_version' => $current_clean,
+		'latest_version' => $latest_version,
+		'tag_name' => $data['tag_name'],
+		'zip_url' => $zip_url,
+		'html_url' => $data['html_url'] ?? '',
+		'body' => $data['body'] ?? '',
+	];
+
+	// Cache for 1 hour
+	set_transient( $cache_key, $update_info, HOUR_IN_SECONDS );
+
+	return $update_info;
 	
 	// No update available - cache for 1 hour
 	set_transient( $cache_key, false, HOUR_IN_SECONDS );
@@ -110,6 +193,11 @@ function cts_get_addon_plugins() {
 	
 	foreach ( $all_plugins as $plugin_file => $plugin_data ) {
 		$plugin_slug = dirname( $plugin_file );
+
+		// Skip source-only addon plugins located inside the main plugin directory
+		if ( strpos( (string) $plugin_file, 'churchtools-suite/addons/' ) === 0 ) {
+			continue;
+		}
 		
 		// Skip main plugin itself
 		if ( $plugin_slug === 'churchtools-suite' || $plugin_file === 'churchtools-suite/churchtools-suite.php' ) {
@@ -138,19 +226,15 @@ function cts_get_addon_plugins() {
 		}
 		
 		if ( $is_addon ) {
-			// Check for GitHub repository
-			$github_repo = '';
-			if ( ! empty( $plugin_data['PluginURI'] ) && 
-			     preg_match( '#github\.com/([^/]+/[^/]+)#', $plugin_data['PluginURI'], $matches ) ) {
-				$github_repo = $matches[1];
-			}
+			$addon_meta = cts_resolve_addon_meta( $plugin_slug, $plugin_data['PluginURI'] ?? '', $plugin_file );
 			
 			$addons[ $plugin_file ] = array_merge( $plugin_data, [
 				'plugin_file' => $plugin_file,
 				'plugin_slug' => $plugin_slug,
 				'is_active' => is_plugin_active( $plugin_file ),
 				'is_network_active' => is_plugin_active_for_network( $plugin_file ),
-				'github_repo' => $github_repo,
+				'github_repo' => $addon_meta['github_repo'],
+				'details_url' => $addon_meta['details_url'],
 			] );
 		}
 	}
@@ -175,12 +259,14 @@ if ( ! function_exists( 'get_plugins' ) ) {
 }
 
 $elementor_active = is_plugin_active( 'elementor/elementor.php' ) || did_action( 'elementor/loaded' );
-$elementor_subplugin_active = is_plugin_active( 'churchtools-suite-elementor/churchtools-suite-elementor.php' ) 
-                               || class_exists( 'CTS_Elementor_Integration' );
+$elementor_subplugin_active = is_plugin_active( 'churchtools-suite-elementor/churchtools-suite-elementor.php' );
 
 // Check if Elementor sub-plugin is installed (but possibly inactive)
 $all_plugins = get_plugins();
 $elementor_subplugin_installed = isset( $all_plugins['churchtools-suite-elementor/churchtools-suite-elementor.php'] );
+
+$posts_sync_plugin_file = 'churchtools-suite-posts-sync/churchtools-suite-posts-sync.php';
+$posts_sync_installed = isset( $all_plugins[ $posts_sync_plugin_file ] );
 
 ?>
 <div class="wrap cts-wrap">
@@ -215,7 +301,7 @@ $elementor_subplugin_installed = isset( $all_plugins['churchtools-suite-elemento
 						<?php esc_html_e( '⚡ Jetzt installieren', 'churchtools-suite' ); ?>
 					</button>
 				<?php endif; ?>
-				<a href="https://github.com/FEGAschaffenburg/churchtools-suite-elementor/releases" class="button" target="_blank" rel="noopener noreferrer">
+				<a href="https://github.com/FEGAschaffenburg/churchtools-suite/releases" class="button" target="_blank" rel="noopener noreferrer">
 					<?php esc_html_e( 'Auf GitHub ansehen', 'churchtools-suite' ); ?>
 				</a>
 			</p>
@@ -265,7 +351,7 @@ $elementor_subplugin_installed = isset( $all_plugins['churchtools-suite-elemento
 							<?php esc_html_e( '✅ Installiert & Aktiv', 'churchtools-suite' ); ?>
 						</span>
 					<?php endif; ?>
-					<a href="https://github.com/FEGAschaffenburg/churchtools-suite-elementor" class="button" target="_blank" rel="noopener noreferrer">
+					<a href="https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-elementor" class="button" target="_blank" rel="noopener noreferrer">
 						<?php esc_html_e( 'Dokumentation', 'churchtools-suite' ); ?>
 					</a>
 				</p>
@@ -316,7 +402,7 @@ $elementor_subplugin_installed = isset( $all_plugins['churchtools-suite-elemento
 						// Check for updates
 						$update_info = false;
 						if ( ! empty( $addon['github_repo'] ) && ! empty( $addon['Version'] ) ) {
-							$update_info = cts_check_addon_update( $addon['github_repo'], $addon['Version'] );
+							$update_info = cts_check_addon_update( $addon['github_repo'], $addon['Version'], $addon['plugin_slug'] );
 						}
 						
 						// Generate action links
@@ -343,11 +429,11 @@ $elementor_subplugin_installed = isset( $all_plugins['churchtools-suite-elemento
 							);
 						}
 						
-						// Plugin URI link
-						if ( ! empty( $addon['PluginURI'] ) ) {
+						// Details link
+						if ( ! empty( $addon['details_url'] ) ) {
 							$actions[] = sprintf(
 								'<a href="%s" target="_blank" rel="noopener noreferrer">%s</a>',
-								esc_url( $addon['PluginURI'] ),
+								esc_url( $addon['details_url'] ),
 								esc_html__( 'Details', 'churchtools-suite' )
 							);
 						}
@@ -396,6 +482,25 @@ $elementor_subplugin_installed = isset( $all_plugins['churchtools-suite-elemento
 				</tbody>
 			</table>
 		</div>
+
+		<?php if ( ! $posts_sync_installed ) : ?>
+			<div class="cts-section" style="margin-top: 24px;">
+				<h2><?php esc_html_e( 'Verfügbare Addons', 'churchtools-suite' ); ?></h2>
+				<div class="cts-addon-card">
+					<h3>📝 ChurchTools Suite – Posts Sync Addon</h3>
+					<p><?php esc_html_e( 'ChurchTools Suite – Posts Sync: Dieses Addon ist derzeit deaktiviert und kommt bald (comming soon).', 'churchtools-suite' ); ?></p>
+					<p>
+						<span class="button button-secondary" style="opacity: 0.7; cursor: not-allowed;" aria-disabled="true">
+							<?php esc_html_e( '⏳ comming soon', 'churchtools-suite' ); ?>
+						</span>
+						<span class="button button-secondary" style="opacity: 0.7; cursor: not-allowed;" aria-disabled="true">
+							<?php esc_html_e( 'Dokumentation', 'churchtools-suite' ); ?>
+						</span>
+					</p>
+					<div class="cts-install-result" style="display:none; margin-top:10px;"></div>
+				</div>
+			</div>
+		<?php endif; ?>
 		
 	<?php endif; ?>
 	
@@ -480,12 +585,24 @@ jQuery(document).ready(function($) {
 				nonce: '<?php echo wp_create_nonce( 'churchtools_suite_admin' ); ?>'
 			},
 			success: function(response) {
-				// Reload page to show fresh update checks
-				location.reload();
-			},
-			error: function() {
+				if (response && response.success) {
+					location.reload();
+					return;
+				}
+
+				const msg = (response && response.data && response.data.message)
+					? response.data.message
+					: '<?php esc_html_e( 'Fehler beim Prüfen der Updates', 'churchtools-suite' ); ?>';
 				$btn.prop('disabled', false).html(originalHtml);
-				alert('<?php esc_html_e( 'Fehler beim Prüfen der Updates', 'churchtools-suite' ); ?>');
+				alert(msg);
+			},
+			error: function(xhr) {
+				let msg = '<?php esc_html_e( 'Fehler beim Prüfen der Updates', 'churchtools-suite' ); ?>';
+				if (xhr && xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+					msg = xhr.responseJSON.data.message;
+				}
+				$btn.prop('disabled', false).html(originalHtml);
+				alert(msg);
 			}
 		});
 	});

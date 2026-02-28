@@ -1,11 +1,14 @@
 # ChurchTools Suite - AI Coding Guide
 
 ## Project Overview
-WordPress plugin for syncing ChurchTools calendars, events, and appointments. Two codebases exist:
-- **churchtools-suite**: Active development (v0.3.8.4, PHP 8.0+, WP 6.0+)
-- **repro-ct-suite**: Legacy/prototype version (v1.0.0.10, PHP 7.4+, WP 5.0+)
+WordPress plugin ecosystem for syncing ChurchTools calendars, events, and appointments.
 
-Focus development on `churchtools-suite/` unless explicitly working on legacy code.
+The project is managed as a **Monorepo**:
+- **Main Plugin**: `churchtools-suite/` (repo root)
+- **Elementor Addon**: `churchtools-suite/addons/churchtools-suite-elementor/`
+- **Posts Sync Addon**: `churchtools-suite/addons/churchtools-suite-posts-sync/`
+
+Focus development on the monorepo structure above.
 
 ## Architecture
 
@@ -93,17 +96,22 @@ Key API endpoints:
 ## Build & Deploy
 
 
-### Creating WordPress-compatible ZIP:
+### Creating WordPress-compatible ZIP (Monorepo):
 ```powershell
 cd scripts
-.\create-wp-zip.ps1 -Version "0.3.8.5"
+.\create-wp-zip.ps1 -Version "1.1.5.0" -Plugin main
+.\create-wp-zip.ps1 -Version "0.6.10" -Plugin elementor
+.\create-wp-zip.ps1 -Version "0.1.1" -Plugin posts-sync
 ```
 - Archives old ZIPs to `C:\privat\archiv\`
 - Normalizes paths to forward slashes (WordPress requirement)
 - Excludes: `.git`, `scripts`, `tests`, `node_modules`, `composer.*`
-- Output: `C:\privat\churchtools-suite-{version}.zip`
+- Outputs:
+   - `C:\privat\churchtools-suite-{version}.zip`
+   - `C:\privat\churchtools-suite-elementor-{version}.zip`
+   - `C:\privat\churchtools-suite-posts-sync-{version}.zip`
 
-**WICHTIG:** Nach jedem neuen ZIP-Release muss auch ein neues GitHub-Release/Tag erstellt werden (z.B. `git tag v0.9.3.0; git push; git push --tags` und Release im Web anlegen). Erst dann erkennt die Auto-Update-Funktion die neue Version!
+**WICHTIG:** Bei Monorepo-Releases werden alle Plugin-ZIPs als Assets an **ein** GitHub-Release im Repo `FEGAschaffenburg/churchtools-suite` angehängt. Erst dann erkennt die Auto-Update-Funktion neue Versionen.
 
 ### Testing:
 1. Install plugin in local WordPress

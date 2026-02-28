@@ -421,23 +421,6 @@ $tables_missing = ( $wpdb->last_error !== '' );
 					<td><?php esc_html_e( 'PHP-Version', 'churchtools-suite' ); ?></td>
 					<td><strong><?php echo esc_html( PHP_VERSION ); ?></strong></td>
 				</tr>
-				<tr>
-					<td><?php esc_html_e( 'Elementor', 'churchtools-suite' ); ?></td>
-					<td>
-						<strong>
-							<?php
-								if ( is_plugin_active( 'elementor/elementor.php' ) ) {
-									echo '<span style="color: green;">✓ Aktiv</span>';
-									if ( function_exists( 'elementor_get_version' ) ) {
-										echo ' (v' . esc_html( elementor_get_version() ) . ')';
-									}
-								} else {
-									echo '<span style="color: orange;">✗ Inaktiv</span>';
-								}
-							?>
-						</strong>
-					</td>
-				</tr>
 			</table>
 		</div>
 		<div class="cts-card-footer">
@@ -499,14 +482,33 @@ $tables_missing = ( $wpdb->last_error !== '' );
 			body: new URLSearchParams({ action: 'cts_trigger_manual_sync', nonce: churchtoolsSuite.nonce })
 	}).then(function(r) {
 		if (!r.ok) throw new Error('Server-Fehler: ' + r.status);
-		const contentType = r.headers.get('content-type');
-		if (!contentType || !contentType.includes('application/json')) {
-			return r.text().then(text => {
-				console.error('Non-JSON Response:', text.substring(0, 500));
+		return r.text().then(function(raw) {
+			const cleaned = String(raw || '').replace(/^\uFEFF/, '').trim();
+
+			if (!cleaned) {
+				throw new Error('Leere Server-Antwort erhalten');
+			}
+
+			if (cleaned === '0' || cleaned === '-1') {
+				throw new Error('Ungültige AJAX-Antwort. Bitte Seite neu laden und erneut versuchen.');
+			}
+
+			try {
+				return JSON.parse(cleaned);
+			} catch (e) {
+				const maybeJson = cleaned.replace(/^[^\[{]+/, '');
+				if (maybeJson) {
+					try {
+						return JSON.parse(maybeJson);
+					} catch (innerError) {
+						// Fall through to unified error below.
+					}
+				}
+
+				console.error('Invalid JSON Response:', cleaned.substring(0, 500));
 				throw new Error('Server hat keine gültige JSON-Antwort gesendet');
-			});
-		}
-		return r.json();
+			}
+		});
 	}).then(data => {
 		if (data.success) {
 			if (result) result.innerHTML = '<span style="color:#0a0">' + (data.data.message || '✅ Synchronisation abgeschlossen') + '</span>';
