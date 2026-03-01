@@ -39,9 +39,6 @@ $active_subtab = isset( $_GET['subtab'] ) ? sanitize_key( $_GET['subtab'] ) : 'a
 		<a href="?page=churchtools-suite&tab=settings&subtab=advanced" class="cts-sub-tab <?php echo $active_subtab === 'advanced' ? 'active' : ''; ?>">
 			<?php esc_html_e( 'Erweitert', 'churchtools-suite' ); ?>
 		</a>
-		<a href="?page=churchtools-suite&tab=settings&subtab=benutzer" class="cts-sub-tab <?php echo $active_subtab === 'benutzer' ? 'active' : ''; ?>">
-			<?php esc_html_e( 'Benutzer', 'churchtools-suite' ); ?>
-		</a>
 	</div>
 	
 	<!-- SubTab Content Wrapper -->
@@ -65,9 +62,6 @@ $active_subtab = isset( $_GET['subtab'] ) ? sanitize_key( $_GET['subtab'] ) : 'a
 				break;
 			case 'advanced':
 				include __DIR__ . '/settings/subtab-advanced.php';
-				break;
-			case 'benutzer':
-				include __DIR__ . '/settings/subtab-benutzer.php';
 				break;
 			case 'api':
 			default:

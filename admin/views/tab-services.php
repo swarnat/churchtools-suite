@@ -37,7 +37,7 @@ $last_services_sync = get_option('churchtools_suite_services_last_sync', null);
 	<div class="cts-card-body">
 		<p>
 			<?php esc_html_e('Synchronisieren Sie zuerst die verfügbaren Service-Gruppen aus ChurchTools.', 'churchtools-suite'); ?>
-			<br><em style="color: #646970; font-size: 0.95em;"><?php esc_html_e('3-Schritt-Prozess: 1) Service-Gruppen synchronisieren → 2) Gruppen auswählen → 3) Services synchronisieren & auswählen', 'churchtools-suite'); ?></em>
+			<br><em style="color: #646970; font-size: 0.95em;"><?php esc_html_e('3-Schritt-Prozess: 1) Service-Gruppen synchronisieren → 2) Dienstgruppen auswählen → 3) Services synchronisieren & auswählen', 'churchtools-suite'); ?></em>
 		</p>
 		
 		<?php if ($last_groups_sync): ?>

@@ -352,11 +352,11 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 		echo '<span class="cts-form-description">' . esc_html__( 'Eingabe in lokaler WordPress-Zeit; Speicherung als UTC für die ChurchTools API.', 'churchtools-suite-posts-sync' ) . '</span>';
 		echo '</td></tr>';
 
-		echo '<tr><th scope="row"><label for="ct_posts_group_ids">' . esc_html__( 'Gruppen-IDs', 'churchtools-suite-posts-sync' ) . '</label></th><td>';
+		echo '<tr><th scope="row"><label for="ct_posts_group_ids">' . esc_html__( 'Post-Gruppen-IDs', 'churchtools-suite-posts-sync' ) . '</label></th><td>';
 		echo '<div class="cts-posts-sync-group-sync-row">';
-		echo '<button type="submit" name="ct_posts_sync_groups_now" value="1" class="button" ' . disabled( ! $is_local_environment || ! $enabled, true, false ) . '>' . esc_html__( 'Gruppen jetzt synchronisieren', 'churchtools-suite-posts-sync' ) . '</button>';
+		echo '<button type="submit" name="ct_posts_sync_groups_now" value="1" class="button" ' . disabled( ! $is_local_environment || ! $enabled, true, false ) . '>' . esc_html__( 'Post-Gruppen jetzt synchronisieren', 'churchtools-suite-posts-sync' ) . '</button>';
 		if ( $groups_last_sync !== '' ) {
-			echo '<span class="cts-form-description">' . esc_html__( 'Letzter Gruppen-Sync:', 'churchtools-suite-posts-sync' ) . ' ' . esc_html( $groups_last_sync ) . '</span>';
+			echo '<span class="cts-form-description">' . esc_html__( 'Letzter Post-Gruppen-Sync:', 'churchtools-suite-posts-sync' ) . ' ' . esc_html( $groups_last_sync ) . '</span>';
 		}
 		echo '</div>';
 
@@ -382,7 +382,7 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 		}
 		echo '</select>';
 		echo '<input type="hidden" name="ct_posts_group_ids" value="' . esc_attr( $group_ids ) . '" />';
-		echo '<span class="cts-form-description">' . esc_html__( 'Erst Gruppen synchronisieren, dann gewünschte Gruppen auswählen.', 'churchtools-suite-posts-sync' ) . '</span>';
+		echo '<span class="cts-form-description">' . esc_html__( 'Erst Post-Gruppen synchronisieren, dann gewünschte Post-Gruppen auswählen.', 'churchtools-suite-posts-sync' ) . '</span>';
 		echo '</td></tr>';
 
 		echo '<tr><th scope="row"><label for="ct_posts_campus_ids">' . esc_html__( 'Campus-IDs', 'churchtools-suite-posts-sync' ) . '</label></th><td>';
@@ -393,7 +393,7 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 		echo '<input type="text" id="ct_posts_actor_ids" name="ct_posts_actor_ids" value="' . esc_attr( $actor_ids ) . '" placeholder="187" class="cts-form-input cts-posts-sync-field cts-posts-sync-field-medium" ' . disabled( ! $is_local_environment || ! $enabled, true, false ) . ' />';
 		echo '</td></tr>';
 
-		echo '<tr><th scope="row"><label for="ct_posts_group_visibility">' . esc_html__( 'Gruppen-Sichtbarkeit', 'churchtools-suite-posts-sync' ) . '</label></th><td>';
+		echo '<tr><th scope="row"><label for="ct_posts_group_visibility">' . esc_html__( 'Post-Gruppen-Sichtbarkeit', 'churchtools-suite-posts-sync' ) . '</label></th><td>';
 		echo '<select id="ct_posts_group_visibility" name="ct_posts_group_visibility" class="cts-form-input cts-posts-sync-field cts-posts-sync-field-medium" ' . disabled( ! $is_local_environment || ! $enabled, true, false ) . '>';
 		echo '<option value="" ' . selected( $group_visibility, '', false ) . '>' . esc_html__( 'Alle', 'churchtools-suite-posts-sync' ) . '</option>';
 		echo '<option value="hidden" ' . selected( $group_visibility, 'hidden', false ) . '>hidden</option>';

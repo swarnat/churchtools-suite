@@ -15,17 +15,13 @@
 		console.log('[ChurchTools Suite] jQuery version:', $.fn.jquery);
 		console.log('[ChurchTools Suite] Body classes:', $('body').attr('class'));
 		
-		// Check if we're in editor mode (Gutenberg or Elementor)
+		// Check if we're in editor mode
 		const isEditor = $('body').hasClass('block-editor-page') || 
-		                 typeof elementor !== 'undefined' ||
-		                 $('body').hasClass('elementor-editor-active') ||
 		                 $('body').hasClass('wp-admin') ||
 		                 window.location.href.indexOf('/wp-admin/') !== -1;
 		
 		console.log('[ChurchTools Suite] Editor mode check:', {
 			'block-editor-page': $('body').hasClass('block-editor-page'),
-			'elementor': typeof elementor !== 'undefined',
-			'elementor-editor-active': $('body').hasClass('elementor-editor-active'),
 			'wp-admin': $('body').hasClass('wp-admin'),
 			'url-check': window.location.href.indexOf('/wp-admin/') !== -1,
 			'isEditor': isEditor
@@ -1176,67 +1172,5 @@
 		
 		console.log('[ChurchTools Suite] Carousel views initialized:', $('.cts-carousel-classic').length);
 	}
-
-	/**
-	 * Elementor Frontend Support
-	 * Re-initialize handlers when Elementor widgets are loaded/refreshed
-	 */
-	$(window).on('elementor/frontend/init', function() {
-		console.log('[ChurchTools Suite] Elementor frontend initialized');
-		
-		elementorFrontend.hooks.addAction('frontend/element_ready/widget', function($scope) {
-			console.log('[ChurchTools Suite] Elementor widget ready, checking for CTS widgets');
-			
-			// Check if this is a ChurchTools Suite widget
-			if ($scope.find('.cts-events-container, .cts-calendar-monthly, .cts-event-grid, .cts-event-list, .cts-countdown-classic').length > 0) {
-				console.log('[ChurchTools Suite] CTS widget detected, reinitializing handlers');
-				
-				// Re-initialize calendar views for this widget
-				$scope.find('.cts-calendar-monthly').each(function() {
-					const $calendar = $(this);
-					if (!$calendar.data('calendar-initialized')) {
-						$calendar.data('calendar-initialized', true);
-						setupCalendarNavigation($calendar);
-					}
-				});
-				
-				// Re-initialize countdown timers for this widget
-				$scope.find('.cts-countdown-classic').each(function() {
-					const $countdown = $(this);
-					if (!$countdown.data('countdown-interval')) {
-						// Initialize countdown (same logic as initCountdownTimers)
-						const targetDate = $countdown.data('countdown-target');
-						if (targetDate) {
-							const target = new Date(targetDate);
-							if (!isNaN(target.getTime())) {
-								const updateCountdown = function() {
-									const now = new Date();
-									const diff = target - now;
-									if (diff <= 0) {
-										$countdown.find('[data-unit="days"]').text('0');
-										$countdown.find('[data-unit="hours"]').text('0');
-										$countdown.find('[data-unit="minutes"]').text('0');
-										$countdown.find('[data-unit="seconds"]').text('0');
-										return;
-									}
-									const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-									const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-									const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-									const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-									$countdown.find('[data-unit="days"]').text(days);
-									$countdown.find('[data-unit="hours"]').text(hours);
-									$countdown.find('[data-unit="minutes"]').text(minutes);
-									$countdown.find('[data-unit="seconds"]').text(seconds);
-								};
-								updateCountdown();
-								const intervalId = setInterval(updateCountdown, 1000);
-								$countdown.data('countdown-interval', intervalId);
-							}
-						}
-					}
-				});
-			}
-		});
-	});
 
 })(jQuery);

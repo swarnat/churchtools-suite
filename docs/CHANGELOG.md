@@ -1,5 +1,26 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.2 - Core/Elementor Entkopplung & UI-Klarheit (1. März 2026)
+
+### 🛡️ Stabilität
+- **Elementor-Code aus dem Core entfernt**
+  - Elementor-spezifische Bridge in `assets/js/churchtools-suite-public.js` entfernt
+  - Kein Zugriff des Hauptmoduls mehr auf `elementorFrontend`/Elementor-Hooks
+  - Verhindert Nebenwirkungen im Elementor-Editor, wenn das Elementor-Addon nicht installiert ist
+
+### 🧭 Admin-UX
+- **Health-Übersicht in Debug integriert**
+  - Health-Status der Sync-Module in `Debug > Übersicht` sichtbar
+
+- **Settings bereinigt**
+  - Subtab `Benutzer` aus `Einstellungen` entfernt
+
+- **Begriffe präzisiert**
+  - Eindeutige Trennung in der UI zwischen `Dienstgruppen` und `Post-Gruppen`
+
+### ✅ Qualitätssicherung
+- Syntaxprüfung der betroffenen PHP-Dateien erfolgreich
+
 ## v1.2.0.1 - Hotfix Grid Template Parse Error (28. Februar 2026)
 
 ### 🐛 Kritischer Bugfix

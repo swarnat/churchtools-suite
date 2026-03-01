@@ -48,7 +48,7 @@ $last_stats = is_array( $last_result ) ? (array) ( $last_result['stats'] ?? [] )
 				<thead>
 					<tr>
 						<th><?php esc_html_e( 'Titel', 'churchtools-suite-posts-sync' ); ?></th>
-						<th><?php esc_html_e( 'Gruppe', 'churchtools-suite-posts-sync' ); ?></th>
+						<th><?php esc_html_e( 'Post-Gruppe', 'churchtools-suite-posts-sync' ); ?></th>
 						<th><?php esc_html_e( 'Person', 'churchtools-suite-posts-sync' ); ?></th>
 						<th><?php esc_html_e( 'Typ', 'churchtools-suite-posts-sync' ); ?></th>
 						<th><?php esc_html_e( 'Status', 'churchtools-suite-posts-sync' ); ?></th>
