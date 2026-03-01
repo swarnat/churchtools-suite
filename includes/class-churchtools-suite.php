@@ -205,9 +205,14 @@ class ChurchTools_Suite {
 	 * 
 	 * @since 0.5.1.0
 	 * @since 0.6.0.3 Simplified - always load assets (small files, better UX)
+	 * @since 1.2.0.3 Guard against Elementor editor admin context
 	 */
 	public function enqueue_public_assets(): void {
-		// Always load assets - they're small and better UX than conditional loading issues
+		// Don't load on Elementor editor admin page (not the preview iframe)
+		// The preview iframe uses wp_enqueue_scripts (frontend context)
+		if ( is_admin() && isset( $_GET['action'] ) && $_GET['action'] === 'elementor' ) {
+			return;
+		}
 		
 		// Enqueue CSS (cache-busted by filemtime when available)
 		$css_version = $this->version;

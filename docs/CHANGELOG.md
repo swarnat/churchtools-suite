@@ -1,5 +1,28 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.3 - Kritischer Bugfix: UTF-8 BOM & Elementor-Editor-Kompatibilität (1. März 2026)
+
+### 🐛 Kritischer Bugfix
+- **UTF-8 BOM aus PHP-Dateien entfernt**
+  - `churchtools-suite.php` und `class-churchtools-suite-logger.php` hatten UTF-8 BOM (EF BB BF)
+  - BOM wurde bei jeder HTTP-Antwort als Rohtext ausgegeben und brach alle JSON/REST-API-Responses
+  - Elementor-Editor zeigte weißes Canvas wegen `SyntaxError: Unexpected token '﻿'` in REST-Antworten
+  - Fix: BOM aus beiden Dateien entfernt
+
+### 🛡️ Stabilität
+- **isEditor-Erkennung für Elementor-Preview erweitert**
+  - `elementor-editor-active`-Body-Klasse und `elementor-preview`-URL-Parameter werden nun erkannt
+  - Click-Handler (Modal, Navigation) werden im Elementor-Preview-Iframe nicht mehr initialisiert
+
+- **`enqueue_block_assets`-Guard für Elementor-Admin-Seite**
+  - Public-Assets werden auf der Elementor-Editor-Admin-Seite (`post.php?action=elementor`) nicht geladen
+  - Reduziert potenzielle Konflikte mit dem Elementor-Editor-Kontext
+
+### ⚠️ Hinweis nach Update
+- **OPcache leeren**: Nach dem Update Laragon neu starten (Stop → Start) um den PHP OPcache zu leeren
+
+---
+
 ## v1.2.0.2 - Core/Elementor Entkopplung & UI-Klarheit (1. März 2026)
 
 ### 🛡️ Stabilität

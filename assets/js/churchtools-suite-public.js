@@ -15,15 +15,19 @@
 		console.log('[ChurchTools Suite] jQuery version:', $.fn.jquery);
 		console.log('[ChurchTools Suite] Body classes:', $('body').attr('class'));
 		
-		// Check if we're in editor mode
+		// Check if we're in editor mode (Gutenberg or Elementor)
 		const isEditor = $('body').hasClass('block-editor-page') || 
 		                 $('body').hasClass('wp-admin') ||
-		                 window.location.href.indexOf('/wp-admin/') !== -1;
+		                 $('body').hasClass('elementor-editor-active') ||
+		                 window.location.href.indexOf('/wp-admin/') !== -1 ||
+		                 window.location.search.indexOf('elementor-preview') !== -1;
 		
 		console.log('[ChurchTools Suite] Editor mode check:', {
 			'block-editor-page': $('body').hasClass('block-editor-page'),
 			'wp-admin': $('body').hasClass('wp-admin'),
+			'elementor-editor-active': $('body').hasClass('elementor-editor-active'),
 			'url-check': window.location.href.indexOf('/wp-admin/') !== -1,
+			'elementor-preview': window.location.search.indexOf('elementor-preview') !== -1,
 			'isEditor': isEditor
 		});
 		
