@@ -574,16 +574,39 @@
 	}
 
 	/**
+	 * Normalize data-* boolean-ish values from jQuery .data().
+	 * Accepts true/false, 1/0, "1"/"0", "true"/"false", "yes"/"no", "on"/"off".
+	 */
+	function parseDataBool(value, defaultValue) {
+		if (typeof value === 'boolean') {
+			return value;
+		}
+		if (typeof value === 'number') {
+			return value !== 0;
+		}
+		if (typeof value === 'string') {
+			const normalized = value.trim().toLowerCase();
+			if (['1', 'true', 'yes', 'on'].indexOf(normalized) !== -1) {
+				return true;
+			}
+			if (['0', 'false', 'no', 'off'].indexOf(normalized) !== -1) {
+				return false;
+			}
+		}
+		return defaultValue;
+	}
+
+	/**
 	 * Display event data in modal
 	 * @param {object} event - Event data from backend
 	 * @param {jQuery} $container - Optional container element with display settings
 	 */
 	function displayEventData(event, $container) {
 		// Extract display options from container (calendar/grid/list view)
-		const showDescription = $container ? ($container.data('show-description') === true) : true;
-		const showLocation = $container ? ($container.data('show-location') === true) : true;
-		const showServices = $container ? ($container.data('show-services') === true) : true;
-		const showCalendarName = $container ? ($container.data('show-calendar-name') === true) : true;
+		const showDescription = $container ? parseDataBool($container.data('show-description'), true) : true;
+		const showLocation = $container ? parseDataBool($container.data('show-location'), true) : true;
+		const showServices = $container ? parseDataBool($container.data('show-services'), true) : true;
+		const showCalendarName = $container ? parseDataBool($container.data('show-calendar-name'), true) : true;
 		
 		console.log('[Modal] Display options:', {showDescription, showLocation, showServices, showCalendarName});
 		
@@ -656,7 +679,7 @@
 		console.log('[Modal] appointment_description:', event.appointment_description);
 		
 		// Event Description (in main area)
-		if (event.event_description && event.event_description.trim() !== '') {
+		if (showDescription && event.event_description && event.event_description.trim() !== '') {
 			console.log('[Modal] Showing event description');
 			$('#cts-modal-event-description-content').html(event.event_description);
 			$('#cts-modal-event-description').show();
@@ -666,7 +689,7 @@
 		}
 		
 		// Appointment Description (in main area)
-		if (event.appointment_description && event.appointment_description.trim() !== '') {
+		if (showDescription && event.appointment_description && event.appointment_description.trim() !== '') {
 			console.log('[Modal] Showing appointment description');
 			$('#cts-modal-appointment-description-content').html(event.appointment_description);
 			$('#cts-modal-appointment-description').show();

@@ -114,6 +114,8 @@ class ChurchTools_Suite_Blocks {
 	 * @return string Rendered HTML
 	 */
 	public static function render_events_block( $attributes ): string {
+		// Ensure services toggle is interpreted robustly across editor/runtime variants.
+		$attributes['show_services'] = self::normalize_bool_attribute( $attributes, 'show_services', 'showServices', false );
 		
 		// v1.1.2.0: Convert Block attributes (camelCase) to Shortcode params (snake_case)
 		// Route to appropriate shortcode handler
@@ -150,6 +152,41 @@ class ChurchTools_Suite_Blocks {
 		}
 		
 		return '<p>' . __( 'Dieser Ansichtstyp ist derzeit deaktiviert.', 'churchtools-suite' ) . '</p>';
+	}
+
+	/**
+	 * Normalize boolean block attributes with optional fallback key.
+	 *
+	 * @param array<string,mixed> $attributes
+	 */
+	private static function normalize_bool_attribute( array $attributes, string $primary_key, string $fallback_key = '', bool $default = false ): bool {
+		$value = $default;
+
+		if ( array_key_exists( $primary_key, $attributes ) ) {
+			$value = $attributes[ $primary_key ];
+		} elseif ( $fallback_key !== '' && array_key_exists( $fallback_key, $attributes ) ) {
+			$value = $attributes[ $fallback_key ];
+		}
+
+		if ( is_bool( $value ) ) {
+			return $value;
+		}
+
+		if ( is_numeric( $value ) ) {
+			return (int) $value !== 0;
+		}
+
+		if ( is_string( $value ) ) {
+			$normalized = strtolower( trim( $value ) );
+			if ( in_array( $normalized, [ '1', 'true', 'yes', 'on' ], true ) ) {
+				return true;
+			}
+			if ( in_array( $normalized, [ '0', 'false', 'no', 'off', '' ], true ) ) {
+				return false;
+			}
+		}
+
+		return $default;
 	}
 	
 	/**

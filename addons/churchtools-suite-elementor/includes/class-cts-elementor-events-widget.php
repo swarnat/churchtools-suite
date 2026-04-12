@@ -728,19 +728,19 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 		// Build shortcode attributes
 		$atts = [
 			'view' => $selected_view,
-			'show_event_description' => ( isset($settings['show_event_description']) && $settings['show_event_description'] === 'yes' ) ? '1' : '0',
-			'show_appointment_description' => ( isset($settings['show_appointment_description']) && $settings['show_appointment_description'] === 'yes' ) ? '1' : '0',
-			'show_location' => ( isset($settings['show_location']) && $settings['show_location'] === 'yes' ) ? '1' : '0',
-			'show_time' => ( isset($settings['show_time']) && $settings['show_time'] === 'yes' ) ? '1' : '0',
-			'show_tags' => ( isset($settings['show_tags']) && $settings['show_tags'] === 'yes' ) ? '1' : '0',
-			'show_images' => ( isset($settings['show_images']) && $settings['show_images'] === 'yes' ) ? '1' : '0',
-			'show_calendar_name' => ( isset($settings['show_calendar_name']) && $settings['show_calendar_name'] === 'yes' ) ? '1' : '0',
-			'show_services' => ( isset($settings['show_services']) && $settings['show_services'] === 'yes' ) ? '1' : '0',
-			'show_past_events' => ( isset($settings['show_past_events']) && $settings['show_past_events'] === 'yes' ) ? '1' : '0',
-			'show_month_separator' => ( isset($settings['show_month_separator']) && $settings['show_month_separator'] === 'yes' ) ? '1' : '0',
+			'show_event_description' => $this->is_switcher_enabled( $settings, 'show_event_description', true ) ? '1' : '0',
+			'show_appointment_description' => $this->is_switcher_enabled( $settings, 'show_appointment_description', true ) ? '1' : '0',
+			'show_location' => $this->is_switcher_enabled( $settings, 'show_location', true ) ? '1' : '0',
+			'show_time' => $this->is_switcher_enabled( $settings, 'show_time', true ) ? '1' : '0',
+			'show_tags' => $this->is_switcher_enabled( $settings, 'show_tags', false ) ? '1' : '0',
+			'show_images' => $this->is_switcher_enabled( $settings, 'show_images', true ) ? '1' : '0',
+			'show_calendar_name' => $this->is_switcher_enabled( $settings, 'show_calendar_name', true ) ? '1' : '0',
+			'show_services' => $this->is_switcher_enabled( $settings, 'show_services', false ) ? '1' : '0',
+			'show_past_events' => $this->is_switcher_enabled( $settings, 'show_past_events', false ) ? '1' : '0',
+			'show_month_separator' => $this->is_switcher_enabled( $settings, 'show_month_separator', true ) ? '1' : '0',
 			'event_action' => isset( $settings['event_action'] ) ? $settings['event_action'] : 'modal',
 			'style_mode' => $settings['style_mode'] ?? 'theme',
-			'use_calendar_colors' => ( isset($settings['use_calendar_colors']) && $settings['use_calendar_colors'] === 'yes' ) ? '1' : '0',
+			'use_calendar_colors' => $this->is_switcher_enabled( $settings, 'use_calendar_colors', false ) ? '1' : '0',
 			'custom_primary_color' => $settings['custom_primary_color'] ?? '#2563eb',
 			'custom_text_color' => $settings['custom_text_color'] ?? '#1e293b',
 			'custom_background_color' => $settings['custom_background_color'] ?? '#ffffff',
@@ -804,6 +804,39 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 			$output .= ' ' . $key . '="' . esc_attr( $value ) . '"';
 		}
 		return $output;
+	}
+
+	/**
+	 * Normalize Elementor switcher values across versions (yes/true/1/on).
+	 *
+	 * @param array<string,mixed> $settings
+	 */
+	private function is_switcher_enabled( array $settings, string $key, bool $default = false ): bool {
+		if ( ! array_key_exists( $key, $settings ) ) {
+			return $default;
+		}
+
+		$value = $settings[ $key ];
+
+		if ( is_bool( $value ) ) {
+			return $value;
+		}
+
+		if ( is_numeric( $value ) ) {
+			return (int) $value !== 0;
+		}
+
+		if ( is_string( $value ) ) {
+			$normalized = strtolower( trim( $value ) );
+			if ( in_array( $normalized, [ 'yes', 'true', '1', 'on' ], true ) ) {
+				return true;
+			}
+			if ( in_array( $normalized, [ 'no', 'false', '0', 'off', '' ], true ) ) {
+				return false;
+			}
+		}
+
+		return $default;
 	}
 
 		/**

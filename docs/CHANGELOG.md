@@ -1,5 +1,25 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.7 - Frontend/Elementor Hotfixes (12. April 2026)
+
+### 🛠️ Hotfixes
+- **Modal-Popup Anzeige stabilisiert**
+  - Robuste Bool-Auswertung für `data-*` Anzeigeoptionen im Frontend-Modal
+  - Verhindert inkonsistente Anzeige von Details je nach View/Container
+
+- **Elementor Listenansicht: Services-Fix (Addon v0.6.14)**
+  - Switcher-Werte werden robust ausgewertet (`yes/true/1/on`)
+  - `show_services` wird zuverlässig an Shortcodes übergeben
+
+- **Deploy-Skripte gehärtet**
+  - Automatische Rechte-Normalisierung nach SCP-Deploy (`dirs 755`, `files 644`)
+  - Verhindert 403-Fehler bei CSS/JS-Assets nach Deployment
+
+### 📦 Release-Artefakte
+- `churchtools-suite-1.2.0.7.zip`
+- `churchtools-suite-elementor-0.6.14.zip`
+- `churchtools-suite-posts-sync-0.1.4.zip`
+
 ## v1.2.0.6 - Updater-Hotfix für Elementor Addon (12. April 2026)
 
 ### 🛠️ Hotfix
