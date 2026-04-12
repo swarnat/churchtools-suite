@@ -1,5 +1,18 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.5 - Elementor 4 Kompatibilitäts-Härtung (12. April 2026)
+
+### 🔧 Verbesserungen
+- **Elementor-Addon auf v0.6.12 aktualisiert**
+  - Robustere Aktualisierung der `event_id`-Optionsliste im Elementor-Editor
+  - Keine fragile direkte Select2-Reinitialisierung mehr
+  - Stabileres Verhalten in neueren Elementor-Editor-Versionen (u. a. 4.x)
+
+### 📦 Release-Artefakte
+- `churchtools-suite-1.2.0.5.zip`
+- `churchtools-suite-elementor-0.6.12.zip`
+- `churchtools-suite-posts-sync-0.1.4.zip`
+
 ## v1.2.0.4 - Posts-Sync Frontend & Block-Stabilisierung (12. April 2026)
 
 ### ✨ Neue Features
