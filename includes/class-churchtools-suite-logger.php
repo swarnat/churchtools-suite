@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /**
  * Logger Class (Simplified v1.1.4.2)
  * 

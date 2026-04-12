@@ -2,8 +2,8 @@
 /**
  * Plugin Name: ChurchTools Suite – Posts Sync Addon
  * Plugin URI: https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-posts-sync
- * Description: Synchronisiert ChurchTools-Posts in WordPress-Posts/Seiten. Benötigt ChurchTools Suite v1.1.5.0+
- * Version: 0.1.3
+ * Description: Synchronisiert ChurchTools-Posts in WordPress-Posts/Seiten. Benötigt ChurchTools Suite v1.2.0.0+
+ * Version: 0.1.4
  * Author: FEG Aschaffenburg
  * Author URI: https://www.feg-aschaffenburg.de
  * License: GPL v2 or later
@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define constants
-define( 'CTS_POSTS_SYNC_VERSION', '0.1.3' );
+define( 'CTS_POSTS_SYNC_VERSION', '0.1.4' );
 define( 'CTS_POSTS_SYNC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CTS_POSTS_SYNC_URL', plugin_dir_url( __FILE__ ) );
 define( 'CTS_POSTS_SYNC_CPT', 'ct_post' );
@@ -79,8 +79,8 @@ class ChurchTools_Suite_Posts_Sync {
 	 * Initialize the addon
 	 */
 	public static function init() {
-		if ( ! self::is_local_environment() ) {
-			self::deactivate_if_not_local();
+		if ( ! self::is_allowed_environment() ) {
+			self::deactivate_if_not_allowed_environment();
 			return;
 		}
 
@@ -101,6 +101,9 @@ class ChurchTools_Suite_Posts_Sync {
 		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 		add_action( 'cts_do_sync_posts', [ __CLASS__, 'handle_sync_posts' ], 10, 2 );
 		add_filter( 'cts_register_sync_modules', [ __CLASS__, 'register_sync_module' ] );
+
+		require_once CTS_POSTS_SYNC_PATH . 'includes/class-cts-posts-sync-frontend.php';
+		ChurchTools_Suite_Posts_Sync_Frontend::init();
 
 		// Initialize admin if applicable
 		if ( is_admin() ) {
@@ -262,20 +265,29 @@ class ChurchTools_Suite_Posts_Sync {
 	 * Check if ChurchTools Suite main plugin is active
 	 */
 	private static function is_main_plugin_active() {
-		return defined( 'CHURCHTOOLS_SUITE_VERSION' ) && function_exists( 'is_plugin_active' ) && is_plugin_active( 'churchtools-suite/churchtools-suite.php' );
+		if ( class_exists( 'ChurchTools_Suite' ) || defined( 'CHURCHTOOLS_SUITE_VERSION' ) ) {
+			return true;
+		}
+
+		if ( function_exists( 'is_plugin_active' ) ) {
+			return is_plugin_active( 'churchtools-suite/churchtools-suite.php' );
+		}
+
+		return false;
 	}
 
 	/**
 	 * Allow this addon only in local environments while under development.
 	 */
-	private static function is_local_environment() {
+	private static function is_allowed_environment() {
 		if ( defined( 'CTS_POSTS_SYNC_FORCE_ENABLE' ) && CTS_POSTS_SYNC_FORCE_ENABLE ) {
 			return true;
 		}
 
+		$env_type = '';
 		if ( function_exists( 'wp_get_environment_type' ) ) {
-			$env_type = wp_get_environment_type();
-			if ( $env_type === 'local' ) {
+			$env_type = (string) wp_get_environment_type();
+			if ( in_array( $env_type, [ 'local', 'development', 'staging' ], true ) ) {
 				return true;
 			}
 		}
@@ -283,23 +295,32 @@ class ChurchTools_Suite_Posts_Sync {
 		$host = parse_url( home_url(), PHP_URL_HOST );
 		$host = is_string( $host ) ? strtolower( $host ) : '';
 
+		$is_allowed = false;
+
 		if ( $host !== '' ) {
 			if ( in_array( $host, [ 'localhost', '127.0.0.1', '::1' ], true ) ) {
-				return true;
+				$is_allowed = true;
 			}
 
-			if ( preg_match( '/\.(test|local|localhost)$/', $host ) ) {
-				return true;
+			if ( ! $is_allowed && preg_match( '/\.(test|local|localhost)$/', $host ) ) {
+				$is_allowed = true;
 			}
 		}
 
-		return false;
+		/**
+		 * Filter whether Posts Sync is allowed in current environment.
+		 *
+		 * @param bool   $is_allowed Default decision.
+		 * @param string $env_type   WordPress environment type.
+		 * @param string $host       Current host.
+		 */
+		return (bool) apply_filters( 'cts_posts_sync_is_allowed_environment', $is_allowed, $env_type, $host );
 	}
 
 	/**
-	 * Deactivate addon outside local environments and show notice.
+	 * Deactivate addon outside allowed environments and show notice.
 	 */
-	private static function deactivate_if_not_local() {
+	private static function deactivate_if_not_allowed_environment() {
 		if ( is_admin() ) {
 			if ( ! function_exists( 'is_plugin_active' ) || ! function_exists( 'deactivate_plugins' ) ) {
 				require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -336,7 +357,7 @@ class ChurchTools_Suite_Posts_Sync {
 		<div class="notice notice-warning is-dismissible">
 			<p>
 				<strong><?php esc_html_e( 'ChurchTools Suite – Posts Sync:', 'churchtools-suite-posts-sync' ); ?></strong>
-				<?php esc_html_e( 'Dieses Addon ist derzeit deaktiviert und kommt bald (comming soon).', 'churchtools-suite-posts-sync' ); ?>
+				<?php esc_html_e( 'Dieses Addon ist in dieser Umgebung deaktiviert und wird noch ausgerollt (coming soon).', 'churchtools-suite-posts-sync' ); ?>
 			</p>
 		</div>
 		<?php

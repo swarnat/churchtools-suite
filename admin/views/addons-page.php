@@ -488,10 +488,10 @@ $posts_sync_installed = isset( $all_plugins[ $posts_sync_plugin_file ] );
 				<h2><?php esc_html_e( 'Verfügbare Addons', 'churchtools-suite' ); ?></h2>
 				<div class="cts-addon-card">
 					<h3>📝 ChurchTools Suite – Posts Sync Addon</h3>
-					<p><?php esc_html_e( 'ChurchTools Suite – Posts Sync: Dieses Addon ist derzeit deaktiviert und kommt bald (comming soon).', 'churchtools-suite' ); ?></p>
+					<p><?php esc_html_e( 'ChurchTools Suite – Posts Sync: Dieses Addon ist derzeit deaktiviert und kommt bald (coming soon).', 'churchtools-suite' ); ?></p>
 					<p>
 						<span class="button button-secondary" style="opacity: 0.7; cursor: not-allowed;" aria-disabled="true">
-							<?php esc_html_e( '⏳ comming soon', 'churchtools-suite' ); ?>
+							<?php esc_html_e( '⏳ coming soon', 'churchtools-suite' ); ?>
 						</span>
 						<span class="button button-secondary" style="opacity: 0.7; cursor: not-allowed;" aria-disabled="true">
 							<?php esc_html_e( 'Dokumentation', 'churchtools-suite' ); ?>

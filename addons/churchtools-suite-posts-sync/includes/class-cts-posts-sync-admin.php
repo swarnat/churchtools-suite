@@ -503,12 +503,18 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 	}
 
 	private function is_local_environment(): bool {
+		if ( defined( 'CTS_POSTS_SYNC_FORCE_ENABLE' ) && CTS_POSTS_SYNC_FORCE_ENABLE ) {
+			return true;
+		}
+
 		$env_type = function_exists( 'wp_get_environment_type' ) ? wp_get_environment_type() : '';
 		$home_host = parse_url( home_url(), PHP_URL_HOST );
 		$home_host = is_string( $home_host ) ? strtolower( $home_host ) : '';
 		$is_local_host = $home_host !== '' && ( in_array( $home_host, [ 'localhost', '127.0.0.1', '::1' ], true ) || preg_match( '/\.(test|local|localhost)$/', $home_host ) );
 
-		return ( $env_type === 'local' ) || (bool) $is_local_host;
+		$is_allowed = in_array( (string) $env_type, [ 'local', 'development', 'staging' ], true ) || (bool) $is_local_host;
+
+		return (bool) apply_filters( 'cts_posts_sync_is_allowed_environment', $is_allowed, (string) $env_type, $home_host );
 	}
 
 	private function sanitize_id_list_input( string $input ): string {

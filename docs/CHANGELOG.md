@@ -1,5 +1,29 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.4 - Posts-Sync Frontend & Block-Stabilisierung (12. April 2026)
+
+### ✨ Neue Features
+- **Posts-Frontend-Ausgabe für das Posts-Sync-Addon**
+  - Neuer Gutenberg-Block "ChurchTools Berichte"
+  - Neuer Shortcode `[cts_posts]` für flexible Einbindung
+  - Gemeinsame Render-Logik für Block und Shortcode
+
+### 🔧 Verbesserungen
+- **"Nur neue"-Filter verfeinert**
+  - Berücksichtigt jetzt neben dem Datum auch die genaue Ende-Uhrzeit
+  - Zeitfensterprüfung nutzt Veröffentlichungs-/Ablauf-Metadaten
+
+- **Block-Registrierung robuster gemacht**
+  - Zusätzliche Fallback-Registrierung/Enqueue für Editor-Kontexte mit abweichendem Verhalten
+
+- **Umgebungslogik im Posts-Sync-Addon vereinheitlicht**
+  - Freigabe für `local`, `development`, `staging`
+  - Optionales Force-Enable und Filter-Hook für Overrides
+
+### 🧩 Monorepo / Runtime
+- **Addon-Sync in Runtime-Ordner beibehalten**
+  - Änderungen an Addons werden weiterhin per `scripts/sync-runtime-addons.ps1` in aktive Runtime-Plugin-Ordner gespiegelt
+
 ## v1.2.0.3 - Kritischer Bugfix: UTF-8 BOM & Elementor-Editor-Kompatibilität (1. März 2026)
 
 ### 🐛 Kritischer Bugfix
