@@ -52,6 +52,20 @@ class CTS_Elementor_Auto_Updater {
 		
 		// Provide plugin information for update modal
 		add_filter( 'plugins_api', [ __CLASS__, 'plugins_api_filter' ], 10, 3 );
+
+		// Force refresh when opening Plugins / Updates screens to avoid stale cache.
+		add_action( 'load-plugins.php', [ __CLASS__, 'force_cache_refresh' ] );
+		add_action( 'load-update-core.php', [ __CLASS__, 'force_cache_refresh' ] );
+	}
+
+	/**
+	 * Force refresh updater caches so WordPress requests fresh release metadata.
+	 */
+	public static function force_cache_refresh(): void {
+		self::clear_cache();
+		delete_site_transient( 'update_plugins' );
+		wp_clean_plugins_cache();
+		wp_update_plugins();
 	}
 
 	/**

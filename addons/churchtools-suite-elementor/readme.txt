@@ -4,7 +4,7 @@ Tags: churchtools, elementor, events, calendar, church
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 8.0
-Stable tag: 0.6.12
+Stable tag: 0.6.13
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
@@ -110,6 +110,10 @@ Ja, aber ohne Elementor-Widget. Gutenberg Blöcke und Shortcodes funktionieren n
 4. Live-Preview - Event-Liste im Elementor Editor
 
 == Changelog ==
+
+= 0.6.13 - 2026-04-12 =
+* Updater-Hotfix: erzwungene Cache-Aktualisierung auf Plugins-/Update-Seiten
+* Verhindert, dass veraltete Update-Transients ein verfügbares Addon-Update ausblenden
 
 = 0.6.12 - 2026-04-12 =
 * Elementor-4-Kompatibilität gehärtet: robustere Aktualisierung der `event_id`-Optionen im Editor

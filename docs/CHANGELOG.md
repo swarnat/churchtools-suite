@@ -1,5 +1,17 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.6 - Updater-Hotfix für Elementor Addon (12. April 2026)
+
+### 🛠️ Hotfix
+- **Elementor-Addon Updater aktualisiert (v0.6.13)**
+  - Erzwingt Refresh der Update-Caches auf `Plugins`- und `Update`-Seite
+  - Verhindert, dass stale Transients verfügbare Addon-Updates ausblenden
+
+### 📦 Release-Artefakte
+- `churchtools-suite-1.2.0.6.zip`
+- `churchtools-suite-elementor-0.6.13.zip`
+- `churchtools-suite-posts-sync-0.1.4.zip`
+
 ## v1.2.0.5 - Elementor 4 Kompatibilitäts-Härtung (12. April 2026)
 
 ### 🔧 Verbesserungen
