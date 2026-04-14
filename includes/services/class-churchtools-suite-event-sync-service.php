@@ -1464,16 +1464,15 @@ class ChurchTools_Suite_Event_Sync_Service {
 			// Extract person name (v0.7.2.9: Check personId on eventService level)
 			$person_name = '';
 			
-			// v0.7.2.9: personId is directly on eventService, not nested in person!
-			// Check if personId is null - skip service if not assigned
-			if (!isset($event_service['personId']) || $event_service['personId'] === null) {
-				ChurchTools_Suite_Logger::debug(
-					'event_sync',
-					sprintf('Skipping service %s - personId is null (not assigned)', $service_id),
-					['event_id' => $event_id, 'service_id' => $service_id, 'personId' => $event_service['personId'] ?? 'NOT_SET']
-				);
-				continue;
-			}
+            // v0.7.2.9: personId is directly on eventService, not nested in person.
+            // Do not skip unassigned services: keep service_name visible in list/single templates.
+            if (!isset($event_service['personId']) || $event_service['personId'] === null) {
+                ChurchTools_Suite_Logger::debug(
+                    'event_sync',
+                    sprintf('Importing service %s without assigned person (personId is null)', $service_id),
+                    ['event_id' => $event_id, 'service_id' => $service_id, 'personId' => $event_service['personId'] ?? 'NOT_SET']
+                );
+            }
 			
 			// Person is assigned, try to get name from person object
 			if (!empty($event_service['person']) && is_array($event_service['person'])) {
