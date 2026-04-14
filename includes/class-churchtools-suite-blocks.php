@@ -71,6 +71,7 @@ class ChurchTools_Suite_Blocks {
 				'show_time' => [ 'type' => 'boolean', 'default' => true ],
 				'show_tags' => [ 'type' => 'boolean', 'default' => true ],
 				'show_calendar_name' => [ 'type' => 'boolean', 'default' => true ],
+				'show_filter' => [ 'type' => 'boolean', 'default' => false ],
 				'show_images' => [ 'type' => 'boolean', 'default' => true ],
 				'show_month_separator' => [ 'type' => 'boolean', 'default' => true ],
 				'show_past_events' => [ 'type' => 'boolean', 'default' => false ],
@@ -116,6 +117,7 @@ class ChurchTools_Suite_Blocks {
 	public static function render_events_block( $attributes ): string {
 		// Ensure services toggle is interpreted robustly across editor/runtime variants.
 		$attributes['show_services'] = self::normalize_bool_attribute( $attributes, 'show_services', 'showServices', false );
+		$attributes['show_filter'] = self::normalize_bool_attribute( $attributes, 'show_filter', 'showFilter', false );
 		
 		// v1.1.2.0: Convert Block attributes (camelCase) to Shortcode params (snake_case)
 		// Route to appropriate shortcode handler

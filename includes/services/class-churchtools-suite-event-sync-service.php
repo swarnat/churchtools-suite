@@ -202,6 +202,7 @@ class ChurchTools_Suite_Event_Sync_Service {
             $stats['events_updated'] += $result['events_updated'];
             $stats['events_skipped'] += $result['events_skipped'];
             $stats['services_imported'] += $result['services_imported'] ?? 0;
+            $stats['events_deleted'] += $result['events_deleted'] ?? 0;
         }
         
         // Calculate duration
@@ -433,20 +434,35 @@ class ChurchTools_Suite_Event_Sync_Service {
         // Phase 2: Process standalone appointments
         $appointments_result = $this->sync_phase2_appointments($calendar_id, $args, $imported_appointment_ids);
         
-        if (!is_wp_error($appointments_result)) {
+        $phase2_success = !is_wp_error($appointments_result);
+        if ($phase2_success) {
             $stats['appointments_found'] = $appointments_result['appointments_found'];
             $stats['events_inserted'] += $appointments_result['events_inserted'];
             $stats['events_updated'] += $appointments_result['events_updated'];
             $stats['events_skipped'] += $appointments_result['events_skipped'];
+        } else {
+            ChurchTools_Suite_Logger::warning(
+                'event_sync',
+                sprintf('Calendar %s - Skip deleted check: Appointments API failed', $calendar_id),
+                [
+                    'error' => $appointments_result->get_error_message(),
+                ]
+            );
         }
         
-        // Phase 3: Detect deleted events (v0.7.1.0, v0.7.3.1: Only on FULL sync)
+        // Phase 3: Detect deleted events/appointments (FULL sync only)
         $deleted_count = 0;
-        if (!$is_incremental) {
-            $deleted_count = $this->detect_deleted_events($events, $calendar_id, $args);
+        if (!$is_incremental && $phase2_success) {
+            $api_appointment_keys = $appointments_result['api_appointment_keys'] ?? [];
+            $deleted_count = $this->detect_deleted_events($calendar_id, $args, $api_appointment_keys);
             ChurchTools_Suite_Logger::debug(
                 'event_sync',
                 sprintf('Calendar %s - Deleted events check: %d deleted', $calendar_id, $deleted_count)
+            );
+        } elseif (!$phase2_success) {
+            ChurchTools_Suite_Logger::debug(
+                'event_sync',
+                sprintf('Calendar %s - Skipping deleted events check (phase 2 failed)', $calendar_id)
             );
         } else {
             ChurchTools_Suite_Logger::debug(
@@ -465,47 +481,65 @@ class ChurchTools_Suite_Event_Sync_Service {
      * Compares local event_ids in date range with API event_ids.
      * Missing events are assumed deleted and removed from local DB.
      *
-     * @param array $api_events Events from ChurchTools API
      * @param string $calendar_id ChurchTools calendar ID
      * @param array $args Sync parameters
+     * @param array<int,string> $api_appointment_keys Composite keys from API (appointment_id|start_datetime)
      * @return int Number of deleted events
      */
-    private function detect_deleted_events(array $api_events, string $calendar_id, array $args): int {
-        // Get all local event IDs for this calendar in the date range
-        $local_event_ids = $this->events_repo->get_event_ids_in_range(
+    private function detect_deleted_events(string $calendar_id, array $args, array $api_appointment_keys): int {
+        // Get all local appointment rows for this calendar in the date range.
+        $local_rows = $this->events_repo->get_appointment_rows_in_range(
             $args['from'] . ' 00:00:00',
             $args['to'] . ' 23:59:59',
             $calendar_id
         );
-        
-        if (empty($local_event_ids)) {
-            return 0; // No local events to compare
+
+        if (empty($local_rows)) {
+            return 0;
         }
-        
-        // Extract event IDs from API response
-        $api_event_ids = [];
-        foreach ($api_events as $event) {
-            if (isset($event['id'])) {
-                $api_event_ids[] = (string) $event['id'];
+
+        // Index API keys for fast lookup.
+        $api_lookup = array_fill_keys($api_appointment_keys, true);
+
+        $delete_local_ids = [];
+
+        foreach ($local_rows as $row) {
+            $appointment_id = isset($row['appointment_id']) ? (string) $row['appointment_id'] : '';
+            $start_datetime = isset($row['start_datetime']) ? (string) $row['start_datetime'] : '';
+            $local_id = isset($row['id']) ? (int) $row['id'] : 0;
+
+            if ($appointment_id === '' || $start_datetime === '' || $local_id <= 0) {
+                continue;
+            }
+
+            $key = $appointment_id . '|' . $start_datetime;
+            if (!isset($api_lookup[$key])) {
+                $delete_local_ids[] = $local_id;
             }
         }
-        
-        // Find events that exist locally but not in API
-        $deleted_event_ids = array_diff($local_event_ids, $api_event_ids);
-        
-        if (empty($deleted_event_ids)) {
-            return 0; // No deleted events
+
+        if (empty($delete_local_ids)) {
+            return 0;
         }
-        
-        // Remove deleted events from database
-        $deleted_count = $this->events_repo->delete_by_event_ids($deleted_event_ids);
-        
+
+        // Clean linked services first (if repository is available)
+        if ($this->event_services_repo) {
+            foreach ($delete_local_ids as $local_id) {
+                $this->event_services_repo->delete_for_event((int) $local_id);
+            }
+        }
+
+        $deleted_count = $this->events_repo->delete_by_local_ids($delete_local_ids);
+
         ChurchTools_Suite_Logger::log(
-            sprintf('Deleted %d events from calendar %s (no longer in ChurchTools)', $deleted_count, $calendar_id),
+            sprintf('Deleted %d events/appointments from calendar %s (no longer in ChurchTools)', $deleted_count, $calendar_id),
             ChurchTools_Suite_Logger::INFO,
-            ['deleted_ids' => array_values($deleted_event_ids)]
+            [
+                'deleted_local_ids' => array_values($delete_local_ids),
+                'api_key_count' => count($api_appointment_keys),
+            ]
         );
-        
+
         return $deleted_count;
     }
     
@@ -573,6 +607,7 @@ class ChurchTools_Suite_Event_Sync_Service {
 			'events_inserted' => 0,
 			'events_updated' => 0,
 			'events_skipped' => 0,
+            'api_appointment_keys' => [],
 		];
         
         ChurchTools_Suite_Logger::log(
@@ -613,6 +648,11 @@ class ChurchTools_Suite_Event_Sync_Service {
                     continue;
                 }
             }
+
+            $start_datetime = $this->format_datetime((string) $start_date);
+            if (!empty($appointment_id) && !empty($start_datetime)) {
+                $stats['api_appointment_keys'][] = (string) $appointment_id . '|' . $start_datetime;
+            }
             
             // v0.9.0.0: Simplified - just upsert ALL appointments
             // COMPOSITE KEY (appointment_id + start_datetime) handles duplicates
@@ -641,8 +681,11 @@ class ChurchTools_Suite_Event_Sync_Service {
                 'updated' => $stats['events_updated'],
                 'skipped' => $stats['events_skipped'],
                 'outside_range' => $skipped_outside_range,
+                'api_keys' => count($stats['api_appointment_keys']),
             ]
         );
+
+        $stats['api_appointment_keys'] = array_values(array_unique($stats['api_appointment_keys']));
         
         return $stats;
     }

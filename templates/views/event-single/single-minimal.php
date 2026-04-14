@@ -74,9 +74,20 @@ $label_style = sprintf(
 	'background-color: %s; color: #ffffff;',
 	esc_attr( $calendar_color )
 );
+
+$resolved_back_link = '';
+if ( ! empty( $back_link ) ) {
+	$resolved_back_link = (string) $back_link;
+} elseif ( isset( $_GET['event_id'] ) && absint( $_GET['event_id'] ) > 0 ) {
+	$resolved_back_link = remove_query_arg( [ 'event_id', 'template', 'ctse_context' ] );
+}
 ?>
 
 <div class="cts-single-minimal" style="<?php echo $container_style; ?>">
+	<?php if ( ! empty( $include_back_button ) && ! empty( $resolved_back_link ) ) : ?>
+		<div class="cts-back-button-wrapper"><a href="<?php echo esc_url( $resolved_back_link ); ?>" class="cts-back-button">&larr; <?php esc_html_e( 'Zurück zur Übersicht', 'churchtools-suite' ); ?></a></div>
+	<?php endif; ?>
+
 	<div class="cts-single-header">
 		<?php if ( $calendar && ! empty( $calendar->name ) ) : ?>
 			<span class="cts-calendar-label" style="<?php echo $label_style; ?>"><?php echo esc_html( $calendar->name ); ?></span>

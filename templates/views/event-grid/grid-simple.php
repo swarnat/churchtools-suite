@@ -119,6 +119,9 @@ if ( ! empty( $args['class'] ) ) {
 			<?php foreach ( $chunk as $event ) : 
 				// WP-timezone aware start timestamp
 				$start_ts = current_time( 'timestamp' );
+				$time_format = get_option( 'time_format' );
+				$has_ampm = ( strpos( $time_format, 'a' ) !== false || strpos( $time_format, 'A' ) !== false );
+				$time_suffix = $has_ampm ? '' : ' Uhr';
 				if ( ! empty( $event['start_datetime'] ) ) {
 					try {
 						$dt = new DateTime( $event['start_datetime'], new DateTimeZone( 'UTC' ) );
@@ -129,7 +132,7 @@ if ( ! empty( $args['class'] ) ) {
 					}
 				}
 				$start_date_display = wp_date( get_option( 'date_format' ), $start_ts, $wp_timezone );
-				$start_time_display = wp_date( get_option( 'time_format' ), $start_ts, $wp_timezone );
+				$start_time_display = wp_date( $time_format, $start_ts, $wp_timezone ) . $time_suffix;
 				
 				// v1.1.0.5: End timestamp für Zeit-Range
 				$end_ts = null;
@@ -139,7 +142,7 @@ if ( ! empty( $args['class'] ) ) {
 						$dt_end = new DateTime( $event['end_datetime'], new DateTimeZone( 'UTC' ) );
 						$dt_end->setTimezone( $wp_timezone );
 						$end_ts = $dt_end->getTimestamp();
-						$end_time_display = wp_date( get_option( 'time_format' ), $end_ts, $wp_timezone );
+						$end_time_display = wp_date( $time_format, $end_ts, $wp_timezone ) . $time_suffix;
 					} catch ( Exception $e ) {
 						// End time failed, skip
 					}

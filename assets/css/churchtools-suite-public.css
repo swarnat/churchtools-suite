@@ -15,6 +15,78 @@
 	box-sizing: border-box;
 }
 
+.cts-fe-filter-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: end;
+	gap: 12px;
+	margin: 0 0 16px;
+	padding: 12px;
+	border: 1px solid #e5e7eb;
+	border-radius: 8px;
+	background: #f8fafc;
+}
+
+.cts-fe-filter-group {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	min-width: 180px;
+}
+
+.cts-fe-filter-group label {
+	font-size: 12px;
+	font-weight: 600;
+	color: #475569;
+}
+
+.cts-fe-filter-select {
+	height: 38px;
+	padding: 8px 10px;
+	border: 1px solid #cbd5e1;
+	border-radius: 6px;
+	background: #ffffff;
+	font-size: 14px;
+	color: #0f172a;
+}
+
+.cts-fe-filter-reset {
+	height: 38px;
+	padding: 0 14px;
+	border: 1px solid #2563eb;
+	border-radius: 6px;
+	background: #ffffff;
+	color: #2563eb;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.cts-fe-filter-reset:hover {
+	background: #eff6ff;
+}
+
+.cts-fe-filter-count {
+	margin-left: auto;
+	font-size: 13px;
+	color: #475569;
+	font-weight: 600;
+}
+
+@media (max-width: 640px) {
+	.cts-fe-filter-bar {
+		align-items: stretch;
+	}
+
+	.cts-fe-filter-group,
+	.cts-fe-filter-reset {
+		width: 100%;
+	}
+
+	.cts-fe-filter-count {
+		margin-left: 0;
+	}
+}
+
 /* === Display Toggles === */
 /* Hide elements based on data-show-* attributes */
 [data-show-event-description="0"] .cts-event-description,
@@ -229,6 +301,42 @@
 	font-size: 13px;
 	white-space: normal;
 	line-height: 1.4;
+	margin-top: 0;
+	padding-top: 0;
+	border-top: none;
+}
+
+.cts-event-classic .cts-services-list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 0;
+}
+
+.cts-event-classic .cts-service-item {
+	padding: 3px 0;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	border-bottom: none;
+}
+
+.cts-event-classic .cts-service-name {
+	font-weight: 600;
+	color: var(--wp--preset--color--contrast, #1d2327);
+}
+
+.cts-event-classic .cts-service-person {
+	color: var(--wp--preset--color--secondary, #646970);
+}
+
+.cts-event-classic .cts-services-more {
+	margin-top: 4px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--wp--preset--color--secondary, #646970);
 }
 
 .cts-event-classic .cts-list-location {
@@ -249,6 +357,23 @@
 /* Event Page Link removed - using direct event div click instead (v0.9.3.2) */
 
 /* Back Button (v0.9.3.1) */
+.cts-single-event-page {
+	width: 100%;
+	max-width: 1400px;
+	margin: 0 auto;
+	padding: 0 20px;
+	clear: both;
+	box-sizing: border-box;
+}
+
+.cts-single-event-page .cts-single-pro,
+.cts-single-event-page .cts-single-minimal {
+	max-width: none !important;
+	margin: 0 !important;
+	width: 100% !important;
+	box-sizing: border-box;
+}
+
 .cts-back-button-wrapper {
 	margin-bottom: 24px;
 }
@@ -2694,6 +2819,44 @@
 
 .cts-grid-modern {
 	width: 100%;
+	display: grid;
+	gap: 24px;
+	align-items: stretch;
+}
+
+.cts-grid-modern[data-columns="1"] {
+	grid-template-columns: 1fr;
+}
+
+.cts-grid-modern[data-columns="2"] {
+	grid-template-columns: repeat( 2, minmax(0, 1fr) );
+}
+
+.cts-grid-modern[data-columns="3"] {
+	grid-template-columns: repeat( 3, minmax(0, 1fr) );
+}
+
+.cts-grid-modern[data-columns="4"] {
+	grid-template-columns: repeat( 4, minmax(0, 1fr) );
+}
+
+.cts-grid-modern[data-columns="5"] {
+	grid-template-columns: repeat( 5, minmax(0, 1fr) );
+}
+
+.cts-grid-modern[data-columns="6"] {
+	grid-template-columns: repeat( 6, minmax(0, 1fr) );
+	}
+
+.cts-grid-modern__month-separator {
+	grid-column: 1 / -1;
+	margin: 8px 0 0;
+	padding: 8px 0;
+	text-align: center;
+	font-size: clamp(1.1rem, 1.5vw, 1.5rem);
+	font-weight: 700;
+	line-height: 1.2;
+	color: var(--cts-text-color, #1e293b);
 }
 
 /* Card with hero image */
@@ -2900,6 +3063,12 @@
 
 /* Responsive für Modern Grid */
 @media (max-width: 768px) {
+	.cts-grid-modern[data-columns="4"],
+	.cts-grid-modern[data-columns="5"],
+	.cts-grid-modern[data-columns="6"] {
+		grid-template-columns: repeat( 2, minmax(0, 1fr) );
+	}
+
 	.cts-grid-card-modern {
 		min-height: 350px;
 	}
@@ -2914,6 +3083,12 @@
 	
 	.cts-grid-card-modern .cts-card-body {
 		padding: 12px;
+	}
+}
+
+@media (max-width: 560px) {
+	.cts-grid-modern[data-columns] {
+		grid-template-columns: 1fr;
 	}
 }
 

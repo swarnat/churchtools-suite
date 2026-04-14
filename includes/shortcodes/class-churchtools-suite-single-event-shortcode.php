@@ -2,8 +2,8 @@
 /**
  * Single Event Shortcode Handler
  * 
- * Displays a single event with various templates.
- * Usage: [cts_event id="123" template="modern"]
+ * Displays a single event with supported templates.
+ * Usage: [cts_event id="123" template="professional"]
  *
  * @package ChurchTools_Suite
  * @since   0.7.1.0
@@ -73,17 +73,24 @@ class ChurchTools_Suite_Single_Event_Shortcode {
 		// Load services
 		$services = $event_services_repo->get_by_event_id( $event_id );
 		
+		// URL template has priority for deep-link consistency across all render contexts.
+		$requested_template = isset( $_GET['template'] )
+			? sanitize_key( wp_unslash( $_GET['template'] ) )
+			: sanitize_key( (string) $atts['template'] );
+
 		// Enqueue styles (skip for professional template - uses inline CSS)
-		$template_name = self::validate_template( $atts['template'] );
+		$template_name = self::validate_template( $requested_template );
 		if ( $template_name !== 'professional' ) {
 			self::enqueue_styles();
 		}
 		
 		// Load template
 		return self::load_template( $template_name, [
-			'event'    => $event,
-			'calendar' => $calendar,
-			'services' => $services,
+			'event'               => $event,
+			'calendar'            => $calendar,
+			'services'            => $services,
+			'include_back_button' => isset( $_GET['event_id'] ) && absint( $_GET['event_id'] ) > 0,
+			'back_link'           => isset( $GLOBALS['churchtools_suite_single_back_link'] ) ? (string) $GLOBALS['churchtools_suite_single_back_link'] : '',
 		] );
 	}
 	
@@ -94,6 +101,8 @@ class ChurchTools_Suite_Single_Event_Shortcode {
 	 * @return string Valid template name
 	 */
 	private static function validate_template( string $template ): string {
+		$template = sanitize_key( $template );
+
 		// Verfügbare Templates
 		$available_templates = [
 			'professional',
@@ -105,19 +114,9 @@ class ChurchTools_Suite_Single_Event_Shortcode {
 			return $template;
 		}
 
-		// Backwards compatibility: alte Namen mappen auf "professional"
-		$alias_map = [
-			'modern' => 'professional',
-			'classic' => 'professional',
-			'card' => 'professional',
-		];
-
-		if ( isset( $alias_map[ $template ] ) ) {
-			return $alias_map[ $template ];
-		}
-
 		// Fallback: Dashboard-Einstellung verwenden
 		$default = get_option( 'churchtools_suite_single_template', 'professional' );
+		$default = sanitize_key( (string) $default );
 		return in_array( $default, $available_templates, true ) ? $default : 'professional';
 	}
 	
@@ -137,7 +136,13 @@ class ChurchTools_Suite_Single_Event_Shortcode {
 		$allow_theme_override = apply_filters( 'churchtools_suite_allow_single_theme_override', false );
 		$theme_template = false;
 		if ( $allow_theme_override ) {
-			$theme_template = locate_template( "churchtools-suite/views/event-single/{$template}.php" );
+			$theme_template = locate_template( "churchtools-suite/views/event-single/single-{$template}.php" );
+			if ( ! $theme_template ) {
+				$theme_template = locate_template( "churchtools-suite/views/event-single/{$template}.php" );
+			}
+			if ( ! $theme_template ) {
+				$theme_template = locate_template( "churchtools-suite/single/single-{$template}.php" );
+			}
 			if ( ! $theme_template ) {
 				$theme_template = locate_template( "churchtools-suite/single/{$template}.php" );
 			}
@@ -146,7 +151,13 @@ class ChurchTools_Suite_Single_Event_Shortcode {
 		if ( $theme_template ) {
 			$template_path = $theme_template;
 		} else {
-			$template_path = CHURCHTOOLS_SUITE_PATH . "templates/views/event-single/{$template}.php";
+			$template_path = CHURCHTOOLS_SUITE_PATH . "templates/views/event-single/single-{$template}.php";
+			if ( ! file_exists( $template_path ) ) {
+				$template_path = CHURCHTOOLS_SUITE_PATH . "templates/views/event-single/{$template}.php";
+			}
+			if ( ! file_exists( $template_path ) ) {
+				$template_path = CHURCHTOOLS_SUITE_PATH . "templates/single/single-{$template}.php";
+			}
 			if ( ! file_exists( $template_path ) ) {
 				$template_path = CHURCHTOOLS_SUITE_PATH . "templates/single/{$template}.php";
 			}

@@ -15,33 +15,45 @@ if ( ! function_exists( 'cts_get_available_templates' ) ) {
 	function cts_get_available_templates( $type ) {
 		$template_dir = CHURCHTOOLS_SUITE_PATH . 'templates/views/' . $type . '/';
 		$templates = [];
+		$prefix_map = [
+			'event-single' => 'single-',
+			'event-modal'  => 'modal-',
+		];
+		$canonical_prefix = $prefix_map[ $type ] ?? '';
         
 		if ( is_dir( $template_dir ) ) {
 			$files = scandir( $template_dir );
 			if ( is_array( $files ) ) {
 				foreach ( $files as $file ) {
 					if ( substr( $file, -4 ) === '.php' && $file[0] !== '.' ) {
-						$templates[] = substr( $file, 0, -4 );
+						$template_name = substr( $file, 0, -4 );
+
+						if ( $canonical_prefix !== '' ) {
+							if ( strpos( $template_name, $canonical_prefix ) === 0 ) {
+								// Canonical file name: single-professional.php -> professional.
+								$template_name = substr( $template_name, strlen( $canonical_prefix ) );
+							} else {
+								// Skip wrapper file if canonical prefixed file exists.
+								$prefixed_file = $template_dir . $canonical_prefix . $template_name . '.php';
+								if ( file_exists( $prefixed_file ) ) {
+									continue;
+								}
+							}
+						}
+
+						$templates[ $template_name ] = true;
 					}
 				}
 			}
-			sort( $templates );
 		}
+
+		$templates = array_keys( $templates );
+
+		sort( $templates );
         
 		return $templates;
 	}
 }
-
-// Form processing
-if ( isset( $_POST['cts_save_templates'] ) && check_admin_referer( 'cts_settings' ) ) {
-	update_option( 'churchtools_suite_single_template', sanitize_text_field( $_POST['single_template'] ?? 'professional' ) );
-	update_option( 'churchtools_suite_modal_template', sanitize_text_field( $_POST['modal_template'] ?? 'professional' ) );
-    
-	echo '<div class="cts-notice cts-notice-success"><p>' . esc_html__( 'Template-Einstellungen gespeichert.', 'churchtools-suite' ) . '</p></div>';
-}
-
-$single_template = get_option( 'churchtools_suite_single_template', 'professional' );
-$modal_template = get_option( 'churchtools_suite_modal_template', 'professional' );
 
 // Dynamically get available templates (v0.9.9.84)
 $available_single_templates = cts_get_available_templates( 'event-single' );
@@ -53,6 +65,36 @@ if ( empty( $available_single_templates ) ) {
 }
 if ( empty( $available_modal_templates ) ) {
 	$available_modal_templates = [ 'professional' ];
+}
+
+// Form processing
+if ( isset( $_POST['cts_save_templates'] ) && check_admin_referer( 'cts_settings' ) ) {
+	$posted_single_template = sanitize_key( sanitize_text_field( $_POST['single_template'] ?? 'professional' ) );
+	$posted_modal_template = sanitize_key( sanitize_text_field( $_POST['modal_template'] ?? 'professional' ) );
+
+	$single_template_to_save = in_array( $posted_single_template, $available_single_templates, true )
+		? $posted_single_template
+		: 'professional';
+	$modal_template_to_save = in_array( $posted_modal_template, $available_modal_templates, true )
+		? $posted_modal_template
+		: 'professional';
+
+	update_option( 'churchtools_suite_single_template', $single_template_to_save );
+	update_option( 'churchtools_suite_modal_template', $modal_template_to_save );
+
+	echo '<div class="cts-notice cts-notice-success"><p>' . esc_html__( 'Template-Einstellungen gespeichert.', 'churchtools-suite' ) . '</p></div>';
+}
+
+$single_template = sanitize_key( (string) get_option( 'churchtools_suite_single_template', 'professional' ) );
+$modal_template = sanitize_key( (string) get_option( 'churchtools_suite_modal_template', 'professional' ) );
+
+if ( ! in_array( $single_template, $available_single_templates, true ) ) {
+	$single_template = 'professional';
+	update_option( 'churchtools_suite_single_template', $single_template );
+}
+if ( ! in_array( $modal_template, $available_modal_templates, true ) ) {
+	$modal_template = 'professional';
+	update_option( 'churchtools_suite_modal_template', $modal_template );
 }
 ?>
 

@@ -2122,14 +2122,52 @@ class ChurchTools_Suite_Admin {
 		// v0.9.9.84: If click action is "page", return page URL instead of modal HTML
 		if ( $click_action === 'page' ) {
 			// v0.9.9.85: Always use Dashboard setting (no Block override)
-			$single_template = get_option( 'churchtools_suite_single_template', 'professional' );
-			
-			// Build event page URL - clean (only event_id + template)
-			$event_page_url = home_url( '/events/?event_id=' . urlencode( $event_id ) . '&template=' . urlencode( $single_template ) );
+			$single_template = sanitize_key( (string) get_option( 'churchtools_suite_single_template', 'professional' ) );
+			$valid_single_templates = [ 'professional', 'minimal' ];
+			if ( ! in_array( $single_template, $valid_single_templates, true ) ) {
+				$single_template = 'professional';
+			}
+
+			// Build robust base URL for single-event navigation.
+			$single_page_url = trim( (string) get_option( 'churchtools_suite_single_page_url', '' ) );
+			$event_base_url = '';
+
+			if ( ! empty( $single_page_url ) ) {
+				$event_base_url = esc_url_raw( $single_page_url );
+			}
+
+			if ( empty( $event_base_url ) && isset( $_POST['current_url'] ) ) {
+				$current_url = esc_url_raw( wp_unslash( $_POST['current_url'] ) );
+				$validated_current_url = wp_validate_redirect( $current_url, '' );
+				if ( ! empty( $validated_current_url ) ) {
+					$event_base_url = $validated_current_url;
+				}
+			}
+
+			if ( empty( $event_base_url ) ) {
+				$event_base_url = wp_get_referer();
+			}
+
+			if ( empty( $event_base_url ) ) {
+				$event_base_url = home_url( '/' );
+			}
+
+			$event_base_url = apply_filters( 'churchtools_suite_single_event_base_url', $event_base_url );
+
+			// Build event page URL - clean (only event_id + template).
+			$event_page_url = add_query_arg(
+				[
+					'event_id' => $event_id,
+					'template' => $single_template,
+					'ctse_context' => 'elementor',
+				],
+				$event_base_url
+			);
 			
 			ChurchTools_Suite_Logger::debug( 'ajax_modal', 'Returning page redirect', [
 				'action' => 'page',
 				'template' => $single_template,
+				'base_url' => $event_base_url,
 				'url' => $event_page_url,
 			] );
 			
@@ -2145,7 +2183,7 @@ class ChurchTools_Suite_Admin {
 		$current_view = isset( $_POST['current_view'] ) ? sanitize_text_field( $_POST['current_view'] ) : null;
 		
 		// Load modal template settings
-		$global_modal_setting = get_option( 'churchtools_suite_modal_template', 'professional' );
+		$global_modal_setting = sanitize_key( (string) get_option( 'churchtools_suite_modal_template', 'professional' ) );
 		
 		ChurchTools_Suite_Logger::debug( 'ajax_modal', 'Dashboard settings loaded', [
 			'churchtools_suite_modal_template' => $global_modal_setting,
@@ -3217,6 +3255,7 @@ class ChurchTools_Suite_Admin {
 		}
 		
 		$templates = [];
+		$canonical_prefix = 'modal-';
 		$files = scandir( $template_dir );
 		
 		if ( is_array( $files ) ) {
@@ -3224,11 +3263,25 @@ class ChurchTools_Suite_Admin {
 				// Only PHP files, exclude dotfiles
 				if ( substr( $file, -4 ) === '.php' && $file[0] !== '.' ) {
 					// Remove .php extension to get template name
-					$templates[] = substr( $file, 0, -4 );
+					$template_name = substr( $file, 0, -4 );
+
+					if ( strpos( $template_name, $canonical_prefix ) === 0 ) {
+						// Canonical file name: modal-professional.php -> professional.
+						$template_name = substr( $template_name, strlen( $canonical_prefix ) );
+					} else {
+						// Skip wrapper if canonical file exists.
+						$prefixed_file = $template_dir . $canonical_prefix . $template_name . '.php';
+						if ( file_exists( $prefixed_file ) ) {
+							continue;
+						}
+					}
+
+					$templates[ $template_name ] = true;
 				}
 			}
 		}
 		
+		$templates = array_keys( $templates );
 		sort( $templates ); // Alphabetical order
 		return $templates;
 	}

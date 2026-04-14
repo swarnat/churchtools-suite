@@ -163,9 +163,10 @@ $current_month = null;
 			if ( $use_calendar_colors && ! empty( $event['calendar_color'] ) ) {
 				$item_style = sprintf( ' style="--calendar-color: %s; --cts-primary-color: %s;"', esc_attr( $calendar_color ), esc_attr( $calendar_color ) );
 			}
+			$filter_attrs = ChurchTools_Suite_Shortcodes::build_event_filter_data_attributes( $event );
 			?>
 			
-			<article class="cts-list__item<?php echo esc_attr( $click_class ); ?>"<?php echo $click_attrs . $item_style; ?>>
+			<article class="cts-list__item<?php echo esc_attr( $click_class ); ?>"<?php echo $click_attrs . $item_style; ?> <?php echo $filter_attrs; ?>>
 				
 				<!-- Date Box (with calendar color if active) -->
 				<?php 

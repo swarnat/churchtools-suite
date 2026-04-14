@@ -174,11 +174,13 @@ $current_month = null;
 		
 		// Check if we have additional info to show in popup
 		$has_additional_info = ( $event_description && ( ( $is_appointment && $show_appointment_description ) || ( ! $is_appointment && $show_event_description ) ) ) || $event_location || $calendar_name;
+		$filter_attrs = ChurchTools_Suite_Shortcodes::build_event_filter_data_attributes( $event );
 		?>
 		
 		<article 
 			class="cts-list--minimal__item<?php echo $is_appointment ? ' cts-list--minimal__item--appointment' : ''; ?>"
 			data-event-id="<?php echo esc_attr( $event_id ); ?>"
+			<?php echo $filter_attrs; ?>
 			<?php if ( $appointment_id ) : ?>
 				data-appointment-id="<?php echo esc_attr( $appointment_id ); ?>"
 			<?php endif; ?>

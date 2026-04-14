@@ -525,4 +525,66 @@ class ChurchTools_Suite_Events_Repository extends ChurchTools_Suite_Repository_B
         
         return $result !== false ? $result : 0;
     }
+
+    /**
+     * Get local appointment rows in date range for a calendar.
+     *
+     * Used by sync cleanup to detect deleted appointments/events.
+     *
+     * @param string $start_date Start date (Y-m-d H:i:s)
+     * @param string $end_date End date (Y-m-d H:i:s)
+     * @param string|null $calendar_id Optional calendar filter
+     * @return array<int,array{id:int,appointment_id:string,start_datetime:string}>
+     */
+    public function get_appointment_rows_in_range(string $start_date, string $end_date, ?string $calendar_id = null): array {
+        $sql = "SELECT id, appointment_id, start_datetime FROM {$this->table_name} 
+                WHERE start_datetime >= %s AND start_datetime <= %s 
+                  AND appointment_id IS NOT NULL AND appointment_id != ''";
+
+        $params = [$start_date, $end_date];
+
+        if ($calendar_id) {
+            $sql .= " AND calendar_id = %s";
+            $params[] = $calendar_id;
+        }
+
+        $results = $this->db->get_results(
+            $this->db->prepare($sql, ...$params),
+            ARRAY_A
+        );
+
+        return is_array($results) ? $results : [];
+    }
+
+    /**
+     * Delete events by local primary IDs.
+     *
+     * @param array<int,int|string> $ids Local event table IDs
+     * @return int Number of deleted rows
+     */
+    public function delete_by_local_ids(array $ids): int {
+        if (empty($ids)) {
+            return 0;
+        }
+
+        $ids = array_values(array_unique(array_map('absint', $ids)));
+        $ids = array_filter($ids, static function($id) {
+            return $id > 0;
+        });
+
+        if (empty($ids)) {
+            return 0;
+        }
+
+        $placeholders = implode(',', array_fill(0, count($ids), '%d'));
+
+        $result = $this->db->query(
+            $this->db->prepare(
+                "DELETE FROM {$this->table_name} WHERE id IN ($placeholders)",
+                ...$ids
+            )
+        );
+
+        return $result !== false ? $result : 0;
+    }
 }

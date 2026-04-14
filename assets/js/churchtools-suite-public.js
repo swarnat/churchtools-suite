@@ -44,6 +44,7 @@
 		}
 		
 		// Always initialize these (needed everywhere)
+		initListFilters();
 		initCalendarViews();
 		initCountdownTimers(); // v1.1.1.0: Countdown Views
 		initCarouselViews(); // v1.1.3.0: Carousel Views
@@ -67,6 +68,9 @@
 									console.log('[ChurchTools Suite] Countdown detected in DOM, reinitializing...');
 									setTimeout(initCountdownTimers, 100);
 								}
+								if ($node.hasClass('cts-fe-filter-bar') || $node.find('.cts-fe-filter-bar').length > 0) {
+									setTimeout(initListFilters, 100);
+								}
 							}
 						});
 					}
@@ -81,6 +85,87 @@
 		
 		console.log('[ChurchTools Suite] Init complete');
 	});
+
+	/**
+	 * Frontend list filtering for list shortcodes/blocks/widgets.
+	 */
+	function initListFilters() {
+		$('[data-cts-filter-bar]').each(function() {
+			const $bar = $(this);
+
+			if ($bar.data('cts-filter-init')) {
+				return;
+			}
+
+			const $scope = $bar.nextAll('.churchtools-suite-wrapper').first();
+			if ($scope.length === 0) {
+				return;
+			}
+
+			const $items = $scope.find('[data-cts-calendar]');
+			if ($items.length === 0) {
+				return;
+			}
+
+			$bar.data('cts-filter-init', true);
+
+			const $calendar = $bar.find('[data-cts-filter="calendar"]');
+			const $tag = $bar.find('[data-cts-filter="tag"]');
+			const $count = $bar.find('[data-cts-filter-count]');
+
+			const updateCount = function(visibleCount, totalCount) {
+				if ($count.length === 0) {
+					return;
+				}
+				$count.text(visibleCount + ' / ' + totalCount + ' ' + (totalCount === 1 ? 'Event' : 'Events'));
+			};
+
+			const updateSeparators = function() {
+				const separatorSelector = '.cts-month-separator, .cts-list__month-separator';
+				const itemSelector = '.cts-event-classic, .cts-list--minimal__item, .cts-list__item';
+
+				$scope.find(separatorSelector).each(function() {
+					const $separator = $(this);
+					const $between = $separator.nextUntil(separatorSelector, itemSelector);
+					const hasVisibleItems = $between.filter(':visible').length > 0;
+					$separator.toggle(hasVisibleItems);
+				});
+			};
+
+			const applyFilters = function() {
+				const calendarValue = String($calendar.val() || '').trim();
+				const tagValue = String($tag.val() || '').trim();
+
+				$items.each(function() {
+					const $item = $(this);
+					const itemCalendar = String($item.data('cts-calendar') || '');
+					const itemTags = String($item.data('cts-tags') || '').split(',').map(function(v) {
+						return v.trim();
+					}).filter(Boolean);
+
+					const calendarMatch = !calendarValue || itemCalendar === calendarValue;
+					const tagMatch = !tagValue || itemTags.indexOf(tagValue) !== -1;
+
+					$item.toggle(calendarMatch && tagMatch);
+				});
+
+				const visibleCount = $items.filter(':visible').length;
+				updateSeparators();
+				updateCount(visibleCount, $items.length);
+			};
+
+			$calendar.on('change', applyFilters);
+			$tag.on('change', applyFilters);
+
+			$bar.find('.cts-fe-filter-reset').on('click', function() {
+				$calendar.val('');
+				$tag.val('');
+				applyFilters();
+			});
+
+			applyFilters();
+		});
+	}
 
 	/**
 	 * Initialize Calendar Views
@@ -462,6 +547,69 @@
 	}
 
 	/**
+	 * Validate and normalize single-event template names.
+	 */
+	function normalizeSingleTemplate(template) {
+		const value = String(template || '').trim().toLowerCase();
+		if (value === 'minimal' || value === 'professional') {
+			return value;
+		}
+		return 'professional';
+	}
+
+	/**
+	 * Build a robust target URL for single-event navigation.
+	 */
+	function buildSingleEventTargetUrl(eventId, dataUrl, dataTemplate) {
+		const configBaseUrl = (window.churchtoolsSuitePublic && churchtoolsSuitePublic.singleEventBaseUrl)
+			? churchtoolsSuitePublic.singleEventBaseUrl
+			: null;
+		const configTemplate = (window.churchtoolsSuitePublic && churchtoolsSuitePublic.singleEventTemplate)
+			? churchtoolsSuitePublic.singleEventTemplate
+			: null;
+
+		const isDefaultEventsPath = function(urlObj) {
+			if (!urlObj || !urlObj.pathname) {
+				return false;
+			}
+			const normalizedPath = urlObj.pathname.replace(/\/+$/, '').toLowerCase();
+			return normalizedPath === '/events';
+		};
+
+		let targetUrl = null;
+		try {
+			if (dataUrl) {
+				const dataTargetUrl = new URL(dataUrl, window.location.origin);
+				if (!isDefaultEventsPath(dataTargetUrl)) {
+					targetUrl = dataTargetUrl;
+				}
+			}
+
+			if (!targetUrl && configBaseUrl) {
+				const baseTargetUrl = new URL(configBaseUrl, window.location.origin);
+				if (!isDefaultEventsPath(baseTargetUrl)) {
+					targetUrl = baseTargetUrl;
+				}
+			}
+		} catch (err) {
+			console.warn('[ChurchTools Suite] Failed to build configured target URL, using current page', err);
+		}
+
+		if (!targetUrl) {
+			targetUrl = new URL(window.location.href);
+		}
+
+		const template = normalizeSingleTemplate(dataTemplate || configTemplate);
+		targetUrl.searchParams.set('event_id', String(eventId));
+		targetUrl.searchParams.set('template', template);
+
+		// Optional context marker for Elementor-related rendering logic.
+		targetUrl.searchParams.set('ctse_context', 'elementor');
+
+		return targetUrl.toString();
+	}
+
+	/**
 	 * Show event detail modal or navigate to page
 	 * @param {string} eventId - Event ID to display
 	 * @param {jQuery} $container - Optional container element with display settings (e.g., calendar)
@@ -484,7 +632,8 @@
 				nonce: churchtoolsSuitePublic.nonce,
 				event_id: eventId,
 				current_view: currentView,
-				click_action: clickAction
+				click_action: clickAction,
+				current_url: window.location.href
 			},
 			success: function(response) {
 				console.log('[ChurchTools Suite] Click action response:', response);
@@ -719,12 +868,12 @@
 			$servicesList.empty();
 			
 			event.services.forEach(function(service) {
-				const $item = $('<li>').addClass('cts-service-item');
+				const $item = $('<li>').addClass('cts-modal-service-item');
 				
-				const $name = $('<strong>').addClass('cts-service-name')
+				const $name = $('<strong>').addClass('cts-modal-service-name')
 					.text(service.service_name + ':');
 				
-				const $person = $('<span>').addClass('cts-service-person')
+				const $person = $('<span>').addClass('cts-modal-service-person')
 					.text(' ' + (service.person_name || 'Nicht zugewiesen'));
 				
 				$item.append($name).append($person);
@@ -868,37 +1017,17 @@
 		
 		const eventId = $(this).data('event-id');
 		const dataUrl = $(this).data('event-url');
-		const baseUrl = (window.churchtoolsSuitePublic && churchtoolsSuitePublic.singleEventBaseUrl) ? churchtoolsSuitePublic.singleEventBaseUrl : null;
-		const singleTemplate = (window.churchtoolsSuitePublic && churchtoolsSuitePublic.singleEventTemplate) ? churchtoolsSuitePublic.singleEventTemplate : null;
+		const dataTemplate = $(this).data('template');
 		console.log('[ChurchTools Suite] Event ID:', eventId);
 		
 		if (!eventId) {
 			console.warn('[ChurchTools Suite] No event ID found on clicked element');
 			return;
 		}
-		
-		let targetUrl = null;
-		try {
-			if (dataUrl) {
-				targetUrl = new URL(dataUrl, window.location.origin);
-			} else if (baseUrl) {
-				targetUrl = new URL(baseUrl, window.location.origin);
-			}
-		} catch (err) {
-			console.warn('[ChurchTools Suite] Failed to build target URL, falling back to current page', err);
-		}
-		
-		if (!targetUrl) {
-			targetUrl = new URL(window.location.href);
-		}
-		
-		targetUrl.searchParams.set('event_id', eventId);
-		if (singleTemplate) {
-			targetUrl.searchParams.set('template', singleTemplate);
-		}
-		
-		console.log('[ChurchTools Suite] Navigating to:', targetUrl.toString());
-		window.location.href = targetUrl.toString();
+
+		const targetUrl = buildSingleEventTargetUrl(eventId, dataUrl, dataTemplate);
+		console.log('[ChurchTools Suite] Navigating to:', targetUrl);
+		window.location.href = targetUrl;
 	});
 	
 	/**

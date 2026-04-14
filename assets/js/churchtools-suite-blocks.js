@@ -73,6 +73,7 @@
 			show_time: { type: 'boolean', default: true },
 			show_tags: { type: 'boolean', default: true },
 			show_calendar_name: { type: 'boolean', default: true },
+			show_filter: { type: 'boolean', default: false },
 			show_images: { type: 'boolean', default: true },
 			show_month_separator: { type: 'boolean', default: true },
 			show_past_events: { type: 'boolean', default: false },
@@ -117,7 +118,14 @@
 			};
 
 			// View helpers
-			const isListWithImages = attributes.viewType === 'list' && (attributes.view === 'classic-with-images' || attributes.view === 'modern');
+			const isImagesSupportedByView = (function() {
+				if (attributes.viewType === 'list') {
+					return attributes.view === 'classic-with-images';
+				}
+
+				// Grid/Calendar keep existing feature-matrix behavior.
+				return isFeatureSupported('show_images');
+			})();
 
 			// Minimal-View soll standardmäßig keinen Kalendernamen anzeigen
 			if (attributes.view === 'minimal' && attributes.show_calendar_name) {
@@ -305,8 +313,10 @@
 									el(ToggleControl, {
 										label: __('Bilder', 'churchtools-suite'),
 										checked: attributes.show_images,
-										disabled: !isFeatureSupported('show_images'),
-										help: getDisabledHelpText('show_images'),
+										disabled: !isImagesSupportedByView,
+										help: isImagesSupportedByView
+											? ''
+											: __('Diese Option wird von der aktuellen View nicht unterstützt', 'churchtools-suite'),
 										onChange: function(value) {
 											setAttributes({ show_images: value });
 										}
@@ -404,6 +414,15 @@
 									];
 									
 									return el('div', {}, [
+										attributes.viewType === 'list' ? el(ToggleControl, {
+											label: __('Filter im Frontend anzeigen', 'churchtools-suite'),
+											checked: attributes.show_filter,
+											help: __('Zeigt über der Liste einen Kalender/Tag-Filter für Besucher', 'churchtools-suite'),
+											onChange: function(value) {
+												setAttributes({ show_filter: value });
+											}
+										}) : null,
+
 										...tagCheckboxes,
 										...calendarCheckboxes
 									]);

@@ -246,7 +246,10 @@ class ChurchTools_Suite {
 		$single_page_url = trim( (string) get_option( 'churchtools_suite_single_page_url', '' ) );
 		$single_event_base = $single_page_url ? $single_page_url : home_url( '/events/' );
 		$single_event_base = apply_filters( 'churchtools_suite_single_event_base_url', $single_event_base );
-		$single_event_template = get_option( 'churchtools_suite_single_template', 'professional' );
+		$single_event_template = sanitize_key( (string) get_option( 'churchtools_suite_single_template', 'professional' ) );
+		if ( ! in_array( $single_event_template, [ 'professional', 'minimal' ], true ) ) {
+			$single_event_template = 'professional';
+		}
 		wp_localize_script( 'churchtools-suite-public', 'churchtoolsSuitePublic', [
 			'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 			'nonce' => wp_create_nonce( 'churchtools_suite_public' ),

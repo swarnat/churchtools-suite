@@ -525,6 +525,21 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 		);
 
 		$this->add_control(
+			'show_filter',
+			[
+				'label' => __( 'Filter im Frontend anzeigen', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'no',
+				'condition' => [
+					'view_type' => 'list',
+				],
+				'description' => __( 'Blendet oberhalb der Event-Liste Kalender- und Tag-Filter ein.', 'churchtools-suite' ),
+			]
+		);
+
+		$this->add_control(
 			'show_services',
 			[
 				'label' => __( 'Services', 'churchtools-suite' ),
@@ -695,15 +710,14 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 		protected function render() {
 		$settings = $this->get_settings_for_display();
 
-		// If a single event is requested via URL, render single view
+			// If a single event is requested via URL, always render single view.
+			// This keeps deep-links working on Elementor pages independent of widget click mode.
 		$event_id = isset( $_GET['event_id'] ) ? absint( $_GET['event_id'] ) : 0;
 		if ( $event_id > 0 ) {
-			$event_action = isset( $settings['event_action'] ) ? $settings['event_action'] : 'modal';
-			// Only switch to page view when configured for page navigation
-			if ( $event_action === 'page' ) {
-				echo do_shortcode( '[cts_event id="' . $event_id . '"]' );
+				$template = isset( $_GET['template'] ) ? sanitize_key( wp_unslash( $_GET['template'] ) ) : '';
+			require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-single-event-handler.php';
+			echo ChurchTools_Suite_Single_Event_Handler::render_single_event_page( $event_id, $template );
 				return;
-			}
 		}
 
 		// Determine selected view based on type
@@ -738,6 +752,7 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 			'show_services' => $this->is_switcher_enabled( $settings, 'show_services', false ) ? '1' : '0',
 			'show_past_events' => $this->is_switcher_enabled( $settings, 'show_past_events', false ) ? '1' : '0',
 			'show_month_separator' => $this->is_switcher_enabled( $settings, 'show_month_separator', true ) ? '1' : '0',
+			'show_filter' => $this->is_switcher_enabled( $settings, 'show_filter', false ) ? '1' : '0',
 			'event_action' => isset( $settings['event_action'] ) ? $settings['event_action'] : 'modal',
 			'style_mode' => $settings['style_mode'] ?? 'theme',
 			'use_calendar_colors' => $this->is_switcher_enabled( $settings, 'use_calendar_colors', false ) ? '1' : '0',

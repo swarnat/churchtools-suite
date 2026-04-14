@@ -151,8 +151,9 @@ $current_month = null;
 					esc_attr( sprintf( __( 'Zu %s navigieren', 'churchtools-suite' ), $event['title'] ) )
 				);
 			}
+			$filter_attrs = ChurchTools_Suite_Shortcodes::build_event_filter_data_attributes( $event );
 			?>
-<div class="cts-event-classic <?php echo esc_attr( $click_class ); ?>" <?php echo $click_attrs; ?><?php
+<div class="cts-event-classic <?php echo esc_attr( $click_class ); ?>" <?php echo $click_attrs; ?> <?php echo $filter_attrs; ?><?php
 	if ( $use_calendar_colors && ! empty( $event['calendar_color'] ) ) {
 		echo ' style="--calendar-color: ' . esc_attr( $event['calendar_color'] ) . ';"';
 	}
@@ -242,25 +243,28 @@ $current_month = null;
 	<!-- Services (wrappable 2-3 lines) -->
 	<?php if ( $show_services && ! empty( $event['services'] ) ) : ?>
 		<div class="cts-services">
-			<?php 
-			$service_items = array();
-			
-
-			$services_arr = is_array( $event['services'] ) ? $event['services'] : array();
-			foreach ( array_slice( $services_arr, 0, 2 ) as $s ) {
-				if ( ! empty( $s['person_name'] ) ) {
-					$service_items[] = $s['service_name'] . ': ' . $s['person_name'];
-				} else {
-					$service_items[] = $s['service_name'];
-				}
-			}
-			
-			echo esc_html( implode( ' | ', $service_items ) );
-			
-			if ( is_array( $event['services'] ) && count( $event['services'] ) > 2 ) {
-				echo ' <span class="cts-more">+' . ( count( $event['services'] ) - 2 ) . '</span>';
-			}
-			?>
+			<ul class="cts-services-list" role="list">
+				<?php
+				$services_arr = is_array( $event['services'] ) ? $event['services'] : array();
+				foreach ( array_slice( $services_arr, 0, 2 ) as $s ) :
+					$person_name = '';
+					if ( ! empty( $s['person_name'] ) ) {
+						$person_name = preg_replace( '/\s*,\s*/', ', ', (string) $s['person_name'] );
+					}
+					?>
+					<li class="cts-service-item">
+						<?php if ( $person_name !== '' ) : ?>
+							<span class="cts-service-name"><?php echo esc_html( $s['service_name'] ); ?>:</span>
+							<span class="cts-service-person"><?php echo esc_html( $person_name ); ?></span>
+						<?php else : ?>
+							<span class="cts-service-name"><?php echo esc_html( $s['service_name'] ); ?></span>
+						<?php endif; ?>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+			<?php if ( is_array( $event['services'] ) && count( $event['services'] ) > 2 ) : ?>
+				<div class="cts-services-more">+<?php echo esc_html( (string) ( count( $event['services'] ) - 2 ) ); ?></div>
+			<?php endif; ?>
 		</div>
 	<?php endif; ?>
 	

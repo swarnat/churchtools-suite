@@ -145,8 +145,9 @@ $current_month = null;
 				esc_attr( sprintf( __( 'Zu %s navigieren', 'churchtools-suite' ), $event['title'] ) )
 			);
 		}
+		$filter_attrs = ChurchTools_Suite_Shortcodes::build_event_filter_data_attributes( $event );
 		?>
-<div class="cts-event-classic <?php echo esc_attr( $click_class ); ?>" <?php echo $click_attrs; ?><?php
+<div class="cts-event-classic <?php echo esc_attr( $click_class ); ?>" <?php echo $click_attrs; ?> <?php echo $filter_attrs; ?><?php
 	// v0.9.9.2: Use calendar color if option enabled
 	if ( $use_calendar_colors && ! empty( $event['calendar_color'] ) ) {
 		echo ' style="--calendar-color: ' . esc_attr( $event['calendar_color'] ) . ';"';
@@ -217,23 +218,21 @@ $current_month = null;
 	
 	<?php if ( $show_services && ! empty( $event['services'] ) ) : ?>
 		<div class="cts-services">
-			<?php 
-			$service_items = array();
-			
-			foreach ( array_slice( $event['services'], 0, 2 ) as $s ) {
-				if ( ! empty( $s['person_name'] ) ) {
-					$service_items[] = $s['service_name'] . ': ' . $s['person_name'];
-				} else {
-					$service_items[] = $s['service_name'];
-				}
-			}
-			
-			echo esc_html( implode( ' | ', $service_items ) );
-			
-			if ( count( $event['services'] ) > 2 ) {
-				echo ' <span class="cts-more">+' . ( count( $event['services'] ) - 2 ) . '</span>';
-			}
-			?>
+			<ul class="cts-services-list" role="list">
+				<?php foreach ( array_slice( $event['services'], 0, 2 ) as $s ) : ?>
+					<li class="cts-service-item">
+						<?php if ( ! empty( $s['person_name'] ) ) : ?>
+							<span class="cts-service-name"><?php echo esc_html( $s['service_name'] ); ?>:</span>
+							<span class="cts-service-person"><?php echo esc_html( $s['person_name'] ); ?></span>
+						<?php else : ?>
+							<span class="cts-service-name"><?php echo esc_html( $s['service_name'] ); ?></span>
+						<?php endif; ?>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+			<?php if ( count( $event['services'] ) > 2 ) : ?>
+				<div class="cts-services-more">+<?php echo esc_html( (string) ( count( $event['services'] ) - 2 ) ); ?></div>
+			<?php endif; ?>
 		</div>
 	<?php endif; ?>
 

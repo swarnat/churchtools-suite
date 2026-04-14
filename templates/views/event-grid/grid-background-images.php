@@ -68,6 +68,11 @@ $use_calendar_colors = isset( $args['use_calendar_colors'] ) ? ChurchTools_Suite
 		
 		<?php foreach ( $events as $event ) : ?>
 			<?php 
+			$time_format = get_option( 'time_format' );
+			$has_ampm = ( strpos( $time_format, 'a' ) !== false || strpos( $time_format, 'A' ) !== false );
+			$time_suffix = $has_ampm ? '' : ' Uhr';
+			$time_display = get_date_from_gmt( $event['start_datetime'], $time_format ) . $time_suffix;
+
 			// Event action logic
 			$event_action = isset( $args['event_action'] ) ? $args['event_action'] : 'modal';
 
@@ -143,7 +148,7 @@ $use_calendar_colors = isset( $args['use_calendar_colors'] ) ? ChurchTools_Suite
 		<div class="cts-grid-card-meta">
 			<?php if ( $show_time ) : ?>
 				<span class="cts-grid-card-time">
-					🕐 <?php echo esc_html( get_date_from_gmt( $event['start_datetime'], 'H:i' ) ); ?>
+					🕐 <?php echo esc_html( $time_display ); ?>
 				</span>
 			<?php endif; ?>
 

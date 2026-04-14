@@ -284,7 +284,9 @@ class ChurchTools_Suite_Shortcodes {
 		// Single Event Routing: If URL contains event_id, render single view uniformly
 		$event_id = isset( $_GET['event_id'] ) ? absint( $_GET['event_id'] ) : 0;
 		if ( $event_id > 0 ) {
-			return do_shortcode( '[cts_event id="' . $event_id . '"]' );
+			$template = isset( $_GET['template'] ) ? sanitize_key( wp_unslash( $_GET['template'] ) ) : '';
+			require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-single-event-handler.php';
+			return ChurchTools_Suite_Single_Event_Handler::render_single_event_page( $event_id, $template );
 		}
 		
 		// Route to appropriate view handler based on view name prefix
@@ -345,6 +347,7 @@ class ChurchTools_Suite_Shortcodes {
 			'show_tags' => true,
 			'show_calendar_name' => true,
 			'show_month_separator' => true,
+			'show_filter' => false,
 			'show_past_events' => false,
 			'event_action' => 'modal',
 			// v0.9.6.8: Style Management
@@ -384,6 +387,7 @@ class ChurchTools_Suite_Shortcodes {
 		$atts['show_time'] = self::parse_boolean( $atts['show_time'] );
 		$atts['show_tags'] = self::parse_boolean( $atts['show_tags'] );
 		$atts['show_month_separator'] = self::parse_boolean( $atts['show_month_separator'] );
+		$atts['show_filter'] = self::parse_boolean( $atts['show_filter'] );
 		$atts['show_past_events'] = self::parse_boolean( $atts['show_past_events'] );
 		
 		// Legacy show_description fallback
@@ -435,6 +439,7 @@ class ChurchTools_Suite_Shortcodes {
 			'show_services' => false,
 			'show_time' => true,
 			'show_tags' => true,
+			'show_images' => true,
 			'show_calendar_name' => true,
 			'event_action' => 'modal',
 			// Style Management
@@ -471,6 +476,7 @@ class ChurchTools_Suite_Shortcodes {
 		$atts['show_services'] = self::parse_boolean( $atts['show_services'] );
 		$atts['show_time'] = self::parse_boolean( $atts['show_time'] );
 		$atts['show_tags'] = self::parse_boolean( $atts['show_tags'] );
+		$atts['show_images'] = self::parse_boolean( $atts['show_images'] );
 		$atts['show_calendar_name'] = self::parse_boolean( $atts['show_calendar_name'] );
 		
 		// Get events
@@ -950,6 +956,14 @@ class ChurchTools_Suite_Shortcodes {
 			'events' => $events,
 			'args' => $args,
 		], false );
+
+		if (
+			! empty( $events ) &&
+			! empty( $args['show_filter'] ) &&
+			strpos( $template_name, 'views/event-list/' ) === 0
+		) {
+			$output = self::render_list_filter_controls( $events ) . $output;
+		}
 		
 		// Check if template was found
 		if ( empty( $output ) && count( $events ) > 0 ) {
@@ -986,6 +1000,147 @@ class ChurchTools_Suite_Shortcodes {
 		}
 		
 		return $output;
+	}
+
+	/**
+	 * Build data attributes for frontend list filtering.
+	 *
+	 * @param array<string,mixed> $event
+	 */
+	public static function build_event_filter_data_attributes( array $event ): string {
+		$meta = self::extract_event_filter_meta( $event );
+
+		return sprintf(
+			'data-cts-calendar="%s" data-cts-tags="%s"',
+			esc_attr( $meta['calendar_token'] ),
+			esc_attr( implode( ',', $meta['tag_tokens'] ) )
+		);
+	}
+
+	/**
+	 * Render frontend filter controls for list views.
+	 *
+	 * @param array<int,array<string,mixed>> $events
+	 */
+	private static function render_list_filter_controls( array $events ): string {
+		$calendar_options = [];
+		$tag_options = [];
+		$calendar_select_id = 'cts-filter-calendar-' . wp_rand( 1000, 999999 );
+		$tag_select_id = 'cts-filter-tag-' . wp_rand( 1000, 999999 );
+
+		foreach ( $events as $event ) {
+			if ( ! is_array( $event ) ) {
+				continue;
+			}
+
+			$meta = self::extract_event_filter_meta( $event );
+
+			if ( $meta['calendar_token'] !== '' && $meta['calendar_label'] !== '' ) {
+				$calendar_options[ $meta['calendar_token'] ] = $meta['calendar_label'];
+			}
+
+			foreach ( $meta['tag_tokens'] as $index => $token ) {
+				$label = $meta['tag_labels'][ $index ] ?? '';
+				if ( $token !== '' && $label !== '' ) {
+					$tag_options[ $token ] = $label;
+				}
+			}
+		}
+
+		asort( $calendar_options, SORT_NATURAL | SORT_FLAG_CASE );
+		asort( $tag_options, SORT_NATURAL | SORT_FLAG_CASE );
+
+		ob_start();
+		?>
+		<div class="cts-fe-filter-bar" data-cts-filter-bar>
+			<div class="cts-fe-filter-group">
+				<label for="<?php echo esc_attr( $calendar_select_id ); ?>"><?php esc_html_e( 'Kalender', 'churchtools-suite' ); ?></label>
+				<select id="<?php echo esc_attr( $calendar_select_id ); ?>" class="cts-fe-filter-select" data-cts-filter="calendar">
+					<option value=""><?php esc_html_e( 'Alle Kalender', 'churchtools-suite' ); ?></option>
+					<?php foreach ( $calendar_options as $token => $label ) : ?>
+						<option value="<?php echo esc_attr( $token ); ?>"><?php echo esc_html( $label ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+			<div class="cts-fe-filter-group">
+				<label for="<?php echo esc_attr( $tag_select_id ); ?>"><?php esc_html_e( 'Tag', 'churchtools-suite' ); ?></label>
+				<select id="<?php echo esc_attr( $tag_select_id ); ?>" class="cts-fe-filter-select" data-cts-filter="tag">
+					<option value=""><?php esc_html_e( 'Alle Tags', 'churchtools-suite' ); ?></option>
+					<?php foreach ( $tag_options as $token => $label ) : ?>
+						<option value="<?php echo esc_attr( $token ); ?>"><?php echo esc_html( $label ); ?></option>
+					<?php endforeach; ?>
+				</select>
+			</div>
+			<button type="button" class="cts-fe-filter-reset"><?php esc_html_e( 'Filter zurücksetzen', 'churchtools-suite' ); ?></button>
+			<span class="cts-fe-filter-count" data-cts-filter-count></span>
+		</div>
+		<?php
+
+		return (string) ob_get_clean();
+	}
+
+	/**
+	 * Extract normalized filter meta from an event record.
+	 *
+	 * @param array<string,mixed> $event
+	 * @return array{calendar_label:string,calendar_token:string,tag_labels:array<int,string>,tag_tokens:array<int,string>}
+	 */
+	private static function extract_event_filter_meta( array $event ): array {
+		$calendar_label = isset( $event['calendar_name'] ) ? trim( (string) $event['calendar_name'] ) : '';
+		$calendar_token = self::normalize_filter_token( $calendar_label );
+
+		$tag_labels = [];
+
+		if ( ! empty( $event['tags_array'] ) && is_array( $event['tags_array'] ) ) {
+			foreach ( $event['tags_array'] as $tag ) {
+				if ( is_array( $tag ) && ! empty( $tag['name'] ) ) {
+					$tag_labels[] = trim( (string) $tag['name'] );
+				}
+			}
+		} elseif ( ! empty( $event['tags'] ) ) {
+			$tags_value = $event['tags'];
+
+			if ( is_string( $tags_value ) ) {
+				$decoded = json_decode( $tags_value, true );
+				if ( is_array( $decoded ) ) {
+					$tags_value = $decoded;
+				}
+			}
+
+			if ( is_array( $tags_value ) ) {
+				foreach ( $tags_value as $tag ) {
+					if ( is_array( $tag ) && ! empty( $tag['name'] ) ) {
+						$tag_labels[] = trim( (string) $tag['name'] );
+					} elseif ( is_string( $tag ) ) {
+						$tag_labels[] = trim( $tag );
+					}
+				}
+			}
+		}
+
+		$tag_labels = array_values( array_unique( array_filter( $tag_labels ) ) );
+		$tag_tokens = array_values( array_unique( array_filter( array_map( [ __CLASS__, 'normalize_filter_token' ], $tag_labels ) ) ) );
+
+		return [
+			'calendar_label' => $calendar_label,
+			'calendar_token' => $calendar_token,
+			'tag_labels' => $tag_labels,
+			'tag_tokens' => $tag_tokens,
+		];
+	}
+
+	private static function normalize_filter_token( string $value ): string {
+		$value = trim( $value );
+		if ( $value === '' ) {
+			return '';
+		}
+
+		$token = sanitize_title( $value );
+		if ( $token === '' ) {
+			$token = strtolower( preg_replace( '/\s+/', '-', $value ) );
+		}
+
+		return $token;
 	}
 	
 	/**

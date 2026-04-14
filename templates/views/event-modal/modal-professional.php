@@ -47,79 +47,67 @@ if ( ! defined( 'ABSPATH' ) ) {
 			
 			<!-- Event Content (populated by JavaScript) -->
 			<div id="cts-modal-content" class="cts-modal-content" style="display: none;">
-				
-				<!-- Main: Image + Description -->
+
+				<!-- Main: Titel, Beschreibungen, Dienste -->
 				<div class="cts-modal-main">
-					
-					<!-- Event Image -->
 					<div id="cts-modal-image" class="cts-modal-image-container" style="display: none;">
 						<img id="cts-modal-image-img" src="" alt="" class="cts-modal-image" />
 					</div>
-					
-					<!-- Event Title -->
+
 					<h1 id="cts-modal-event-title" class="cts-modal-event-title"></h1>
-					
-					<!-- Calendar Badge -->
 					<div id="cts-modal-calendar" class="cts-modal-calendar-badge"></div>
-					
-					<!-- Event Description -->
+
 					<div id="cts-modal-event-description" class="cts-modal-section" style="display: none;">
 						<div id="cts-modal-event-description-content" class="cts-modal-description"></div>
 					</div>
-					
-					<!-- Appointment Description -->
+
 					<div id="cts-modal-appointment-description" class="cts-modal-section" style="display: none;">
-					<h3><?php esc_html_e( 'Termin-Details', 'churchtools-suite' ); ?></h3>
-					
-					<!-- Services -->
+						<h3><?php esc_html_e( 'Termin-Details', 'churchtools-suite' ); ?></h3>
+						<div id="cts-modal-appointment-description-content" class="cts-modal-description"></div>
+					</div>
+
 					<div id="cts-modal-services" class="cts-modal-section" style="display: none;">
-					<h3><?php esc_html_e( 'Dienste', 'churchtools-suite' ); ?></h3>
-					
+						<h3><?php esc_html_e( 'Dienste', 'churchtools-suite' ); ?></h3>
+						<ul id="cts-modal-services-list" class="cts-modal-services-list"></ul>
+					</div>
 				</div>
-				
-				<!-- Sidebar: Meta Information -->
+
+				<!-- Sidebar: Allgemeine Infos rechts -->
 				<div class="cts-modal-sidebar">
-					
-					<!-- Date -->
 					<div id="cts-modal-date" class="cts-modal-sidebar-section" style="display: none;">
 						<div class="cts-modal-sidebar-header">
 							<span class="dashicons dashicons-calendar-alt"></span>
-						<span class="cts-modal-sidebar-label"><?php esc_html_e( 'DATUM', 'churchtools-suite' ); ?></span>
+							<span class="cts-modal-sidebar-label"><?php esc_html_e( 'DATUM', 'churchtools-suite' ); ?></span>
 						</div>
 						<div id="cts-modal-date-value" class="cts-modal-sidebar-content"></div>
 					</div>
-					
-					<!-- Time -->
+
 					<div id="cts-modal-time" class="cts-modal-sidebar-section" style="display: none;">
 						<div class="cts-modal-sidebar-header">
 							<span class="dashicons dashicons-clock"></span>
-						<span class="cts-modal-sidebar-label"><?php esc_html_e( 'UHRZEIT', 'churchtools-suite' ); ?></span>
+							<span class="cts-modal-sidebar-label"><?php esc_html_e( 'UHRZEIT', 'churchtools-suite' ); ?></span>
 						</div>
 						<div id="cts-modal-time-value" class="cts-modal-sidebar-content"></div>
 					</div>
-					
-					<!-- Tags/Labels -->
+
 					<div id="cts-modal-tags" class="cts-modal-sidebar-section" style="display: none;">
 						<div class="cts-modal-sidebar-header">
 							<span class="dashicons dashicons-tag"></span>
-						<span class="cts-modal-sidebar-label"><?php esc_html_e( 'SCHLAGWÖRTER', 'churchtools-suite' ); ?></span>
+							<span class="cts-modal-sidebar-label"><?php esc_html_e( 'SCHLAGWÖRTER', 'churchtools-suite' ); ?></span>
 						</div>
 						<div class="cts-modal-sidebar-content">
 							<div id="cts-modal-tags-content" class="cts-modal-tags"></div>
 						</div>
 					</div>
-					
-					<!-- Location -->
+
 					<div id="cts-modal-location" class="cts-modal-sidebar-section" style="display: none;">
 						<div class="cts-modal-sidebar-header">
 							<span class="dashicons dashicons-location-alt"></span>
-						<span class="cts-modal-sidebar-label"><?php esc_html_e( 'ORT', 'churchtools-suite' ); ?></span>
+							<span class="cts-modal-sidebar-label"><?php esc_html_e( 'ORT', 'churchtools-suite' ); ?></span>
 						</div>
 						<div id="cts-modal-location-value" class="cts-modal-sidebar-content"></div>
 					</div>
-					
 				</div>
-				
 			</div>
 			
 		</div>

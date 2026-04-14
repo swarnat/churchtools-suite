@@ -72,9 +72,28 @@ if ( ! empty( $event->tags ) ) {
 	if ( is_array( $tags_data ) ) $tags = $tags_data;
 }
 
-// Get image
-require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-image-helper.php';
-$image_url = ChurchTools_Suite_Image_Helper::get_image_url( $event );
+// Resolve image without dummy fallback: event image first, then calendar image, otherwise no image.
+$image_url = '';
+$image_alt = $event->title ?? '';
+
+if ( ! empty( $event->image_attachment_id ) ) {
+	$event_image_url = wp_get_attachment_url( absint( $event->image_attachment_id ) );
+	if ( $event_image_url ) {
+		$image_url = $event_image_url;
+	}
+}
+
+if ( empty( $image_url ) && ! empty( $event->image_url ) ) {
+	$image_url = (string) $event->image_url;
+}
+
+if ( empty( $image_url ) && ! empty( $calendar->calendar_image_id ) ) {
+	$calendar_image_url = wp_get_attachment_url( absint( $calendar->calendar_image_id ) );
+	if ( $calendar_image_url ) {
+		$image_url = $calendar_image_url;
+		$image_alt = $calendar->name ?? $image_alt;
+	}
+}
 
 // Location
 $location_parts = [];
@@ -110,9 +129,20 @@ $container_style = sprintf(
 	esc_attr( $calendar_color ),
 	esc_attr( $calendar_color )
 );
+
+$resolved_back_link = '';
+if ( ! empty( $back_link ) ) {
+	$resolved_back_link = (string) $back_link;
+} elseif ( isset( $_GET['event_id'] ) && absint( $_GET['event_id'] ) > 0 ) {
+	$resolved_back_link = remove_query_arg( [ 'event_id', 'template', 'ctse_context' ] );
+}
 ?>
 
 <div class="cts-single-pro" style="<?php echo $container_style; ?>">
+	<?php if ( ! empty( $include_back_button ) && ! empty( $resolved_back_link ) ) : ?>
+		<div class="cts-back-button-wrapper"><a href="<?php echo esc_url( $resolved_back_link ); ?>" class="cts-back-button">&larr; <?php esc_html_e( 'Zurück zur Übersicht', 'churchtools-suite' ); ?></a></div>
+	<?php endif; ?>
+
 	<div class="cts-single-pro-wrap">
 		
 		<!-- Main (Left) -->
@@ -120,7 +150,7 @@ $container_style = sprintf(
 			<div class="cts-pro-header">
 				<?php if ( ! empty( $image_url ) ) : ?>
 					<div class="cts-pro-thumb">
-						<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $event->title ?? '' ); ?>" />
+						<img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $image_alt ); ?>" />
 					</div>
 				<?php endif; ?>
 				<div class="cts-pro-headings">
@@ -130,16 +160,6 @@ $container_style = sprintf(
 						</div>
 					<?php endif; ?>
 					<h1 class="cts-pro-h1"><?php echo esc_html( $event->title ?? __( 'Event', 'churchtools-suite' ) ); ?></h1>
-					<?php if ( ! empty( $start_date_full ) || ! empty( $start_time ) ) : ?>
-						<div class="cts-pro-meta">
-							<?php if ( ! empty( $start_date_full ) ) : ?>
-								<span class="cts-pro-meta-date"><?php echo esc_html( $start_date_full ); ?></span>
-							<?php endif; ?>
-							<?php if ( ! empty( $start_time ) ) : ?>
-								<span class="cts-pro-meta-time"><?php echo esc_html( $start_time ); if ( ! empty( $end_time ) ) echo ' - ' . esc_html( $end_time ); ?><?php if ( ! empty( $tz_label ) ) echo ' (' . esc_html( $tz_label ) . ')'; ?></span>
-							<?php endif; ?>
-						</div>
-					<?php endif; ?>
 				</div>
 			</div>
 			
