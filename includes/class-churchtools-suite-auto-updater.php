@@ -543,6 +543,8 @@ class ChurchTools_Suite_Auto_Updater {
 
         $plugin_file = plugin_basename( CHURCHTOOLS_SUITE_PATH . 'churchtools-suite.php' );
 
+        $plugin_slug = self::get_plugin_slug( $plugin_file );
+
         if ( empty( $info['is_update'] ) || empty( $info['zip_url'] ) ) {
             if ( isset( $transient->response ) && is_array( $transient->response ) ) {
                 unset( $transient->response[ $plugin_file ] );
@@ -552,7 +554,7 @@ class ChurchTools_Suite_Auto_Updater {
             }
             $transient->no_update[ $plugin_file ] = (object) [
                 'id'          => 0,
-                'slug'        => dirname( $plugin_file ),
+                'slug'        => $plugin_slug,
                 'plugin'      => $plugin_file,
                 'new_version' => ltrim( CHURCHTOOLS_SUITE_VERSION, 'vV' ),
                 'package'     => '',
@@ -568,7 +570,7 @@ class ChurchTools_Suite_Auto_Updater {
 
         $update = new stdClass();
         $update->id = 0;
-        $update->slug = dirname( $plugin_file );
+        $update->slug = $plugin_slug;
         $update->plugin = $plugin_file;
         $update->new_version = ltrim( $info['latest_version'] ?? ( $info['tag_name'] ?? '' ), 'v' );
         $update->package = $info['zip_url'];
@@ -585,6 +587,21 @@ class ChurchTools_Suite_Auto_Updater {
         $transient->response[$plugin_file] = $update;
 
         return $transient;
+    }
+
+    /**
+     * Resolve plugin slug for update payloads.
+     *
+     * @param string $plugin_file
+     * @return string
+     */
+    private static function get_plugin_slug( string $plugin_file ): string {
+        $slug = dirname( $plugin_file );
+        if ( $slug === '.' || $slug === '' ) {
+            $slug = 'churchtools-suite';
+        }
+
+        return $slug;
     }
 
     private static function rcopy( string $src, string $dst ): bool {

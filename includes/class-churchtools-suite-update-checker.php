@@ -92,7 +92,7 @@ class ChurchTools_Suite_Update_Checker {
 
             $update = new stdClass();
             $update->id = 0;
-            $update->slug = dirname( CHURCHTOOLS_SUITE_BASENAME );
+            $update->slug = self::get_plugin_slug();
             $update->plugin = $plugin_file;
             $update->new_version = $latest_version;
             $update->url = $release['html_url'] ?? 'https://github.com/FEGAschaffenburg/churchtools-suite';
@@ -256,6 +256,23 @@ class ChurchTools_Suite_Update_Checker {
 
         // fallback
         return CHURCHTOOLS_SUITE_BASENAME;
+    }
+
+    /**
+     * Get a stable plugin slug for WordPress update API payloads.
+     *
+     * For root plugins (main file in plugin root), dirname() returns "."
+     * which breaks update recognition in some WP versions.
+     *
+     * @return string
+     */
+    private static function get_plugin_slug(): string {
+        $slug = dirname( CHURCHTOOLS_SUITE_BASENAME );
+        if ( $slug === '.' || $slug === '' ) {
+            $slug = 'churchtools-suite';
+        }
+
+        return $slug;
     }
     
     /**
