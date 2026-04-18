@@ -1474,7 +1474,7 @@ class ChurchTools_Suite_Event_Sync_Service {
                 );
             }
 			
-			// Person is assigned, try to get name from person object
+            // Person is assigned, try to get name from person object
 			if (!empty($event_service['person']) && is_array($event_service['person'])) {
 				$person = $event_service['person'];
 				
@@ -1492,9 +1492,15 @@ class ChurchTools_Suite_Event_Sync_Service {
 					]
 				);
 				
-				$first_name = $person['firstName'] ?? $person['domainAttributes']['firstName'] ?? '';
-				$last_name = $person['lastName'] ?? $person['domainAttributes']['lastName'] ?? '';
+                $first_name = $person['firstName'] ?? $person['domainAttributes']['firstName'] ?? '';
+                $last_name = $person['lastName'] ?? $person['domainAttributes']['lastName'] ?? '';
 				$person_name = trim($first_name . ' ' . $last_name);
+
+                // Fallback: Some ChurchTools payloads provide only display-like fields
+                // for external/non-registered people (without first/last name split).
+                if ($person_name === '') {
+                    $person_name = $this->extract_service_person_fallback_name($event_service);
+                }
 				
 				// v0.7.2.9: Log extracted name
 				ChurchTools_Suite_Logger::debug(
@@ -1509,8 +1515,24 @@ class ChurchTools_Suite_Event_Sync_Service {
 					sprintf('Service %s has personId but no person object', $service_id),
 					['event_id' => $event_id, 'service_id' => $service_id, 'personId' => $event_service['personId']]
 				);
-				// Name bleibt leer, aber Service wird trotzdem importiert
+                $person_name = $this->extract_service_person_fallback_name($event_service);
 			}
+
+            if ($person_name === '') {
+                $person_name = $this->extract_service_person_fallback_name($event_service);
+            }
+
+            if ($person_name === '') {
+                ChurchTools_Suite_Logger::debug(
+                    'event_sync',
+                    sprintf('Service %s has no resolvable person display name, keeping empty', $service_id),
+                    [
+                        'event_id' => $event_id,
+                        'service_id' => $service_id,
+                        'event_service_keys' => array_keys($event_service),
+                    ]
+                );
+            }
 			
 			// Look up service name from repository
 			$service = $this->services_repo->get_by_service_id($service_id);
@@ -1552,6 +1574,47 @@ class ChurchTools_Suite_Event_Sync_Service {
 
 		return $imported_count;
 	}
+
+    /**
+     * Extract a displayable person name from non-standard service payload fields.
+     *
+     * ChurchTools can return service assignees that are not linked to a CT person
+     * (e.g. external/manual entries). In these cases personId may be null and
+     * firstName/lastName may be empty, but a display label can still exist.
+     *
+     * @param array $event_service Event service payload
+     * @return string
+     */
+    private function extract_service_person_fallback_name(array $event_service): string {
+        $candidates = [
+            $event_service['personName'] ?? '',
+            $event_service['name'] ?? '',
+            $event_service['displayName'] ?? '',
+            $event_service['caption'] ?? '',
+            $event_service['note'] ?? '',
+            $event_service['comment'] ?? '',
+            $event_service['text'] ?? '',
+            $event_service['description'] ?? '',
+            $event_service['person']['name'] ?? '',
+            $event_service['person']['displayName'] ?? '',
+            $event_service['person']['domainAttributes']['name'] ?? '',
+            $event_service['person']['domainAttributes']['displayName'] ?? '',
+            $event_service['person']['domainAttributes']['title'] ?? '',
+        ];
+
+        foreach ($candidates as $candidate) {
+            if (!is_string($candidate)) {
+                continue;
+            }
+
+            $candidate = trim($candidate);
+            if ($candidate !== '') {
+                return $candidate;
+            }
+        }
+
+        return '';
+    }
 
 	/**
 	 * Get last sync timestamp
