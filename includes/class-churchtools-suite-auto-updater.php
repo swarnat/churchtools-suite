@@ -80,7 +80,40 @@ class ChurchTools_Suite_Auto_Updater {
      * @return string
      */
     private static function get_github_token(): string {
-        return trim( (string) get_option( 'churchtools_suite_github_token', '' ) );
+        $token = trim( (string) get_option( 'churchtools_suite_github_token', '' ) );
+        if ( $token === '' && defined( 'WP_CHURCHTOOLS_SUITE_GITHUB_TOKEN' ) ) {
+            $token = trim( (string) WP_CHURCHTOOLS_SUITE_GITHUB_TOKEN );
+        }
+
+        return $token;
+    }
+
+    /**
+     * Build a descriptive WP_Error from a GitHub API response.
+     *
+     * @param array  $response HTTP response array from wp_remote_get
+     * @param string $context  Short context label
+     * @return WP_Error
+     */
+    private static function build_github_http_error( array $response, string $context ): WP_Error {
+        $code = (int) wp_remote_retrieve_response_code( $response );
+        $body = (string) wp_remote_retrieve_body( $response );
+        $msg = '';
+
+        if ( $body !== '' ) {
+            $decoded = json_decode( $body, true );
+            if ( is_array( $decoded ) && ! empty( $decoded['message'] ) ) {
+                $msg = (string) $decoded['message'];
+            }
+        }
+
+        if ( $msg === '' ) {
+            $msg = sprintf( 'GitHub API HTTP %d (%s)', $code, $context );
+        } else {
+            $msg = sprintf( 'GitHub API HTTP %d (%s): %s', $code, $context, $msg );
+        }
+
+        return new WP_Error( 'github_api_error', $msg, [ 'http_code' => $code, 'context' => $context ] );
     }
 
     /**
@@ -182,20 +215,32 @@ class ChurchTools_Suite_Auto_Updater {
      * @return array|WP_Error
      */
     public static function get_latest_release_info() {
-        $headers = [ 'User-Agent' => 'ChurchTools-Suite-Updater' ];
+        $headers = [
+            'User-Agent' => 'ChurchTools-Suite-Updater',
+            'Accept' => 'application/vnd.github.v3+json',
+        ];
         $token = self::get_github_token();
         if ( ! empty( $token ) ) {
             $headers['Authorization'] = 'token ' . $token;
         }
 
+        $last_http_error = null;
+
         // Prefer full releases list and pick highest stable version (more reliable than /latest for this repo)
         $response = wp_remote_get( self::GITHUB_API_RELEASES, [ 'headers' => $headers, 'timeout' => 20 ] );
-        if ( ! is_wp_error( $response ) && (int) wp_remote_retrieve_response_code( $response ) === 200 ) {
-            $body = wp_remote_retrieve_body( $response );
-            $releases = json_decode( $body, true );
-            $selected = self::select_highest_stable_release( $releases );
-            if ( ! empty( $selected['tag_name'] ) ) {
-                $data = $selected;
+        if ( is_wp_error( $response ) ) {
+            $last_http_error = $response;
+        } else {
+            $releases_code = (int) wp_remote_retrieve_response_code( $response );
+            if ( $releases_code === 200 ) {
+                $body = wp_remote_retrieve_body( $response );
+                $releases = json_decode( $body, true );
+                $selected = self::select_highest_stable_release( $releases );
+                if ( ! empty( $selected['tag_name'] ) ) {
+                    $data = $selected;
+                }
+            } else {
+                $last_http_error = self::build_github_http_error( $response, 'releases' );
             }
         }
 
@@ -203,11 +248,16 @@ class ChurchTools_Suite_Auto_Updater {
         if ( empty( $data ) || ! is_array( $data ) || empty( $data['tag_name'] ) ) {
             $response = wp_remote_get( self::GITHUB_API_RELEASES_LATEST, [ 'headers' => $headers, 'timeout' => 20 ] );
             if ( is_wp_error( $response ) ) {
-                return $response;
+                $last_http_error = $response;
+            } else {
+                $latest_code = (int) wp_remote_retrieve_response_code( $response );
+                if ( $latest_code === 200 ) {
+                    $body = wp_remote_retrieve_body( $response );
+                    $data = json_decode( $body, true );
+                } else {
+                    $last_http_error = self::build_github_http_error( $response, 'latest' );
+                }
             }
-
-            $body = wp_remote_retrieve_body( $response );
-            $data = json_decode( $body, true );
         }
 
         // If the Releases API didn't return a valid release, attempt to fall back to the tags API
@@ -216,7 +266,12 @@ class ChurchTools_Suite_Auto_Updater {
             $tags_url = 'https://api.github.com/repos/FEGAschaffenburg/churchtools-suite/tags';
             $tags_resp = wp_remote_get( $tags_url, [ 'headers' => $headers, 'timeout' => 20 ] );
             if ( is_wp_error( $tags_resp ) ) {
-                return $tags_resp;
+                return $last_http_error instanceof WP_Error ? $last_http_error : $tags_resp;
+            }
+            $tags_code = (int) wp_remote_retrieve_response_code( $tags_resp );
+            if ( $tags_code !== 200 ) {
+                $tags_error = self::build_github_http_error( $tags_resp, 'tags' );
+                return $last_http_error instanceof WP_Error ? $last_http_error : $tags_error;
             }
             $tags_body = wp_remote_retrieve_body( $tags_resp );
             $tags = json_decode( $tags_body, true );
@@ -240,7 +295,11 @@ class ChurchTools_Suite_Auto_Updater {
                 ];
             }
 
-            return new WP_Error( 'invalid_release', 'Invalid release data' );
+            if ( $last_http_error instanceof WP_Error ) {
+                return $last_http_error;
+            }
+
+            return new WP_Error( 'invalid_release', 'Invalid release data from GitHub APIs' );
         }
 
         $latest_tag = ltrim( $data['tag_name'], 'v' );
