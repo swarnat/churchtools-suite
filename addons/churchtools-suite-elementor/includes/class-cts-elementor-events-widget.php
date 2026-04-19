@@ -102,6 +102,7 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 					'label' => __( 'Template', 'churchtools-suite' ),
 					'type' => \Elementor\Controls_Manager::SELECT,
 					'options' => [
+						'simple' => __( 'Einfach', 'churchtools-suite' ),
 						'classic' => __( 'Klassisch', 'churchtools-suite' ),
 						'classic-with-images' => __( 'Klassisch mit Bildern', 'churchtools-suite' ),
 						'minimal' => __( 'Minimal', 'churchtools-suite' ),

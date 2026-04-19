@@ -49,6 +49,16 @@ function cts_resolve_addon_meta( $plugin_slug, $plugin_uri = '', $plugin_file = 
 		];
 	}
 
+	if (
+		strpos( $plugin_slug, 'churchtools-suite-presentations' ) === 0
+		|| strpos( $plugin_file, '/churchtools-suite-presentations.php' ) !== false
+	) {
+		return [
+			'github_repo' => 'FEGAschaffenburg/churchtools-suite',
+			'details_url' => 'https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-presentations',
+		];
+	}
+
 	$known_addons = [
 		'churchtools-suite-elementor' => [
 			'github_repo' => 'FEGAschaffenburg/churchtools-suite',
@@ -57,6 +67,10 @@ function cts_resolve_addon_meta( $plugin_slug, $plugin_uri = '', $plugin_file = 
 		'churchtools-suite-posts-sync' => [
 			'github_repo' => 'FEGAschaffenburg/churchtools-suite',
 			'details_url' => 'https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-posts-sync',
+		],
+		'churchtools-suite-presentations' => [
+			'github_repo' => 'FEGAschaffenburg/churchtools-suite',
+			'details_url' => 'https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-presentations',
 		],
 	];
 
@@ -242,7 +256,61 @@ function cts_get_addon_plugins() {
 	return $addons;
 }
 
-$addons = cts_get_addon_plugins();
+/**
+ * Ensure top table contains all known addons, even if not installed.
+ *
+ * @param array $addons Detected addons from installed plugins
+ * @return array
+ */
+function cts_ensure_known_addons_in_table( array $addons ): array {
+	$known = [
+		'churchtools-suite-elementor' => [
+			'name' => 'ChurchTools Suite - Elementor Integration',
+			'description' => 'Elementor Page Builder Widget für ChurchTools Suite Events.',
+			'details_url' => 'https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-elementor',
+		],
+		'churchtools-suite-posts-sync' => [
+			'name' => 'ChurchTools Suite - Posts Sync Addon',
+			'description' => 'Synchronisiert ChurchTools-Posts in WordPress-Posts/Seiten.',
+			'details_url' => 'https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-posts-sync',
+		],
+		'churchtools-suite-presentations' => [
+			'name' => 'ChurchTools Suite - Präsentation Addon',
+			'description' => 'Präsentationsseiten für ChurchTools Termine und Informationen.',
+			'details_url' => 'https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-presentations',
+		],
+	];
+
+	$existing_slugs = array_map(
+		static function( $addon ) {
+			return (string) ( $addon['plugin_slug'] ?? '' );
+		},
+		$addons
+	);
+
+	foreach ( $known as $slug => $meta ) {
+		if ( in_array( $slug, $existing_slugs, true ) ) {
+			continue;
+		}
+
+		$addons[ '__virtual__' . $slug ] = [
+			'Name' => $meta['name'],
+			'Description' => $meta['description'],
+			'Version' => '—',
+			'plugin_file' => '',
+			'plugin_slug' => $slug,
+			'is_active' => false,
+			'is_network_active' => false,
+			'github_repo' => 'FEGAschaffenburg/churchtools-suite',
+			'details_url' => $meta['details_url'],
+			'is_virtual' => true,
+		];
+	}
+
+	return $addons;
+}
+
+$addons = cts_ensure_known_addons_in_table( cts_get_addon_plugins() );
 $has_addons = ! empty( $addons );
 $active_addons = array_filter( $addons, fn( $addon ) => $addon['is_active'] );
 
@@ -319,48 +387,6 @@ $posts_sync_installed = isset( $all_plugins[ $posts_sync_plugin_file ] );
 			</p>
 		</div>
 		
-		<div class="cts-section">
-			<h2><?php esc_html_e( 'Verfügbare Addons', 'churchtools-suite' ); ?></h2>
-			<p><?php esc_html_e( 'Erweitere ChurchTools Suite mit offiziellen Addons:', 'churchtools-suite' ); ?></p>
-			
-			<div class="cts-addon-card">
-				<h3>🎨 ChurchTools Suite - Elementor Integration</h3>
-				<p>
-					<?php esc_html_e( 'Elementor Page Builder Widget für ChurchTools Suite Events. Erstelle moderne Event-Seiten mit dem beliebten Elementor Page Builder.', 'churchtools-suite' ); ?>
-				</p>
-				<p>
-					<strong><?php esc_html_e( 'Features:', 'churchtools-suite' ); ?></strong>
-				</p>
-				<ul>
-					<li><?php esc_html_e( 'Drag & Drop Event-Widget für Elementor', 'churchtools-suite' ); ?></li>
-					<li><?php esc_html_e( 'Live-Vorschau im Elementor Editor', 'churchtools-suite' ); ?></li>
-					<li><?php esc_html_e( 'Alle ChurchTools Suite View-Typen (List, Grid, Calendar)', 'churchtools-suite' ); ?></li>
-					<li><?php esc_html_e( 'Filter, Gruppierung und erweiterte Optionen', 'churchtools-suite' ); ?></li>
-				</ul>
-				<p>
-					<?php if ( $elementor_subplugin_installed && ! $elementor_subplugin_active ) : ?>
-						<a href="<?php echo esc_url( wp_nonce_url( 'plugins.php?action=activate&plugin=' . urlencode( 'churchtools-suite-elementor/churchtools-suite-elementor.php' ), 'activate-plugin_churchtools-suite-elementor/churchtools-suite-elementor.php' ) ); ?>" class="button button-primary">
-							<?php esc_html_e( '✅ Aktivieren', 'churchtools-suite' ); ?>
-						</a>
-					<?php elseif ( ! $elementor_subplugin_installed ) : ?>
-						<button type="button" class="button button-primary cts-install-addon" data-addon-slug="churchtools-suite-elementor">
-							<?php esc_html_e( '⚡ Jetzt installieren', 'churchtools-suite' ); ?>
-						</button>
-					<?php else : ?>
-						<span class="button button-primary" disabled style="opacity: 0.5; cursor: not-allowed;">
-							<?php esc_html_e( '✅ Installiert & Aktiv', 'churchtools-suite' ); ?>
-						</span>
-					<?php endif; ?>
-					<a href="https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-elementor" class="button" target="_blank" rel="noopener noreferrer">
-						<?php esc_html_e( 'Dokumentation', 'churchtools-suite' ); ?>
-					</a>
-				</p>
-				<?php if ( ! $elementor_subplugin_installed ) : ?>
-					<div class="cts-install-result" style="display:none; margin-top:10px;"></div>
-				<?php endif; ?>
-			</div>
-		</div>
-		
 	<?php else : ?>
 		
 		<div class="cts-section">
@@ -394,20 +420,29 @@ $posts_sync_installed = isset( $all_plugins[ $posts_sync_plugin_file ] );
 					<?php foreach ( $addons as $plugin_file => $addon ) : ?>
 						<?php
 						$status_icon = $addon['is_active'] ? '✅' : '⚪';
-						$status_text = $addon['is_active'] 
-							? esc_html__( 'Aktiv', 'churchtools-suite' ) 
-							: esc_html__( 'Inaktiv', 'churchtools-suite' );
+						$is_coming_soon = in_array( (string) $addon['plugin_slug'], [ 'churchtools-suite-posts-sync', 'churchtools-suite-presentations' ], true );
+						$is_virtual = ! empty( $addon['is_virtual'] );
+						if ( $is_coming_soon ) {
+							$status_icon = '⏳';
+							$status_text = esc_html__( 'Kommt bald', 'churchtools-suite' );
+						} else {
+							$status_text = $addon['is_active']
+								? esc_html__( 'Aktiv', 'churchtools-suite' )
+								: esc_html__( 'Inaktiv', 'churchtools-suite' );
+						}
 						$row_class = $addon['is_active'] ? 'active' : 'inactive';
 						
 						// Check for updates
 						$update_info = false;
-						if ( ! empty( $addon['github_repo'] ) && ! empty( $addon['Version'] ) ) {
+						if ( ! $is_virtual && ! $is_coming_soon && ! empty( $addon['github_repo'] ) && ! empty( $addon['Version'] ) && $addon['Version'] !== '—' ) {
 							$update_info = cts_check_addon_update( $addon['github_repo'], $addon['Version'], $addon['plugin_slug'] );
 						}
 						
 						// Generate action links
 						$actions = [];
-						if ( $addon['is_active'] ) {
+						if ( $is_virtual || $is_coming_soon ) {
+							$actions[] = esc_html__( 'Kommt bald', 'churchtools-suite' );
+						} elseif ( $addon['is_active'] ) {
 							$deactivate_url = wp_nonce_url(
 								admin_url( 'plugins.php?action=deactivate&plugin=' . urlencode( $plugin_file ) . '&plugin_status=all&paged=1' ),
 								'deactivate-plugin_' . $plugin_file
@@ -457,7 +492,11 @@ $posts_sync_installed = isset( $all_plugins[ $posts_sync_plugin_file ] );
 								<code><?php echo esc_html( $addon['Version'] ); ?></code>
 							</td>
 							<td class="cts-update-cell">
-								<?php if ( $update_info ) : ?>
+								<?php if ( $is_coming_soon ) : ?>
+									<span style="color: #996800;">⏳ <?php esc_html_e( 'kommt bald', 'churchtools-suite' ); ?></span>
+								<?php elseif ( $is_virtual ) : ?>
+									<span style="color: #6b7280;">—</span>
+								<?php elseif ( $update_info ) : ?>
 									<div class="cts-update-available">
 										<span class="dashicons dashicons-update" style="color: #d63638;"></span>
 										<strong style="color: #d63638;"><?php echo esc_html( $update_info['latest_version'] ); ?></strong>
@@ -482,25 +521,6 @@ $posts_sync_installed = isset( $all_plugins[ $posts_sync_plugin_file ] );
 				</tbody>
 			</table>
 		</div>
-
-		<?php if ( ! $posts_sync_installed ) : ?>
-			<div class="cts-section" style="margin-top: 24px;">
-				<h2><?php esc_html_e( 'Verfügbare Addons', 'churchtools-suite' ); ?></h2>
-				<div class="cts-addon-card">
-					<h3>📝 ChurchTools Suite – Posts Sync Addon</h3>
-					<p><?php esc_html_e( 'ChurchTools Suite – Posts Sync: Dieses Addon ist derzeit deaktiviert und kommt bald (coming soon).', 'churchtools-suite' ); ?></p>
-					<p>
-						<span class="button button-secondary" style="opacity: 0.7; cursor: not-allowed;" aria-disabled="true">
-							<?php esc_html_e( '⏳ coming soon', 'churchtools-suite' ); ?>
-						</span>
-						<span class="button button-secondary" style="opacity: 0.7; cursor: not-allowed;" aria-disabled="true">
-							<?php esc_html_e( 'Dokumentation', 'churchtools-suite' ); ?>
-						</span>
-					</p>
-					<div class="cts-install-result" style="display:none; margin-top:10px;"></div>
-				</div>
-			</div>
-		<?php endif; ?>
 		
 	<?php endif; ?>
 	

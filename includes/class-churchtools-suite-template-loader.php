@@ -82,6 +82,7 @@ class ChurchTools_Suite_Template_Loader {
 		// Standardisierte View-Definitionen mit deutschen IDs
 		$labels = [
 			'list' => [
+				'list-einfach'              => __( 'Einfach', 'churchtools-suite' ),
 				'list-klassisch'           => __( 'Klassisch', 'churchtools-suite' ),
 				'list-klassisch-mit-bildern' => __( 'Klassisch mit Bildern', 'churchtools-suite' ),
 				'list-minimal'             => __( 'Minimal', 'churchtools-suite' ),
@@ -142,6 +143,7 @@ class ChurchTools_Suite_Template_Loader {
 			'grid-hintergrundbilder' => 'grid-background-images',
 			
 			// List Views
+			'list-einfach'              => 'list-classic',
 			'list-klassisch'           => 'list-classic',
 			'list-klassisch-mit-bildern' => 'list-classic-with-images',
 			'list-klassisch-modern'   => 'list-classic-modern',
@@ -197,6 +199,8 @@ class ChurchTools_Suite_Template_Loader {
 		// Direkte Treffer (inkl. englischer Präfix-Varianten)
 		$direct_mapping = [
 			'list' => [
+				'list-einfach' => 'list-einfach',
+				'list-simple' => 'list-einfach',
 				'list-klassisch' => 'list-klassisch',
 				'list-classic' => 'list-klassisch',
 				'list-klassisch-mit-bildern' => 'list-klassisch-mit-bildern',
@@ -243,6 +247,7 @@ class ChurchTools_Suite_Template_Loader {
 				'modern'  => 'grid-modern',
 			],
 			'list' => [
+				'simple'             => 'list-einfach',
 				'classic'            => 'list-klassisch',
 				'classic-with-images' => 'list-klassisch-mit-bildern',
 				'minimal'            => 'list-minimal',

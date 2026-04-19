@@ -6,7 +6,7 @@
  * Used by Gutenberg blocks and Elementor widgets to show/disable toggles.
  * 
  * WICHTIG: View-IDs sind standardisiert mit deutschem Präfix:
- * - List: list-klassisch, list-minimal, list-modern, list-klassisch-mit-bildern
+ * - List: list-einfach, list-klassisch, list-minimal, list-modern, list-klassisch-mit-bildern
  * - Grid: grid-klassisch, grid-einfach, grid-minimal, grid-modern
  * - Calendar: calendar-monatlich-einfach
  * - Countdown: countdown-klassisch
@@ -29,6 +29,18 @@ function churchtools_suite_get_view_features() {
 		// ============================================
 		// LIST VIEWS (standardisiert mit Präfix)
 		// ============================================
+		'list-einfach' => [
+			'show_event_description' => true,
+			'show_appointment_description' => true,
+			'show_location' => true,
+			'show_services' => true,
+			'show_time' => true,
+			'show_tags' => true,
+			'show_images' => false,
+			'show_calendar_name' => true,
+			'show_month_separator' => true,
+		],
+
 		'list-klassisch' => [
 			'show_event_description' => true,
 			'show_appointment_description' => true,

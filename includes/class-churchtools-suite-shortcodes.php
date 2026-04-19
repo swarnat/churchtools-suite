@@ -312,7 +312,7 @@ class ChurchTools_Suite_Shortcodes {
 		}
 		
 		// Fallback: unknown view prefix
-		$valid_views = 'list-classic, list-minimal, list-modern, list-classic-with-images, list-table, grid-simple, grid-modern, calendar-monthly-simple';
+		$valid_views = 'list-simple, list-classic, list-minimal, list-modern, list-classic-with-images, list-table, grid-simple, grid-modern, calendar-monthly-simple';
 		return '<p style="padding: 12px; background: #fef3c7; border-radius: 4px;">⚠️ <strong>View nicht verfügbar:</strong> "' . esc_html( $view ) . '" ist keine gültige View. Verfügbar: ' . esc_html( $valid_views ) . '</p>';
 	}
 	
@@ -373,9 +373,9 @@ class ChurchTools_Suite_Shortcodes {
 		$atts['view'] = ChurchTools_Suite_Template_Loader::normalize_view_id( 'list', $atts['view'] );
 		
 		// v0.9.7.0 - Erlaubte Views (deutsche IDs mit Präfix)
-		$allowed_views = [ 'list-klassisch', 'list-minimal', 'list-modern', 'list-klassisch-mit-bildern' ];
+		$allowed_views = [ 'list-einfach', 'list-klassisch', 'list-minimal', 'list-modern', 'list-klassisch-mit-bildern' ];
 		if ( ! in_array( $atts['view'], $allowed_views, true ) ) {
-			return '<p style="padding: 12px; background: #fef3c7; border-radius: 4px;">⚠️ <strong>View nicht verfügbar:</strong> Erlaubte Ansichten: Klassisch, Minimal, Modern, Klassisch-mit-Bildern. View "' . esc_html( $atts['view'] ) . '" existiert nicht.</p>';
+			return '<p style="padding: 12px; background: #fef3c7; border-radius: 4px;">⚠️ <strong>View nicht verfügbar:</strong> Erlaubte Ansichten: Einfach, Klassisch, Minimal, Modern, Klassisch-mit-Bildern. View "' . esc_html( $atts['view'] ) . '" existiert nicht.</p>';
 		}
 		
 		// Convert boolean values
