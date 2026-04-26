@@ -867,46 +867,37 @@ class ChurchTools_Suite_Event_Sync_Service {
         $external_image_url = $event['appointment']['base']['image']['imageUrl'] ?? $event['appointment']['image']['imageUrl'] ?? $event['image']['imageUrl'] ?? null;
         $external_image_name = $event['appointment']['base']['image']['name'] ?? $event['appointment']['image']['name'] ?? $event['image']['name'] ?? null;
 
-        // Prüfe, ob das Bild neu importiert werden muss (URL oder Name geändert)
-        $import_new_image = false;
+        // Beim Re-Sync Bild immer neu importieren, damit Änderungen zuverlässig übernommen werden.
         $existing_event = null;
         if (!empty($event['id'])) {
             $existing_event = $this->events_repo->get_by_event_id($event['id']);
         }
-        if (!empty($external_image_url) && filter_var($external_image_url, FILTER_VALIDATE_URL)) {
-            $last_image_url = $existing_event->image_url ?? null;
-            $last_image_name = $existing_event->raw_payload ? (json_decode($existing_event->raw_payload, true)['image']['name'] ?? null) : null;
-            if ($last_image_url !== $external_image_url || $last_image_name !== $external_image_name) {
-                $import_new_image = true;
-            }
-        }
 
         if (!empty($external_image_url) && filter_var($external_image_url, FILTER_VALIDATE_URL)) {
             require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-image-importer.php';
-            if ($import_new_image) {
-                $import_result = ChurchTools_Suite_Image_Importer::import_image(
-                    $external_image_url,
-                    $external_image_name ?? $event['name'] ?? $event['designation'] ?? 'Event Image',
-                    (string) $event['id']
+            if ($existing_event && !empty($existing_event->image_attachment_id)) {
+                $this->delete_previous_cts_image((int) $existing_event->image_attachment_id, (string) $event['id']);
+            }
+
+            $import_result = ChurchTools_Suite_Image_Importer::import_image(
+                $external_image_url,
+                $external_image_name ?? $event['name'] ?? $event['designation'] ?? 'Event Image',
+                (string) $event['id']
+            );
+            if (!is_wp_error($import_result)) {
+                $image_attachment_id = $import_result;
+                $image_url = ChurchTools_Suite_Image_Importer::get_image_url($import_result);
+                ChurchTools_Suite_Logger::debug(
+                    'event_sync',
+                    sprintf('Image recreated for event %s: attachment_id=%d', $event['id'], $import_result),
+                    ['external_url' => $external_image_url]
                 );
-                if (!is_wp_error($import_result)) {
-                    $image_attachment_id = $import_result;
-                    $image_url = ChurchTools_Suite_Image_Importer::get_image_url($import_result);
-                    ChurchTools_Suite_Logger::debug(
-                        'event_sync',
-                        sprintf('Image imported/updated for event %s: attachment_id=%d', $event['id'], $import_result),
-                        ['external_url' => $external_image_url]
-                    );
-                } else {
-                    ChurchTools_Suite_Logger::warning(
-                        'event_sync',
-                        sprintf('Failed to import image for event %s: %s', $event['id'], $import_result->get_error_message()),
-                        ['external_url' => $external_image_url, 'error_code' => $import_result->get_error_code()]
-                    );
-                }
-            } elseif ($existing_event && !empty($existing_event->image_attachment_id)) {
-                $image_attachment_id = $existing_event->image_attachment_id;
-                $image_url = $existing_event->image_url;
+            } else {
+                ChurchTools_Suite_Logger::warning(
+                    'event_sync',
+                    sprintf('Failed to recreate image for event %s: %s', $event['id'], $import_result->get_error_message()),
+                    ['external_url' => $external_image_url, 'error_code' => $import_result->get_error_code()]
+                );
             }
         }
         
@@ -1108,41 +1099,43 @@ class ChurchTools_Suite_Event_Sync_Service {
         $image_url = null;
         // FIX: Image object has imageUrl field inside it!
         $external_image_url = $appointment['base']['image']['imageUrl'] ?? $appointment['image']['imageUrl'] ?? $appointment_data['image']['imageUrl'] ?? null;
+        $external_image_name = $appointment['base']['image']['name'] ?? $appointment['image']['name'] ?? $appointment_data['image']['name'] ?? null;
         
         if (!empty($external_image_url) && filter_var($external_image_url, FILTER_VALIDATE_URL)) {
             // Lade Image Importer
             require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-image-importer.php';
-            
-            // Prüfe ob bereits importiert
-            $existing_id = ChurchTools_Suite_Image_Importer::find_existing_image($external_image_url);
-            
-            if ($existing_id) {
-                $image_attachment_id = $existing_id;
-                $image_url = ChurchTools_Suite_Image_Importer::get_image_url($existing_id);
-            } else {
-                // Importiere neues Bild
-                $import_result = ChurchTools_Suite_Image_Importer::import_image(
-                    $external_image_url,
-                    $title,
-                    (string) $appointment_id
+
+            $start_datetime = $this->format_datetime($start_date);
+            $existing_appointment = null;
+            if (!empty($start_datetime)) {
+                $existing_appointment = $this->events_repo->get_by_appointment_id((string) $appointment_id, $start_datetime);
+            }
+            if ($existing_appointment && !empty($existing_appointment->image_attachment_id)) {
+                $this->delete_previous_cts_image((int) $existing_appointment->image_attachment_id, (string) $appointment_id);
+            }
+
+            // Beim Re-Sync immer neu importieren
+            $import_result = ChurchTools_Suite_Image_Importer::import_image(
+                $external_image_url,
+                $external_image_name ?? $title,
+                (string) $appointment_id
+            );
+
+            if (!is_wp_error($import_result)) {
+                $image_attachment_id = $import_result;
+                $image_url = ChurchTools_Suite_Image_Importer::get_image_url($import_result);
+
+                ChurchTools_Suite_Logger::debug(
+                    'event_sync',
+                    sprintf('Image recreated for appointment %s: attachment_id=%d', $appointment_id, $import_result),
+                    ['external_url' => $external_image_url]
                 );
-                
-                if (!is_wp_error($import_result)) {
-                    $image_attachment_id = $import_result;
-                    $image_url = ChurchTools_Suite_Image_Importer::get_image_url($import_result);
-                    
-                    ChurchTools_Suite_Logger::debug(
-                        'event_sync',
-                        sprintf('Image imported for appointment %s: attachment_id=%d', $appointment_id, $import_result),
-                        ['external_url' => $external_image_url]
-                    );
-                } else {
-                    ChurchTools_Suite_Logger::warning(
-                        'event_sync',
-                        sprintf('Failed to import image for appointment %s: %s', $appointment_id, $import_result->get_error_message()),
-                        ['external_url' => $external_image_url]
-                    );
-                }
+            } else {
+                ChurchTools_Suite_Logger::warning(
+                    'event_sync',
+                    sprintf('Failed to recreate image for appointment %s: %s', $appointment_id, $import_result->get_error_message()),
+                    ['external_url' => $external_image_url]
+                );
             }
         }
         
@@ -1233,6 +1226,28 @@ class ChurchTools_Suite_Event_Sync_Service {
         }
         
         return false;
+    }
+
+    /**
+     * Delete previously imported CTS image if ownership matches the current sync key.
+     */
+    private function delete_previous_cts_image(int $attachment_id, string $sync_key = ''): void {
+        if ($attachment_id <= 0) {
+            return;
+        }
+
+        $imported_from = (string) get_post_meta($attachment_id, '_cts_imported_from', true);
+        if (empty($imported_from)) {
+            return;
+        }
+
+        $owner_key = (string) get_post_meta($attachment_id, '_cts_event_id', true);
+        if (!empty($sync_key) && !empty($owner_key) && $owner_key !== $sync_key) {
+            return;
+        }
+
+        require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-image-importer.php';
+        ChurchTools_Suite_Image_Importer::delete_image($attachment_id);
     }
     
     /**

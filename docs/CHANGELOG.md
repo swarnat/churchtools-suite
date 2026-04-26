@@ -1,5 +1,17 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.22 - Re-Sync Bild-Neuerstellung (26. April 2026)
+
+### 🛠️ Fixes
+- Beim Re-Sync werden Event- und Appointment-Bilder jetzt immer neu importiert.
+- Vorhandene CTS-importierte Bilder werden vor Re-Import sicher ersetzt, um veraltete Bilder zu vermeiden.
+- Dateiname aus ChurchTools wird beim Import robuster übernommen (inkl. Query-Parameter wie `filename`/`name`).
+
+### 📦 Release-Artefakte
+- `churchtools-suite-1.2.0.22.zip`
+- `churchtools-suite-elementor-0.6.22.zip`
+- `churchtools-suite-posts-sync-0.1.4.zip`
+
 ## v1.2.0.21 - UX & Modal Bildklick Fix (26. April 2026)
 
 ### 🛠️ Fixes

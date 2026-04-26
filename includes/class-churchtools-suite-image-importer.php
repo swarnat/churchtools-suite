@@ -41,31 +41,14 @@ class ChurchTools_Suite_Image_Importer {
         require_once ABSPATH . 'wp-admin/includes/file.php';
         require_once ABSPATH . 'wp-admin/includes/image.php';
         
-        // Versuche, sprechenden Dateinamen aus JSON zu extrahieren
-        $json_filename = '';
+        // Priorität für Dateiname: expliziter Name > URL (inkl. Query-Param) > Fallback
+        $title_filename = '';
         if (!empty($title) && is_string($title) && preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $title)) {
-            $json_filename = $title;
+            $title_filename = $title;
         }
-        // Falls $image_url ein JSON-Objekt ist (z.B. als Array übergeben)
-        if (is_array($image_url) && isset($image_url['name'])) {
-            $json_filename = $image_url['name'];
-        } elseif (is_array($image_url) && isset($image_url['filename'])) {
-            $json_filename = $image_url['filename'];
-        }
-
-        // Extrahiere Original-Dateinamen aus der URL für bessere Deduplication
-        $parsed_url = parse_url($image_url, PHP_URL_PATH);
-        $path_parts = explode('/', trim($parsed_url, '/'));
-        $original_filename = end($path_parts);
-
-        // Priorität: JSON-Name > URL-Name > Fallback
-        if (!empty($json_filename)) {
-            $filename = sanitize_file_name($json_filename);
-        } elseif (!empty($original_filename) && strlen($original_filename) >= 5) {
-            $filename = sanitize_file_name($original_filename);
-        } else {
-            $filename = !empty($event_id) ? 'ct-event-' . sanitize_file_name($event_id) : 'ct-event-' . time();
-        }
+        $url_filename = self::extract_filename_from_url($image_url);
+        $fallback_base = !empty($event_id) ? 'ct-event-' . sanitize_file_name($event_id) : 'ct-event-' . time();
+        $filename_candidate = !empty($title_filename) ? $title_filename : (!empty($url_filename) ? $url_filename : $fallback_base);
         
         // Versuche, das Bild herunterzuladen (1) Original URL, (2) Fallback ohne Query
         $tmp_file = download_url($image_url, 300); // 5 Minuten Timeout
@@ -89,7 +72,7 @@ class ChurchTools_Suite_Image_Importer {
         }
         
         // Erhalte MIME-Type
-        $file_type = wp_check_filetype_and_ext($tmp_file, $filename);
+        $file_type = wp_check_filetype_and_ext($tmp_file, (string) $filename_candidate);
         
         // Debug logging - log actual MIME type received
         error_log(sprintf(
@@ -136,18 +119,31 @@ class ChurchTools_Suite_Image_Importer {
             return new WP_Error('invalid_type', $error_msg);
         }
         
+        // Baue stabilen Ziel-Dateinamen (kein .tmp, Name aus ChurchTools behalten)
+        $target_ext = $file_type['ext'] ?? '';
+        if (empty($target_ext) && !empty($file_type['type'])) {
+            $target_ext = self::mime_type_to_extension($file_type['type']);
+        }
+
+        $candidate_ext = strtolower((string) pathinfo($filename_candidate, PATHINFO_EXTENSION));
+        if (empty($target_ext) && in_array($candidate_ext, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true)) {
+            $target_ext = $candidate_ext;
+        }
+        if (empty($target_ext)) {
+            $target_ext = 'jpg';
+        }
+
+        $filename_base = sanitize_file_name((string) pathinfo($filename_candidate, PATHINFO_FILENAME));
+        if (empty($filename_base)) {
+            $filename_base = $fallback_base;
+        }
+
+        $final_filename = $filename_base . '.' . $target_ext;
+
         // Verschiebe Datei in Upload-Verzeichnis
         $upload_dir = wp_upload_dir();
-        $target_file = $upload_dir['path'] . '/' . $filename . '.' . pathinfo($tmp_file, PATHINFO_EXTENSION);
-        
-        // Vermeide Duplikate durch Versionierung
-        $counter = 1;
-        $base_target = $target_file;
-        while (file_exists($target_file)) {
-            $pathinfo = pathinfo($base_target);
-            $target_file = $pathinfo['dirname'] . '/' . $pathinfo['filename'] . '-' . $counter . '.' . $pathinfo['extension'];
-            $counter++;
-        }
+        $unique_filename = wp_unique_filename($upload_dir['path'], $final_filename);
+        $target_file = trailingslashit($upload_dir['path']) . $unique_filename;
         
         if (!@rename($tmp_file, $target_file)) {
             @unlink($tmp_file);
@@ -157,10 +153,10 @@ class ChurchTools_Suite_Image_Importer {
         // Erstelle WordPress Attachment Post
         $attachment = [
             'post_mime_type' => $file_type['type'],
-            'post_title' => sanitize_text_field($title ?: $filename),
+            'post_title' => sanitize_text_field($title ?: $filename_base),
             'post_content' => '',
             'post_status' => 'inherit',
-            'post_name' => sanitize_title($filename),
+            'post_name' => sanitize_title($filename_base),
         ];
         
         $attachment_id = wp_insert_attachment($attachment, $target_file);
@@ -252,6 +248,58 @@ class ChurchTools_Suite_Image_Importer {
         }
         
         return false;
+    }
+
+    /**
+     * Try to extract a human-readable filename from URL path or query.
+     */
+    private static function extract_filename_from_url(string $url): string {
+        if (empty($url)) {
+            return '';
+        }
+
+        $parsed = wp_parse_url($url);
+        if (!is_array($parsed)) {
+            return '';
+        }
+
+        $query_name = '';
+        if (!empty($parsed['query'])) {
+            parse_str($parsed['query'], $query);
+            foreach (['filename', 'fileName', 'name', 'file', 'download'] as $key) {
+                if (!empty($query[$key]) && is_string($query[$key])) {
+                    $query_name = (string) $query[$key];
+                    break;
+                }
+            }
+        }
+
+        if (!empty($query_name)) {
+            return sanitize_file_name(basename($query_name));
+        }
+
+        if (!empty($parsed['path'])) {
+            $path_name = basename((string) $parsed['path']);
+            if (!empty($path_name)) {
+                return sanitize_file_name($path_name);
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Map MIME type to file extension.
+     */
+    private static function mime_type_to_extension(string $mime_type): string {
+        $map = [
+            'image/jpeg' => 'jpg',
+            'image/png' => 'png',
+            'image/gif' => 'gif',
+            'image/webp' => 'webp',
+        ];
+
+        return $map[$mime_type] ?? '';
     }
     
     /**
