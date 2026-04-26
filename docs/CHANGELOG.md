@@ -1,5 +1,17 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.19 - Update-Erkennung stabilisiert (26. April 2026)
+
+### 🔧 Verbesserungen
+- Neuer eindeutiger Versionssprung, damit WordPress die Aktualisierung wieder sicher als neues Update erkennt
+- Elementor Addon-Version synchron mit angehoben, damit Monorepo-Release konsistent bleibt
+
+### 📦 Release-Artefakte
+- `churchtools-suite-1.2.0.19.zip`
+- `churchtools-suite-elementor-0.6.20.zip`
+- `churchtools-suite-posts-sync-0.1.4.zip`
+- `churchtools-suite-presentations-0.1.0.zip`
+
 ## v1.2.0.18 - Elementor Stil-Gruppierung & Bilddarstellung (26. April 2026)
 
 ### ✨ Neu
