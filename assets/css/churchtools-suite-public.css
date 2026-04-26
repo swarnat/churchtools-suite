@@ -6653,3 +6653,20 @@
 	}
 }
 
+/* Optional full-image mode for cards/sliders/countdown */
+[data-image-fit='contain'] .cts-classic-hero-img,
+[data-image-fit='contain'] .cts-carousel-hero-img,
+[data-image-fit='contain'] .cts-countdown-image,
+[data-image-fit='contain'] .cts-card-image,
+[data-image-fit='contain'] .cts-list--modern-rows__hero-img,
+[data-image-fit='contain'] .cts-list--modern-rows__thumb-img {
+	object-fit: contain;
+	background: #f8fafc;
+}
+
+[data-image-fit='contain'] .cts-grid-classic-card:hover .cts-classic-hero-img,
+[data-image-fit='contain'] .cts-carousel-slide:hover .cts-carousel-hero-img,
+[data-image-fit='contain'] .cts-list--modern-rows__item:hover .cts-list--modern-rows__hero-img {
+	transform: none;
+}
+

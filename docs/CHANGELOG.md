@@ -1,5 +1,21 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.17 - Bildmodus für Views (26. April 2026)
+
+### ✨ Neu
+- Neue Option `Bilddarstellung` in Gutenberg-Block und Elementor-Widget: `Zuschneiden (Cover)` oder `Ganzes Bild (Contain)`
+- Option wird bis in die Templates durchgereicht (`list`, `grid`, `carousel`, `countdown`)
+
+### 🔧 Verbesserungen
+- Einheitliche Sanitisierung für Bildmodus in den Shortcodes (`cover`/`contain`)
+- CSS-Contain-Modus ergänzt inkl. deaktivierter Hover-Zoom-Effekte bei Ganzbild-Darstellung
+
+### 📦 Release-Artefakte
+- `churchtools-suite-1.2.0.17.zip`
+- `churchtools-suite-elementor-0.6.18.zip`
+- `churchtools-suite-posts-sync-0.1.4.zip`
+- `churchtools-suite-presentations-0.1.0.zip`
+
 ## v1.2.0.16 - Update-Trigger UI-Fix (26. April 2026)
 
 ### 🛠️ Fixes

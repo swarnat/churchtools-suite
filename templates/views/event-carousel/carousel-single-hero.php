@@ -24,6 +24,7 @@ $show_event_description = isset( $args['show_event_description'] ) ? ChurchTools
 $show_appointment_description = isset( $args['show_appointment_description'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_appointment_description'] ) : true;
 $show_tags = isset( $args['show_tags'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_tags'] ) : true;
 $show_services = isset( $args['show_services'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_services'] ) : false;
+$image_fit = isset( $args['image_fit'] ) ? ChurchTools_Suite_Shortcodes::sanitize_image_fit( $args['image_fit'] ) : 'cover';
 $event_action = $args['event_action'] ?? 'modal';
 $single_event_base = apply_filters( 'churchtools_suite_single_event_base_url', home_url( '/events/' ) );
 $single_event_template = get_option( 'churchtools_suite_single_template', 'professional' );
@@ -93,7 +94,7 @@ if ( ! function_exists( 'cts_carousel_single_hero_image_url' ) ) {
 	.cts-carousel-single-hero-media img {
 		width: 100%;
 		height: 100%;
-		object-fit: cover;
+		object-fit: <?php echo esc_html( $image_fit ); ?>;
 	}
 	.cts-carousel-single-hero-fallback {
 		background: linear-gradient(135deg, var(--calendar-color, #2563eb), #0f172a 72%);
@@ -204,6 +205,7 @@ if ( ! function_exists( 'cts_carousel_single_hero_image_url' ) ) {
 	data-autoplay="<?php echo $autoplay ? '1' : '0'; ?>"
 	data-autoplay-delay="<?php echo esc_attr( $autoplay_delay ); ?>"
 	data-loop="<?php echo $loop ? '1' : '0'; ?>"
+	data-image-fit="<?php echo esc_attr( $image_fit ); ?>"
 	data-show-images="<?php echo $show_images ? '1' : '0'; ?>">
 	<?php if ( empty( $events ) ) : ?>
 		<p class="cts-no-events"><?php esc_html_e( 'Keine Events gefunden.', 'churchtools-suite' ); ?></p>

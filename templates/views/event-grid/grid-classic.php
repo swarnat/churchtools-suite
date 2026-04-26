@@ -31,6 +31,7 @@ $show_calendar_name = isset( $args['show_calendar_name'] ) ?
 	ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_calendar_name'] ) : true;
 $show_images = isset( $args['show_images'] ) ? 
 	ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_images'] ) : true;
+$image_fit = isset( $args['image_fit'] ) ? ChurchTools_Suite_Shortcodes::sanitize_image_fit( $args['image_fit'] ) : 'cover';
 
 $event_action = $args['event_action'] ?? 'modal';
 
@@ -83,7 +84,8 @@ if ( ! function_exists( 'cts_get_event_image_url' ) ) {
 
 <div class="<?php echo esc_attr( implode( ' ', $wrapper_classes ) ); ?>" 
      data-columns="<?php echo esc_attr( $columns ); ?>"
-     data-show-images="<?php echo $show_images ? '1' : '0'; ?>">
+	data-show-images="<?php echo $show_images ? '1' : '0'; ?>"
+	data-image-fit="<?php echo esc_attr( $image_fit ); ?>">
 	
 	<?php if ( empty( $events ) ) : ?>
 		<p class="cts-no-events"><?php esc_html_e( 'Keine Events gefunden.', 'churchtools-suite' ); ?></p>

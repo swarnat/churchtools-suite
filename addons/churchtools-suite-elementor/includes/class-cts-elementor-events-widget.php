@@ -487,6 +487,23 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 		);
 
 		$this->add_control(
+			'image_fit',
+			[
+				'label' => __( 'Bilddarstellung', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SELECT,
+				'options' => [
+					'cover' => __( 'Zuschneiden (Cover)', 'churchtools-suite' ),
+					'contain' => __( 'Ganzes Bild (Contain)', 'churchtools-suite' ),
+				],
+				'default' => 'cover',
+				'condition' => [
+					'show_images' => 'yes',
+				],
+				'description' => __( 'Contain zeigt das komplette Bild mit ggf. freien Flächen.', 'churchtools-suite' ),
+			]
+		);
+
+		$this->add_control(
 			'show_calendar_name',
 			[
 				'label' => __( 'Kalendername', 'churchtools-suite' ),
@@ -750,6 +767,7 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 			'show_time' => $this->is_switcher_enabled( $settings, 'show_time', true ) ? '1' : '0',
 			'show_tags' => $this->is_switcher_enabled( $settings, 'show_tags', false ) ? '1' : '0',
 			'show_images' => $this->is_switcher_enabled( $settings, 'show_images', true ) ? '1' : '0',
+			'image_fit' => in_array( $settings['image_fit'] ?? 'cover', [ 'cover', 'contain' ], true ) ? $settings['image_fit'] : 'cover',
 			'show_calendar_name' => $this->is_switcher_enabled( $settings, 'show_calendar_name', true ) ? '1' : '0',
 			'show_services' => $this->is_switcher_enabled( $settings, 'show_services', false ) ? '1' : '0',
 			'show_past_events' => $this->is_switcher_enabled( $settings, 'show_past_events', false ) ? '1' : '0',

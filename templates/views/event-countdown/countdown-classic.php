@@ -31,6 +31,7 @@ $show_services = isset( $args['show_services'] ) ?
 	ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_services'] ) : false;
 $show_images = isset( $args['show_images'] ) ? 
 	ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_images'] ) : true;
+$image_fit = isset( $args['image_fit'] ) ? ChurchTools_Suite_Shortcodes::sanitize_image_fit( $args['image_fit'] ) : 'cover';
 
 // v0.9.9.2: Parse use_calendar_colors option
 $use_calendar_colors = isset( $args['use_calendar_colors'] ) ? 
@@ -195,6 +196,7 @@ $style_attr .= '"';
 
 <div class="cts-countdown-classic<?php echo $use_calendar_colors ? ' cts-countdown-use-calendar-colors' : ''; ?><?php echo $click_class; ?>" 
      data-style-mode="<?php echo esc_attr( $style_mode ); ?>" 
+	data-image-fit="<?php echo esc_attr( $image_fit ); ?>"
      <?php echo $style_attr; ?> 
      data-countdown-target="<?php echo esc_attr( $countdown_target ); ?>"
      <?php echo $click_attrs; ?>>

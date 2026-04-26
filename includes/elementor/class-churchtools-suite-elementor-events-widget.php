@@ -363,6 +363,23 @@ if ( ! class_exists( 'ChurchTools_Suite_Elementor_Events_Widget' ) ) {
 			);
 
 			$this->add_control(
+				'image_fit',
+				[
+					'label' => __( 'Bilddarstellung', 'churchtools-suite' ),
+					'type' => \Elementor\Controls_Manager::SELECT,
+					'options' => [
+						'cover' => __( 'Zuschneiden (Cover)', 'churchtools-suite' ),
+						'contain' => __( 'Ganzes Bild (Contain)', 'churchtools-suite' ),
+					],
+					'default' => 'cover',
+					'condition' => [
+						'show_images' => 'yes',
+					],
+					'description' => __( 'Contain zeigt das komplette Bild mit ggf. freien Flächen.', 'churchtools-suite' ),
+				]
+			);
+
+			$this->add_control(
 				'show_calendar_name',
 				[
 					'label' => __( 'Kalendername', 'churchtools-suite' ),
@@ -583,6 +600,7 @@ if ( ! class_exists( 'ChurchTools_Suite_Elementor_Events_Widget' ) ) {
 			'show_time' => ( isset($settings['show_time']) && $settings['show_time'] === 'yes' ) ? '1' : '0',
 			'show_tags' => ( isset($settings['show_tags']) && $settings['show_tags'] === 'yes' ) ? '1' : '0',
 			'show_images' => ( isset($settings['show_images']) && $settings['show_images'] === 'yes' ) ? '1' : '0',
+			'image_fit' => in_array( $settings['image_fit'] ?? 'cover', [ 'cover', 'contain' ], true ) ? $settings['image_fit'] : 'cover',
 			'show_calendar_name' => ( isset($settings['show_calendar_name']) && $settings['show_calendar_name'] === 'yes' ) ? '1' : '0',
 			'show_services' => ( isset($settings['show_services']) && $settings['show_services'] === 'yes' ) ? '1' : '0',
 			'show_past_events' => ( isset($settings['show_past_events']) && $settings['show_past_events'] === 'yes' ) ? '1' : '0',

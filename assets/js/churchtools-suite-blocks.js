@@ -75,6 +75,7 @@
 			show_calendar_name: { type: 'boolean', default: true },
 			show_filter: { type: 'boolean', default: false },
 			show_images: { type: 'boolean', default: true },
+			image_fit: { type: 'string', default: 'cover' },
 			show_month_separator: { type: 'boolean', default: true },
 			show_past_events: { type: 'boolean', default: false },
 			
@@ -321,6 +322,18 @@
 											setAttributes({ show_images: value });
 										}
 									}),
+									(attributes.show_images && isImagesSupportedByView) ? el(SelectControl, {
+										label: __('Bilddarstellung', 'churchtools-suite'),
+										value: attributes.image_fit || 'cover',
+										options: [
+											{ label: __('Zuschneiden (Cover)', 'churchtools-suite'), value: 'cover' },
+											{ label: __('Ganzes Bild (Contain)', 'churchtools-suite'), value: 'contain' }
+										],
+										help: __('Contain zeigt das komplette Bild mit ggf. freien Flächen.', 'churchtools-suite'),
+										onChange: function(value) {
+											setAttributes({ image_fit: value || 'cover' });
+										}
+									}) : null,
 									el(ToggleControl, {
 										label: __('Kalendername', 'churchtools-suite'),
 										checked: attributes.show_calendar_name,

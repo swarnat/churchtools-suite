@@ -179,6 +179,23 @@ class ChurchTools_Suite_Shortcodes {
 		// Numeric
 		return (bool) $value;
 	}
+
+	/**
+	 * Sanitize image fit mode.
+	 *
+	 * @param mixed $value image fit value
+	 * @return string cover|contain
+	 */
+	public static function sanitize_image_fit( $value ): string {
+		if ( is_string( $value ) ) {
+			$normalized = strtolower( trim( $value ) );
+			if ( in_array( $normalized, [ 'cover', 'contain' ], true ) ) {
+				return $normalized;
+			}
+		}
+
+		return 'cover';
+	}
 	
 	/**
 	 * Convert HEX color to RGBA with opacity
@@ -339,6 +356,7 @@ class ChurchTools_Suite_Shortcodes {
 			'class' => '',
 			// v1.0.0: All display options configured per block/shortcode
 			'show_images' => true,
+			'image_fit' => 'cover',
 			'show_event_description' => true,
 			'show_appointment_description' => true,
 			'show_location' => true,
@@ -389,6 +407,7 @@ class ChurchTools_Suite_Shortcodes {
 		$atts['show_month_separator'] = self::parse_boolean( $atts['show_month_separator'] );
 		$atts['show_filter'] = self::parse_boolean( $atts['show_filter'] );
 		$atts['show_past_events'] = self::parse_boolean( $atts['show_past_events'] );
+		$atts['image_fit'] = self::sanitize_image_fit( $atts['image_fit'] );
 		
 		// Legacy show_description fallback
 		if ( $atts['show_description'] !== null ) {
@@ -440,6 +459,7 @@ class ChurchTools_Suite_Shortcodes {
 			'show_time' => true,
 			'show_tags' => true,
 			'show_images' => true,
+			'image_fit' => 'cover',
 			'show_calendar_name' => true,
 			'event_action' => 'modal',
 			// Style Management
@@ -478,6 +498,7 @@ class ChurchTools_Suite_Shortcodes {
 		$atts['show_tags'] = self::parse_boolean( $atts['show_tags'] );
 		$atts['show_images'] = self::parse_boolean( $atts['show_images'] );
 		$atts['show_calendar_name'] = self::parse_boolean( $atts['show_calendar_name'] );
+		$atts['image_fit'] = self::sanitize_image_fit( $atts['image_fit'] );
 		
 		// Get events
 		$events = self::get_events( $atts );
@@ -583,6 +604,7 @@ class ChurchTools_Suite_Shortcodes {
 			'show_tags' => true,
 			'show_calendar_name' => true,
 			'show_images' => true,
+			'image_fit' => 'cover',
 			'event_action' => 'modal',
 			// Style Management
 			'style_mode' => 'theme',
@@ -629,6 +651,7 @@ class ChurchTools_Suite_Shortcodes {
 		$atts['show_tags'] = self::parse_boolean( $atts['show_tags'] );
 		$atts['show_calendar_name'] = self::parse_boolean( $atts['show_calendar_name'] );
 		$atts['show_images'] = self::parse_boolean( $atts['show_images'] );
+		$atts['image_fit'] = self::sanitize_image_fit( $atts['image_fit'] );
 		
 		// Get events
 		// v1.1.3.0: Wenn event_id angegeben, lade spezifischen Event statt nächsten
@@ -678,6 +701,7 @@ class ChurchTools_Suite_Shortcodes {
 			'show_tags' => false,
 			'show_calendar_name' => true,
 			'show_images' => true,
+			'image_fit' => 'cover',
 			'event_action' => 'modal',
 			// Carousel-spezifische Parameter
 			'slides_per_view' => 3, // 1-6 slides
@@ -720,6 +744,7 @@ class ChurchTools_Suite_Shortcodes {
 		$atts['show_tags'] = self::parse_boolean( $atts['show_tags'] );
 		$atts['show_calendar_name'] = self::parse_boolean( $atts['show_calendar_name'] );
 		$atts['show_images'] = self::parse_boolean( $atts['show_images'] );
+		$atts['image_fit'] = self::sanitize_image_fit( $atts['image_fit'] );
 		$atts['autoplay'] = self::parse_boolean( $atts['autoplay'] );
 		$atts['loop'] = self::parse_boolean( $atts['loop'] );
 		

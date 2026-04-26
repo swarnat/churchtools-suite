@@ -30,6 +30,7 @@ $show_time = isset( $args['show_time'] ) ? ChurchTools_Suite_Shortcodes::parse_b
 $show_tags = isset( $args['show_tags'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_tags'] ) : false;
 $show_month_separator = isset( $args['show_month_separator'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_month_separator'] ) : true;
 $show_images = isset( $args['show_images'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_images'] ) : true;
+$image_fit = isset( $args['image_fit'] ) ? ChurchTools_Suite_Shortcodes::sanitize_image_fit( $args['image_fit'] ) : 'cover';
 
 // Style mode and custom colors
 $style_mode = $args['style_mode'] ?? 'theme';
@@ -82,7 +83,7 @@ $use_calendar_colors = isset( $args['use_calendar_colors'] ) ? ChurchTools_Suite
 $current_month = null;
 ?>
 
-<div class="churchtools-suite-wrapper" data-style-mode="<?php echo esc_attr( $style_mode ); ?>"<?php echo $custom_styles ? ' style="' . $custom_styles . '"' : ''; ?>>
+<div class="churchtools-suite-wrapper" data-style-mode="<?php echo esc_attr( $style_mode ); ?>" data-image-fit="<?php echo esc_attr( $image_fit ); ?>"<?php echo $custom_styles ? ' style="' . $custom_styles . '"' : ''; ?>>
 	<div class="cts-list cts-list-classic-with-images" 
 		data-view="list-classic-with-images"
 		data-show-event-description="<?php echo esc_attr( $show_event_description ? '1' : '0' ); ?>"
@@ -375,7 +376,7 @@ $current_month = null;
 .cts-event-thumb-img {
 	width: 100%;
 	height: 100%;
-	object-fit: cover;
+	object-fit: <?php echo esc_html( $image_fit ); ?>;
 }
 
 /* Uhrzeit */
