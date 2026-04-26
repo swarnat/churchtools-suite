@@ -74,6 +74,7 @@ class ChurchTools_Suite_Blocks {
 				'show_filter' => [ 'type' => 'boolean', 'default' => false ],
 				'show_images' => [ 'type' => 'boolean', 'default' => true ],
 				'image_fit' => [ 'type' => 'string', 'default' => 'cover' ],
+				'hero_title_font_size' => [ 'type' => 'number', 'default' => 0 ],
 				'show_month_separator' => [ 'type' => 'boolean', 'default' => true ],
 				'show_past_events' => [ 'type' => 'boolean', 'default' => false ],
 				'event_action' => [ 'type' => 'string', 'default' => 'modal' ],

@@ -51,7 +51,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<!-- Main: Titel, Beschreibungen, Dienste -->
 				<div class="cts-modal-main">
 					<div id="cts-modal-image" class="cts-modal-image-container" style="display: none;">
-						<img id="cts-modal-image-img" src="" alt="" class="cts-modal-image" />
+						<a id="cts-modal-image-link" class="cts-modal-image-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Bild in voller Groesse anzeigen', 'churchtools-suite' ); ?>">
+							<img id="cts-modal-image-img" src="" alt="" class="cts-modal-image" />
+							<span class="cts-modal-image-cta"><?php esc_html_e( 'Bild anzeigen', 'churchtools-suite' ); ?></span>
+						</a>
 					</div>
 
 					<h1 id="cts-modal-event-title" class="cts-modal-event-title"></h1>
@@ -192,16 +195,49 @@ if ( ! defined( 'ABSPATH' ) ) {
 	
 	.cts-modal-professional .cts-modal-image-container {
 		width: 100%;
-		height: 200px;
+		height: 240px;
 		border-radius: 8px;
 		overflow: hidden;
 		margin-bottom: 20px;
+		background: #f8fafc;
+	}
+
+	.cts-modal-professional .cts-modal-image-link {
+		position: relative;
+		display: block;
+		width: 100%;
+		height: 100%;
+		text-decoration: none;
 	}
 	
 	.cts-modal-professional .cts-modal-image {
 		width: 100%;
 		height: 100%;
-		object-fit: cover;
+		object-fit: contain;
+		background: #f8fafc;
+	}
+
+	.cts-modal-professional .cts-modal-image-cta {
+		position: absolute;
+		right: 12px;
+		bottom: 12px;
+		padding: 6px 10px;
+		border-radius: 999px;
+		background: rgba(15, 23, 42, 0.78);
+		color: #fff;
+		font-size: 12px;
+		font-weight: 600;
+		letter-spacing: 0.2px;
+		opacity: 0;
+		transform: translateY(4px);
+		transition: opacity 0.18s ease, transform 0.18s ease;
+	}
+
+	.cts-modal-professional .cts-modal-image-link:hover .cts-modal-image-cta,
+	.cts-modal-professional .cts-modal-image-link:focus-visible .cts-modal-image-cta {
+		opacity: 1;
+		transform: translateY(0);
+	}
 	}
 	
 	.cts-modal-professional .cts-modal-event-title {
@@ -423,7 +459,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 		}
 		
 		.cts-modal-professional .cts-modal-image-container {
-			height: 160px;
+			height: 190px;
 			margin-bottom: 16px;
 		}
 	}

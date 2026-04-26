@@ -1,5 +1,21 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.18 - Elementor Stil-Gruppierung & Bilddarstellung (26. April 2026)
+
+### ✨ Neu
+- Elementor: Stil-Tab klar gruppiert mit Abschnitten `Bild & Hero` sowie `Farben & Layout`
+- Bilddarstellung (`Cover/Contain`) und Hero-Titelgröße sind im Stil-Tab besser auffindbar
+
+### 🔧 Verbesserungen
+- Modal-Bilddarstellung auf `Contain` umgestellt (vollständiges Bild statt Zuschnitt)
+- Klick auf Modal-Bild öffnet das Originalbild in einem neuen Tab
+
+### 📦 Release-Artefakte
+- `churchtools-suite-1.2.0.18.zip`
+- `churchtools-suite-elementor-0.6.19.zip`
+- `churchtools-suite-posts-sync-0.1.4.zip`
+- `churchtools-suite-presentations-0.1.0.zip`
+
 ## v1.2.0.17 - Bildmodus für Views (26. April 2026)
 
 ### ✨ Neu

@@ -76,6 +76,7 @@
 			show_filter: { type: 'boolean', default: false },
 			show_images: { type: 'boolean', default: true },
 			image_fit: { type: 'string', default: 'cover' },
+			hero_title_font_size: { type: 'number', default: 0 },
 			show_month_separator: { type: 'boolean', default: true },
 			show_past_events: { type: 'boolean', default: false },
 			
@@ -332,6 +333,16 @@
 										help: __('Contain zeigt das komplette Bild mit ggf. freien Flächen.', 'churchtools-suite'),
 										onChange: function(value) {
 											setAttributes({ image_fit: value || 'cover' });
+										}
+									}) : null,
+									(attributes.viewType === 'carousel' && attributes.view === 'carousel-einzel-event') ? el(RangeControl, {
+										label: __('Titel-Schriftgröße (Hero)', 'churchtools-suite'),
+										value: attributes.hero_title_font_size || 0,
+										min: 0,
+										max: 120,
+										help: __('0 = automatisch (responsive). Sonst feste Pixelgröße.', 'churchtools-suite'),
+										onChange: function(value) {
+											setAttributes({ hero_title_font_size: value || 0 });
 										}
 									}) : null,
 									el(ToggleControl, {

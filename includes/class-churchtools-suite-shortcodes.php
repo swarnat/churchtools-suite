@@ -605,6 +605,7 @@ class ChurchTools_Suite_Shortcodes {
 			'show_calendar_name' => true,
 			'show_images' => true,
 			'image_fit' => 'cover',
+			'hero_title_font_size' => 0,
 			'event_action' => 'modal',
 			// Style Management
 			'style_mode' => 'theme',
@@ -745,6 +746,7 @@ class ChurchTools_Suite_Shortcodes {
 		$atts['show_calendar_name'] = self::parse_boolean( $atts['show_calendar_name'] );
 		$atts['show_images'] = self::parse_boolean( $atts['show_images'] );
 		$atts['image_fit'] = self::sanitize_image_fit( $atts['image_fit'] );
+		$atts['hero_title_font_size'] = max( 0, min( 120, intval( $atts['hero_title_font_size'] ) ) );
 		$atts['autoplay'] = self::parse_boolean( $atts['autoplay'] );
 		$atts['loop'] = self::parse_boolean( $atts['loop'] );
 		

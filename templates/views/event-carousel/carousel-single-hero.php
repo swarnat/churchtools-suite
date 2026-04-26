@@ -24,7 +24,8 @@ $show_event_description = isset( $args['show_event_description'] ) ? ChurchTools
 $show_appointment_description = isset( $args['show_appointment_description'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_appointment_description'] ) : true;
 $show_tags = isset( $args['show_tags'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_tags'] ) : true;
 $show_services = isset( $args['show_services'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_services'] ) : false;
-$image_fit = isset( $args['image_fit'] ) ? ChurchTools_Suite_Shortcodes::sanitize_image_fit( $args['image_fit'] ) : 'cover';
+$image_fit = isset( $args['image_fit'] ) ? ChurchTools_Suite_Shortcodes::sanitize_image_fit( $args['image_fit'] ) : 'contain';
+$hero_title_font_size = isset( $args['hero_title_font_size'] ) ? max( 0, min( 120, intval( $args['hero_title_font_size'] ) ) ) : 0;
 $event_action = $args['event_action'] ?? 'modal';
 $single_event_base = apply_filters( 'churchtools_suite_single_event_base_url', home_url( '/events/' ) );
 $single_event_template = get_option( 'churchtools_suite_single_template', 'professional' );
@@ -135,7 +136,7 @@ if ( ! function_exists( 'cts_carousel_single_hero_image_url' ) ) {
 	}
 	.cts-carousel-single-hero h2 {
 		margin: 0 0 14px;
-		font-size: clamp(2rem, 4.6vw, 4.4rem);
+		font-size: <?php echo $hero_title_font_size > 0 ? esc_html( $hero_title_font_size . 'px' ) : 'clamp(2rem, 4.6vw, 4.4rem)'; ?>;
 		line-height: 1.02;
 		color: #fff;
 	}

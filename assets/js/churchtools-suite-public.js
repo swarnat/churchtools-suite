@@ -772,8 +772,12 @@
 		// Event Image (new: hero image in main area) - v0.9.9.69
 		if (event.image_url) {
 			$('#cts-modal-image-img').attr('src', event.image_url);
+			$('#cts-modal-image-link')
+				.attr('href', event.image_url)
+				.attr('aria-label', 'Bild in voller Groesse anzeigen: ' + (event.title || 'Event'));
 			$('#cts-modal-image').show();
 		} else {
+			$('#cts-modal-image-link').attr('href', '#');
 			$('#cts-modal-image').hide();
 		}
 		
