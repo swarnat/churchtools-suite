@@ -1167,7 +1167,8 @@ class ChurchTools_Suite_Event_Sync_Service {
             'status' => 'active',
             'image_attachment_id' => $image_attachment_id, // v0.10.5.0
             'image_url' => $image_url, // v0.10.5.0 - Fallback URL
-            'raw_payload' => wp_json_encode($appointment),
+            // Store full appointment_data to preserve outer-level fields (e.g. tags/bookings)
+            'raw_payload' => wp_json_encode($appointment_data),
         ];
     }
     

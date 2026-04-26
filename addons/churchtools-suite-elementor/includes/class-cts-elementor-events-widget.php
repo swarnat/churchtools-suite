@@ -651,6 +651,39 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 		);
 
 		$this->add_control(
+			'hero_layout_preset',
+			[
+				'label' => __( 'Bild/Höhen-Preset (Hero)', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SELECT,
+				'options' => [
+					'compact' => __( 'Kompakt', 'churchtools-suite' ),
+					'standard' => __( 'Standard', 'churchtools-suite' ),
+					'hero' => __( 'Hero', 'churchtools-suite' ),
+				],
+				'default' => 'standard',
+				'condition' => [
+					'view_type' => 'carousel',
+					'view_carousel' => 'carousel-einzel-event',
+				],
+			]
+		);
+
+		$this->add_control(
+			'hero_mobile_optimize',
+			[
+				'label' => __( 'Mobile-Optimierung (Hero)', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'yes',
+				'condition' => [
+					'view_type' => 'carousel',
+					'view_carousel' => 'carousel-einzel-event',
+				],
+			]
+		);
+
+		$this->add_control(
 			'style_theme_heading',
 			[
 				'label' => __( 'Farben & Layout', 'churchtools-suite' ),
@@ -819,6 +852,8 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 			'show_images' => $this->is_switcher_enabled( $settings, 'show_images', true ) ? '1' : '0',
 			'image_fit' => in_array( $settings['image_fit'] ?? 'cover', [ 'cover', 'contain' ], true ) ? $settings['image_fit'] : 'cover',
 			'hero_title_font_size' => max( 0, min( 120, intval( $settings['hero_title_font_size'] ?? 0 ) ) ),
+			'hero_layout_preset' => in_array( $settings['hero_layout_preset'] ?? 'standard', [ 'compact', 'standard', 'hero' ], true ) ? $settings['hero_layout_preset'] : 'standard',
+			'hero_mobile_optimize' => $this->is_switcher_enabled( $settings, 'hero_mobile_optimize', true ) ? '1' : '0',
 			'show_calendar_name' => $this->is_switcher_enabled( $settings, 'show_calendar_name', true ) ? '1' : '0',
 			'show_services' => $this->is_switcher_enabled( $settings, 'show_services', false ) ? '1' : '0',
 			'show_past_events' => $this->is_switcher_enabled( $settings, 'show_past_events', false ) ? '1' : '0',

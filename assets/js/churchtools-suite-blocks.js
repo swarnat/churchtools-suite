@@ -77,6 +77,8 @@
 			show_images: { type: 'boolean', default: true },
 			image_fit: { type: 'string', default: 'cover' },
 			hero_title_font_size: { type: 'number', default: 0 },
+			hero_layout_preset: { type: 'string', default: 'standard' },
+			hero_mobile_optimize: { type: 'boolean', default: true },
 			show_month_separator: { type: 'boolean', default: true },
 			show_past_events: { type: 'boolean', default: false },
 			
@@ -343,6 +345,26 @@
 										help: __('0 = automatisch (responsive). Sonst feste Pixelgröße.', 'churchtools-suite'),
 										onChange: function(value) {
 											setAttributes({ hero_title_font_size: value || 0 });
+										}
+									}) : null,
+									(attributes.viewType === 'carousel' && attributes.view === 'carousel-einzel-event') ? el(SelectControl, {
+										label: __('Bild/Höhen-Preset (Hero)', 'churchtools-suite'),
+										value: attributes.hero_layout_preset || 'standard',
+										options: [
+											{ label: __('Kompakt', 'churchtools-suite'), value: 'compact' },
+											{ label: __('Standard', 'churchtools-suite'), value: 'standard' },
+											{ label: __('Hero', 'churchtools-suite'), value: 'hero' }
+										],
+										onChange: function(value) {
+											setAttributes({ hero_layout_preset: value || 'standard' });
+										}
+									}) : null,
+									(attributes.viewType === 'carousel' && attributes.view === 'carousel-einzel-event') ? el(ToggleControl, {
+										label: __('Mobile-Optimierung (Hero)', 'churchtools-suite'),
+										checked: attributes.hero_mobile_optimize !== false,
+										help: __('Optimiert Höhe, Titel und Abstände für kleine Bildschirme.', 'churchtools-suite'),
+										onChange: function(value) {
+											setAttributes({ hero_mobile_optimize: value });
 										}
 									}) : null,
 									el(ToggleControl, {

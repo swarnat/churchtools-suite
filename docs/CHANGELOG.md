@@ -1,5 +1,22 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.21 - UX & Modal Bildklick Fix (26. April 2026)
+
+### 🛠️ Fixes
+- Modal-Bildklick führt nicht mehr versehentlich zur Startseite bei ungültigem Bild-Link
+- Robustere Auflösung von Bild-URLs im Frontend-Modal
+
+### ✨ Verbesserungen
+- Neue Hero-Presets für Bild/Höhe (`Kompakt`, `Standard`, `Hero`)
+- Optionale Mobile-Optimierung für die Hero-View
+- Bessere Standardwerte für Hero-Höhe und Titel-Darstellung ohne Nachjustieren
+
+### 📦 Release-Artefakte
+- `churchtools-suite-1.2.0.21.zip`
+- `churchtools-suite-elementor-0.6.22.zip`
+- `churchtools-suite-posts-sync-0.1.4.zip`
+- `churchtools-suite-presentations-0.1.0.zip`
+
 ## v1.2.0.20 - Hero-View Fixes (26. April 2026)
 
 ### 🛠️ Fixes

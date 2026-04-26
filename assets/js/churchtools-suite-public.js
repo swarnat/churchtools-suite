@@ -464,6 +464,14 @@
 				closeModal();
 			}
 		});
+
+		// Prevent accidental navigation when no valid image link is present.
+		$(document).on('click', '#cts-modal-image-link', function(e) {
+			const href = String($(this).attr('href') || '').trim();
+			if (!href || href === '#') {
+				e.preventDefault();
+			}
+		});
 	}
 
 	/**
@@ -746,6 +754,29 @@
 	}
 
 	/**
+	 * Resolve a usable image URL from different payload variants.
+	 * Accepts plain strings or objects with imageUrl/url/src fields.
+	 */
+	function resolveEventImageUrl(event) {
+		const candidate = event && event.image_url;
+
+		if (typeof candidate === 'string') {
+			const trimmed = candidate.trim();
+			return trimmed !== '' ? trimmed : '';
+		}
+
+		if (candidate && typeof candidate === 'object') {
+			const objectUrl = candidate.imageUrl || candidate.url || candidate.src || '';
+			if (typeof objectUrl === 'string') {
+				const trimmed = objectUrl.trim();
+				return trimmed !== '' ? trimmed : '';
+			}
+		}
+
+		return '';
+	}
+
+	/**
 	 * Display event data in modal
 	 * @param {object} event - Event data from backend
 	 * @param {jQuery} $container - Optional container element with display settings
@@ -770,14 +801,16 @@
 		$('#cts-modal-event-title').text(event.title);
 		
 		// Event Image (new: hero image in main area) - v0.9.9.69
-		if (event.image_url) {
-			$('#cts-modal-image-img').attr('src', event.image_url);
+		const modalImageUrl = resolveEventImageUrl(event);
+		if (modalImageUrl) {
+			$('#cts-modal-image-img').attr('src', modalImageUrl);
 			$('#cts-modal-image-link')
-				.attr('href', event.image_url)
+				.attr('href', modalImageUrl)
 				.attr('aria-label', 'Bild in voller Groesse anzeigen: ' + (event.title || 'Event'));
 			$('#cts-modal-image').show();
 		} else {
 			$('#cts-modal-image-link').attr('href', '#');
+			$('#cts-modal-image-img').attr('src', '');
 			$('#cts-modal-image').hide();
 		}
 		

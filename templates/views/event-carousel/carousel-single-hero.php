@@ -27,6 +27,8 @@ $show_services = isset( $args['show_services'] ) ? ChurchTools_Suite_Shortcodes:
 $show_title = isset( $args['show_title'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_title'] ) : true;
 $image_fit = isset( $args['image_fit'] ) ? ChurchTools_Suite_Shortcodes::sanitize_image_fit( $args['image_fit'] ) : 'contain';
 $hero_title_font_size = isset( $args['hero_title_font_size'] ) ? max( 0, min( 120, intval( $args['hero_title_font_size'] ) ) ) : 0;
+$hero_layout_preset = isset( $args['hero_layout_preset'] ) && in_array( $args['hero_layout_preset'], [ 'compact', 'standard', 'hero' ], true ) ? $args['hero_layout_preset'] : 'standard';
+$hero_mobile_optimize = isset( $args['hero_mobile_optimize'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['hero_mobile_optimize'] ) : true;
 $event_action = $args['event_action'] ?? 'modal';
 $single_event_base = apply_filters( 'churchtools_suite_single_event_base_url', home_url( '/events/' ) );
 $single_event_template = get_option( 'churchtools_suite_single_template', 'professional' );
@@ -67,6 +69,23 @@ if ( ! function_exists( 'cts_carousel_single_hero_image_url' ) ) {
 		return '';
 	}
 }
+
+$hero_height_desktop = 'clamp(380px, 64vh, 760px)';
+$hero_height_mobile = '70vh';
+$hero_content_width = '840px';
+$hero_title_default = 'clamp(1.9rem, 4.1vw, 3.8rem)';
+
+if ( $hero_layout_preset === 'compact' ) {
+	$hero_height_desktop = 'clamp(320px, 56vh, 620px)';
+	$hero_height_mobile = '62vh';
+	$hero_content_width = '760px';
+	$hero_title_default = 'clamp(1.6rem, 3.2vw, 3rem)';
+} elseif ( $hero_layout_preset === 'hero' ) {
+	$hero_height_desktop = 'clamp(460px, 76vh, 920px)';
+	$hero_height_mobile = '78vh';
+	$hero_content_width = '960px';
+	$hero_title_default = 'clamp(2.1rem, 4.8vw, 4.5rem)';
+}
 ?>
 
 <style>
@@ -78,7 +97,7 @@ if ( ! function_exists( 'cts_carousel_single_hero_image_url' ) ) {
 	}
 	.cts-carousel-single-hero .cts-carousel-slide {
 		position: relative;
-		min-height: clamp(420px, 72vh, 860px);
+		min-height: <?php echo esc_html( $hero_height_desktop ); ?>;
 		padding: 0;
 		border-radius: 20px;
 		overflow: hidden;
@@ -120,7 +139,7 @@ if ( ! function_exists( 'cts_carousel_single_hero_image_url' ) ) {
 		padding: clamp(22px, 4vw, 46px);
 	}
 	.cts-carousel-single-hero-content {
-		width: min(100%, 900px);
+		width: min(100%, <?php echo esc_html( $hero_content_width ); ?>);
 		color: #fff;
 	}
 	.cts-carousel-single-hero-badges {
@@ -142,9 +161,10 @@ if ( ! function_exists( 'cts_carousel_single_hero_image_url' ) ) {
 	}
 	.cts-carousel-single-hero h2 {
 		margin: 0 0 14px;
-		font-size: <?php echo $hero_title_font_size > 0 ? esc_html( $hero_title_font_size . 'px' ) : 'clamp(2rem, 4.6vw, 4.4rem)'; ?>;
+		font-size: <?php echo $hero_title_font_size > 0 ? esc_html( $hero_title_font_size . 'px' ) : esc_html( $hero_title_default ); ?>;
 		line-height: 1.02;
 		color: #fff;
+		text-wrap: balance;
 	}
 	.cts-carousel-single-hero-meta {
 		display: flex;
@@ -197,8 +217,27 @@ if ( ! function_exists( 'cts_carousel_single_hero_image_url' ) ) {
 	}
 	@media (max-width: 767px) {
 		.cts-carousel-single-hero .cts-carousel-slide {
-			min-height: 78vh;
+			min-height: <?php echo $hero_mobile_optimize ? esc_html( $hero_height_mobile ) : '78vh'; ?>;
 		}
+		<?php if ( $hero_mobile_optimize ) : ?>
+		.cts-carousel-single-hero .cts-carousel-single-hero-inner {
+			padding: 18px 16px 78px;
+		}
+		.cts-carousel-single-hero h2 {
+			display: -webkit-box;
+			-webkit-line-clamp: 3;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+			line-height: 1.08;
+		}
+		.cts-carousel-single-hero-copy {
+			display: -webkit-box;
+			-webkit-line-clamp: 4;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+			line-height: 1.45;
+		}
+		<?php endif; ?>
 		.cts-carousel-single-hero .cts-carousel-nav {
 			top: auto;
 			bottom: 58px;

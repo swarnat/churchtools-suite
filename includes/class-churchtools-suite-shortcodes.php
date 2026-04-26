@@ -606,6 +606,8 @@ class ChurchTools_Suite_Shortcodes {
 			'show_images' => true,
 			'image_fit' => 'cover',
 			'hero_title_font_size' => 0,
+			'hero_layout_preset' => 'standard',
+			'hero_mobile_optimize' => true,
 			'event_action' => 'modal',
 			// Style Management
 			'style_mode' => 'theme',
@@ -750,6 +752,8 @@ class ChurchTools_Suite_Shortcodes {
 		$atts['show_images'] = self::parse_boolean( $atts['show_images'] );
 		$atts['image_fit'] = self::sanitize_image_fit( $atts['image_fit'] );
 		$atts['hero_title_font_size'] = max( 0, min( 120, intval( $atts['hero_title_font_size'] ) ) );
+		$atts['hero_layout_preset'] = in_array( $atts['hero_layout_preset'], [ 'compact', 'standard', 'hero' ], true ) ? $atts['hero_layout_preset'] : 'standard';
+		$atts['hero_mobile_optimize'] = self::parse_boolean( $atts['hero_mobile_optimize'] );
 		$atts['autoplay'] = self::parse_boolean( $atts['autoplay'] );
 		$atts['loop'] = self::parse_boolean( $atts['loop'] );
 		

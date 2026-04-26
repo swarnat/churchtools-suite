@@ -32,8 +32,8 @@ class ChurchTools_Suite_Image_Importer {
             return new WP_Error('invalid_url', __('Ungültige Bild-URL', 'churchtools-suite'));
         }
         
-        // FIX: ChurchTools sendet Bilder mit Query-Parametern (?w=430&h=215)
-        // Entferne sie um die Original-Auflösung zu bekommen
+        // ChurchTools liefert je nach Endpoint transformierte URLs mit Query-Parametern.
+        // Deshalb zuerst die Original-URL nutzen und nur bei Fehlern ohne Query versuchen.
         $clean_url = strtok($image_url, '?');
         
         // Benutze WordPress-Funktion zum Herunterladen und Speichern
@@ -54,7 +54,7 @@ class ChurchTools_Suite_Image_Importer {
         }
 
         // Extrahiere Original-Dateinamen aus der URL für bessere Deduplication
-        $parsed_url = parse_url(is_string($image_url) ? $image_url : $clean_url, PHP_URL_PATH);
+        $parsed_url = parse_url($image_url, PHP_URL_PATH);
         $path_parts = explode('/', trim($parsed_url, '/'));
         $original_filename = end($path_parts);
 
@@ -67,8 +67,17 @@ class ChurchTools_Suite_Image_Importer {
             $filename = !empty($event_id) ? 'ct-event-' . sanitize_file_name($event_id) : 'ct-event-' . time();
         }
         
-        // Versuche, das Bild herunterzuladen
-        $tmp_file = download_url($clean_url, 300); // 5 Minuten Timeout
+        // Versuche, das Bild herunterzuladen (1) Original URL, (2) Fallback ohne Query
+        $tmp_file = download_url($image_url, 300); // 5 Minuten Timeout
+
+        if (is_wp_error($tmp_file) && $clean_url !== $image_url) {
+            error_log(sprintf(
+                '[CTS Image Import] Primary download failed, trying fallback URL without query: %s | Error: %s',
+                $image_url,
+                $tmp_file->get_error_message()
+            ));
+            $tmp_file = download_url($clean_url, 300);
+        }
         
         if (is_wp_error($tmp_file)) {
             return new WP_Error(
