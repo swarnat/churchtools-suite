@@ -1,5 +1,18 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.16 - Update-Trigger UI-Fix (26. April 2026)
+
+### 🛠️ Fixes
+- Manueller Update-Trigger im Debug-Tab nutzt wieder den AJAX-Check statt Redirect auf WordPress Update-Core
+- Rückmeldungen der manuellen Update-Prüfung werden im Bereich `Update & Log` angezeigt (nicht mehr im Sync-Bereich)
+- Bei Fehlern wird neben der allgemeinen Meldung auch die technische Detailmeldung aus dem Updater angezeigt
+
+### 📦 Release-Artefakte
+- `churchtools-suite-1.2.0.16.zip`
+- `churchtools-suite-elementor-0.6.17.zip`
+- `churchtools-suite-posts-sync-0.1.4.zip`
+- `churchtools-suite-presentations-0.1.0.zip`
+
 ## v1.2.0.15 - Neue Carousel Hero-View (26. April 2026)
 
 ### ✨ Neue Features

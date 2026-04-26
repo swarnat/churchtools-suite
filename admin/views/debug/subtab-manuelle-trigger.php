@@ -35,6 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<span>🗑️</span> Log löschen
 			</button>
 		</div>
+		<div id="cts-update-result" style="margin-top: 16px;"></div>
 	</div>
 	
 	<div class="cts-card" style="margin-top:24px;">
@@ -151,14 +152,65 @@ jQuery(function($) {
 	// Manual Update Check
 	$('#cts-manual-update').on('click', function() {
 		var $btn = $(this);
+		var $result = $('#cts-update-result');
 		
 		$btn.prop('disabled', true).html('<span>⏳</span> Update wird geprüft...');
-		
-		// Use WordPress native update mechanism
-		// Trigger the update check by navigating to update-core.php with force-check parameter
-		window.location.href = '<?php echo admin_url('update-core.php?force-check=1'); ?>';
-		
-		// Note: Page will reload, so no completion callback needed
+		$result.html('<div style="padding: 12px; background: #f0f9ff; border-radius: 4px;">🔄 Update-Informationen werden geladen...</div>');
+
+		$.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'cts_manual_update',
+				nonce: '<?php echo wp_create_nonce('churchtools_suite_admin'); ?>'
+			},
+			success: function(response) {
+				if (response && response.success) {
+					var payload = response.data || {};
+					var info = payload.data || {};
+					var latestVersion = info.latest_version || info.tag_name || '-';
+					var currentVersion = '<?php echo esc_js( CHURCHTOOLS_SUITE_VERSION ); ?>';
+
+					if (info.is_update) {
+						var html =
+							'<div style="padding: 12px; background: #d1fae5; border-radius: 4px; border: 1px solid #10b981;">' +
+							'✅ <strong>Update verfügbar:</strong> ' + currentVersion + ' → ' + latestVersion;
+
+						if (info.html_url) {
+							html += '<br><a href="' + info.html_url + '" target="_blank" rel="noopener noreferrer">📋 Release ansehen</a>';
+						}
+
+						html += '</div>';
+						$result.html(html);
+					} else {
+						$result.html(
+							'<div style="padding: 12px; background: #f0f9ff; border-radius: 4px; border: 1px solid #3b82f6;">' +
+							'ℹ️ <strong>Kein Update gefunden.</strong> Aktuell installiert: ' + currentVersion +
+							(info.tag_name ? '<br>Neueste verfügbare Version: ' + latestVersion : '') +
+							'</div>'
+						);
+					}
+				} else {
+					var message = (response && response.data && response.data.message) ? response.data.message : 'Fehler bei der Update-Prüfung.';
+					var detail = (response && response.data && response.data.error) ? response.data.error : '';
+					$result.html(
+						'<div style="padding: 12px; background: #fee2e2; border-radius: 4px; border: 1px solid #dc2626;">' +
+						'❌ <strong>' + message + '</strong>' + (detail ? '<br><code>' + detail + '</code>' : '') +
+						'</div>'
+					);
+				}
+			},
+			error: function() {
+				$result.html(
+					'<div style="padding: 12px; background: #fee2e2; border-radius: 4px; border: 1px solid #dc2626;">' +
+					'❌ <strong>Netzwerkfehler</strong> bei der Update-Prüfung' +
+					'</div>'
+				);
+			},
+			complete: function() {
+				$btn.prop('disabled', false).html('<span>🔄</span> Manuelles Update prüfen');
+			}
+		});
 	});
 	
 	// Clear Logs
