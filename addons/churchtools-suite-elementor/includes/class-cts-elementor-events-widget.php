@@ -461,6 +461,21 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 		);
 
 		$this->add_control(
+			'show_title',
+			[
+				'label' => __( 'Titel anzeigen (Hero)', 'churchtools-suite' ),
+				'type' => \Elementor\Controls_Manager::SWITCHER,
+				'label_on' => __( 'Ja', 'churchtools-suite' ),
+				'label_off' => __( 'Nein', 'churchtools-suite' ),
+				'default' => 'yes',
+				'condition' => [
+					'view_type' => 'carousel',
+					'view_carousel' => 'carousel-einzel-event',
+				],
+			]
+		);
+
+		$this->add_control(
 			'show_images',
 			[
 				'label' => __( 'Bilder', 'churchtools-suite' ),
@@ -800,6 +815,7 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 			'show_location' => $this->is_switcher_enabled( $settings, 'show_location', true ) ? '1' : '0',
 			'show_time' => $this->is_switcher_enabled( $settings, 'show_time', true ) ? '1' : '0',
 			'show_tags' => $this->is_switcher_enabled( $settings, 'show_tags', false ) ? '1' : '0',
+			'show_title' => $this->is_switcher_enabled( $settings, 'show_title', true ) ? '1' : '0',
 			'show_images' => $this->is_switcher_enabled( $settings, 'show_images', true ) ? '1' : '0',
 			'image_fit' => in_array( $settings['image_fit'] ?? 'cover', [ 'cover', 'contain' ], true ) ? $settings['image_fit'] : 'cover',
 			'hero_title_font_size' => max( 0, min( 120, intval( $settings['hero_title_font_size'] ?? 0 ) ) ),

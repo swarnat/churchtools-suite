@@ -24,6 +24,7 @@ $show_event_description = isset( $args['show_event_description'] ) ? ChurchTools
 $show_appointment_description = isset( $args['show_appointment_description'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_appointment_description'] ) : true;
 $show_tags = isset( $args['show_tags'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_tags'] ) : true;
 $show_services = isset( $args['show_services'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_services'] ) : false;
+$show_title = isset( $args['show_title'] ) ? ChurchTools_Suite_Shortcodes::parse_boolean( $args['show_title'] ) : true;
 $image_fit = isset( $args['image_fit'] ) ? ChurchTools_Suite_Shortcodes::sanitize_image_fit( $args['image_fit'] ) : 'contain';
 $hero_title_font_size = isset( $args['hero_title_font_size'] ) ? max( 0, min( 120, intval( $args['hero_title_font_size'] ) ) ) : 0;
 $event_action = $args['event_action'] ?? 'modal';
@@ -96,6 +97,11 @@ if ( ! function_exists( 'cts_carousel_single_hero_image_url' ) ) {
 		width: 100%;
 		height: 100%;
 		object-fit: <?php echo esc_html( $image_fit ); ?>;
+		object-position: center center;
+		background: #0f172a;
+	}
+	[data-image-fit="contain"] .cts-carousel-single-hero-img {
+		object-fit: contain !important;
 	}
 	.cts-carousel-single-hero-fallback {
 		background: linear-gradient(135deg, var(--calendar-color, #2563eb), #0f172a 72%);
@@ -270,7 +276,7 @@ if ( ! function_exists( 'cts_carousel_single_hero_image_url' ) ) {
 				?>
 				<div class="cts-carousel-slide <?php echo esc_attr( $event_class ); ?>" <?php echo $event_attrs; ?> style="--calendar-color: <?php echo esc_attr( $calendar_color ); ?>;">
 					<?php if ( ! empty( $image_url ) ) : ?>
-						<div class="cts-carousel-single-hero-media"><img src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $event['title'] ); ?>"></div>
+						<div class="cts-carousel-single-hero-media"><img class="cts-carousel-single-hero-img" src="<?php echo esc_url( $image_url ); ?>" alt="<?php echo esc_attr( $event['title'] ); ?>"></div>
 					<?php else : ?>
 						<div class="cts-carousel-single-hero-fallback"></div>
 					<?php endif; ?>
@@ -283,7 +289,9 @@ if ( ! function_exists( 'cts_carousel_single_hero_image_url' ) ) {
 									<div class="cts-carousel-single-hero-badge"><?php echo esc_html( $event['calendar_name'] ); ?></div>
 								<?php endif; ?>
 							</div>
-							<h2><?php echo esc_html( $event['title'] ); ?></h2>
+							<?php if ( $show_title ) : ?>
+								<h2><?php echo esc_html( $event['title'] ); ?></h2>
+							<?php endif; ?>
 							<div class="cts-carousel-single-hero-meta">
 								<?php if ( $show_time ) : ?>
 									<div class="cts-carousel-single-hero-meta-item"><span class="dashicons dashicons-clock"></span><span><?php echo esc_html( $end_time_display ? $start_time_display . ' - ' . $end_time_display : $start_time_display ); ?></span></div>

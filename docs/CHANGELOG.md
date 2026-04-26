@@ -1,5 +1,18 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.20 - Hero-View Fixes (26. April 2026)
+
+### 🛠️ Fixes
+- Elementor: `Titel anzeigen (Hero)` Schalter wieder verfügbar (Core + Addon Widget)
+- Hero-Carousel: `hero_title_font_size` wird korrekt vom Widget bis ins Template durchgereicht
+- Hero-Carousel: Bilddarstellung `Contain` robuster umgesetzt, damit das Bild vollständig sichtbar bleibt
+
+### 📦 Release-Artefakte
+- `churchtools-suite-1.2.0.20.zip`
+- `churchtools-suite-elementor-0.6.21.zip`
+- `churchtools-suite-posts-sync-0.1.4.zip`
+- `churchtools-suite-presentations-0.1.0.zip`
+
 ## v1.2.0.19 - Update-Erkennung stabilisiert (26. April 2026)
 
 ### 🔧 Verbesserungen

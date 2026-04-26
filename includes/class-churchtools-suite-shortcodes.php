@@ -700,9 +700,11 @@ class ChurchTools_Suite_Shortcodes {
 			'show_time' => true,
 			'show_services' => false,
 			'show_tags' => false,
+			'show_title' => true,
 			'show_calendar_name' => true,
 			'show_images' => true,
 			'image_fit' => 'cover',
+			'hero_title_font_size' => 0,
 			'event_action' => 'modal',
 			// Carousel-spezifische Parameter
 			'slides_per_view' => 3, // 1-6 slides
@@ -743,6 +745,7 @@ class ChurchTools_Suite_Shortcodes {
 		$atts['show_time'] = self::parse_boolean( $atts['show_time'] );
 		$atts['show_services'] = self::parse_boolean( $atts['show_services'] );
 		$atts['show_tags'] = self::parse_boolean( $atts['show_tags'] );
+		$atts['show_title'] = self::parse_boolean( $atts['show_title'] );
 		$atts['show_calendar_name'] = self::parse_boolean( $atts['show_calendar_name'] );
 		$atts['show_images'] = self::parse_boolean( $atts['show_images'] );
 		$atts['image_fit'] = self::sanitize_image_fit( $atts['image_fit'] );
