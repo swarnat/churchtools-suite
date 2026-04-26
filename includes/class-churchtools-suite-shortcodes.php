@@ -700,9 +700,9 @@ class ChurchTools_Suite_Shortcodes {
 		$atts['view'] = ChurchTools_Suite_Template_Loader::normalize_view_id( 'carousel', $atts['view'] );
 		
 		// Erlaubte Views (deutsche IDs mit Präfix)
-		$allowed_views = [ 'carousel-klassisch' ];
+		$allowed_views = [ 'carousel-klassisch', 'carousel-einzel-event' ];
 		if ( ! in_array( $atts['view'], $allowed_views, true ) ) {
-			return '<p style="padding: 12px; background: #fef3c7; border-radius: 4px;">⚠️ <strong>Carousel View nicht verfügbar:</strong> Nur "carousel-klassisch" ist aktiv.</p>';
+			return '<p style="padding: 12px; background: #fef3c7; border-radius: 4px;">⚠️ <strong>Carousel View nicht verfügbar:</strong> Erlaubt sind "carousel-klassisch" und "carousel-einzel-event".</p>';
 		}
 		
 		// Validate carousel-specific parameters

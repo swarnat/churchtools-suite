@@ -102,6 +102,7 @@ class ChurchTools_Suite_Template_Loader {
 			],
 			'carousel' => [
 				'carousel-klassisch' => __( 'Klassisch (Swipe)', 'churchtools-suite' ),
+				'carousel-einzel-event' => __( 'Einzel Event (Hero Slider)', 'churchtools-suite' ),
 			],
 		];
 
@@ -158,6 +159,7 @@ class ChurchTools_Suite_Template_Loader {
 			
 			// Carousel Views
 			'carousel-klassisch' => 'carousel-classic',
+			'carousel-einzel-event' => 'carousel-single-hero',
 			
 			// Single Views
 			'single-minimal' => 'single-minimal',
@@ -231,6 +233,8 @@ class ChurchTools_Suite_Template_Loader {
 			'carousel' => [
 				'carousel-klassisch' => 'carousel-klassisch',
 				'carousel-classic' => 'carousel-klassisch',
+				'carousel-einzel-event' => 'carousel-einzel-event',
+				'carousel-single-hero' => 'carousel-einzel-event',
 			],
 		];
 
@@ -261,6 +265,7 @@ class ChurchTools_Suite_Template_Loader {
 			],
 			'carousel' => [
 				'classic' => 'carousel-klassisch',
+				'single-hero' => 'carousel-einzel-event',
 			],
 		];
 		

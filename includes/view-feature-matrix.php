@@ -199,6 +199,17 @@ function churchtools_suite_get_view_features() {
 			'show_calendar_name' => true, // ✅ Calendar-Badge
 			'show_month_separator' => false, // ❌ Keine Monats-Trenner bei Carousel
 		],
+		'carousel-einzel-event' => [
+			'show_event_description' => true,
+			'show_appointment_description' => true,
+			'show_location' => true,
+			'show_services' => true,
+			'show_time' => true,
+			'show_tags' => true,
+			'show_images' => true,
+			'show_calendar_name' => true,
+			'show_month_separator' => false,
+		],
 	];
 }
 

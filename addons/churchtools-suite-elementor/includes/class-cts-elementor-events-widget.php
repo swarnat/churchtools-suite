@@ -165,6 +165,7 @@ if ( ! class_exists( 'CTS_Elementor_Events_Widget' ) ) {
 					'type' => \Elementor\Controls_Manager::SELECT,
 					'options' => [
 						'carousel-klassisch' => __( 'Klassisch (Swipe)', 'churchtools-suite' ),
+						'carousel-einzel-event' => __( 'Einzel Event (Hero Slider)', 'churchtools-suite' ),
 					],
 					'default' => 'carousel-klassisch',
 					'condition' => [ 'view_type' => 'carousel' ],

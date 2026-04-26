@@ -1,5 +1,21 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.15 - Neue Carousel Hero-View (26. April 2026)
+
+### ✨ Neue Features
+- Neue Carousel-Ansicht `carousel-einzel-event` mit vollflächigem Hintergrundbild und Overlay-Inhalten
+- Hero-Slider zeigt Titel, Datum, Uhrzeit, Ort sowie optional Tags und Dienste
+
+### 🔧 Verbesserungen
+- Neue Carousel-View im Core-Template-Loader registriert und normalisiert
+- Elementor-Auswahl (Core + Addon Widget) um `carousel-einzel-event` erweitert
+
+### 📦 Release-Artefakte
+- `churchtools-suite-1.2.0.15.zip`
+- `churchtools-suite-elementor-0.6.17.zip`
+- `churchtools-suite-posts-sync-0.1.4.zip`
+- `churchtools-suite-presentations-0.1.0.zip`
+
 ## v1.2.0.7 - Frontend/Elementor Hotfixes (12. April 2026)
 
 ### 🛠️ Hotfixes
