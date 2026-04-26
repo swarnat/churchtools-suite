@@ -864,8 +864,13 @@ class ChurchTools_Suite_Event_Sync_Service {
         // v0.10.5.0: Import image from ChurchTools (Update: prüfe, ob Bild noch aktuell ist)
         $image_attachment_id = null;
         $image_url = null;
-        $external_image_url = $event['appointment']['base']['image']['imageUrl'] ?? $event['appointment']['image']['imageUrl'] ?? $event['image']['imageUrl'] ?? null;
-        $external_image_name = $event['appointment']['base']['image']['name'] ?? $event['appointment']['image']['name'] ?? $event['image']['name'] ?? null;
+        $event_image_candidates = [
+            $event['appointment']['base']['image'] ?? null,
+            $event['appointment']['image'] ?? null,
+            $event['image'] ?? null,
+        ];
+        $external_image_url = $this->resolve_preferred_image_url($event_image_candidates);
+        $external_image_name = $this->resolve_preferred_image_name($event_image_candidates);
 
         // Beim Re-Sync Bild immer neu importieren, damit Änderungen zuverlässig übernommen werden.
         $existing_event = null;
@@ -1098,8 +1103,13 @@ class ChurchTools_Suite_Event_Sync_Service {
         $image_attachment_id = null;
         $image_url = null;
         // FIX: Image object has imageUrl field inside it!
-        $external_image_url = $appointment['base']['image']['imageUrl'] ?? $appointment['image']['imageUrl'] ?? $appointment_data['image']['imageUrl'] ?? null;
-        $external_image_name = $appointment['base']['image']['name'] ?? $appointment['image']['name'] ?? $appointment_data['image']['name'] ?? null;
+        $appointment_image_candidates = [
+            $appointment['base']['image'] ?? null,
+            $appointment['image'] ?? null,
+            $appointment_data['image'] ?? null,
+        ];
+        $external_image_url = $this->resolve_preferred_image_url($appointment_image_candidates);
+        $external_image_name = $this->resolve_preferred_image_name($appointment_image_candidates);
         
         if (!empty($external_image_url) && filter_var($external_image_url, FILTER_VALIDATE_URL)) {
             // Lade Image Importer
@@ -1248,6 +1258,74 @@ class ChurchTools_Suite_Event_Sync_Service {
 
         require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-image-importer.php';
         ChurchTools_Suite_Image_Importer::delete_image($attachment_id);
+    }
+
+    /**
+     * Resolve best possible image URL with preference for original/full URLs.
+     * Falls back to imageUrl if no better option is available.
+     *
+     * @param array $image_candidates Image candidate arrays from API structures
+     * @return string|null
+     */
+    private function resolve_preferred_image_url(array $image_candidates): ?string {
+        $preferred_keys = [
+            'originalUrl',
+            'downloadUrl',
+            'originalImageUrl',
+            'fileUrl',
+            'url',
+        ];
+        $fallback_keys = [
+            'imageUrl',
+            'thumbnailUrl',
+            'thumbUrl',
+        ];
+
+        foreach ($image_candidates as $candidate) {
+            if (!is_array($candidate)) {
+                continue;
+            }
+            foreach ($preferred_keys as $key) {
+                if (!empty($candidate[$key]) && filter_var($candidate[$key], FILTER_VALIDATE_URL)) {
+                    return (string) $candidate[$key];
+                }
+            }
+        }
+
+        foreach ($image_candidates as $candidate) {
+            if (!is_array($candidate)) {
+                continue;
+            }
+            foreach ($fallback_keys as $key) {
+                if (!empty($candidate[$key]) && filter_var($candidate[$key], FILTER_VALIDATE_URL)) {
+                    return (string) $candidate[$key];
+                }
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resolve image display/file name from available API image structures.
+     *
+     * @param array $image_candidates Image candidate arrays from API structures
+     * @return string|null
+     */
+    private function resolve_preferred_image_name(array $image_candidates): ?string {
+        foreach ($image_candidates as $candidate) {
+            if (!is_array($candidate)) {
+                continue;
+            }
+            if (!empty($candidate['name']) && is_string($candidate['name'])) {
+                return (string) $candidate['name'];
+            }
+            if (!empty($candidate['filename']) && is_string($candidate['filename'])) {
+                return (string) $candidate['filename'];
+            }
+        }
+
+        return null;
     }
     
     /**

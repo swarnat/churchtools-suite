@@ -1,5 +1,17 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.23 - Originalbild-Priorisierung (26. April 2026)
+
+### 🛠️ Fixes
+- Bildimport priorisiert jetzt echte Original-/Download-URLs aus ChurchTools.
+- Thumbnail-URLs (`imageUrl`/`thumbnailUrl`) werden nur noch als Fallback genutzt.
+- Re-Sync verwendet damit bevorzugt die echte Originaldatei, wenn verfügbar.
+
+### 📦 Release-Artefakte
+- `churchtools-suite-1.2.0.23.zip`
+- `churchtools-suite-elementor-0.6.22.zip`
+- `churchtools-suite-posts-sync-0.1.4.zip`
+
 ## v1.2.0.22 - Re-Sync Bild-Neuerstellung (26. April 2026)
 
 ### 🛠️ Fixes
