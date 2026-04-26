@@ -1,5 +1,16 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.24 - Carousel Navigation UX Fix (26. April 2026)
+
+### 🛠️ Fixes
+- Carousel-Pfeile werden nicht mehr angezeigt, wenn nur ein Termin vorhanden ist.
+- Zusätzlicher JS-Fallback blendet Navigation aus, wenn kein Navigationsschritt möglich ist.
+
+### 📦 Release-Artefakte
+- `churchtools-suite-1.2.0.24.zip`
+- `churchtools-suite-elementor-0.6.22.zip`
+- `churchtools-suite-posts-sync-0.1.4.zip`
+
 ## v1.2.0.23 - Originalbild-Priorisierung (26. April 2026)
 
 ### 🛠️ Fixes

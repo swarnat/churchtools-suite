@@ -256,6 +256,7 @@ if ( $hero_layout_preset === 'compact' ) {
 	<?php if ( empty( $events ) ) : ?>
 		<p class="cts-no-events"><?php esc_html_e( 'Keine Events gefunden.', 'churchtools-suite' ); ?></p>
 	<?php else : ?>
+		<?php $has_multiple_events = count( $events ) > 1; ?>
 		<div class="cts-carousel-container">
 			<div class="cts-carousel-track">
 				<?php foreach ( $events as $event ) :
@@ -362,8 +363,10 @@ if ( $hero_layout_preset === 'compact' ) {
 				<?php endforeach; ?>
 			</div>
 		</div>
+		<?php if ( $has_multiple_events ) : ?>
 		<button class="cts-carousel-nav cts-carousel-nav-prev" aria-label="<?php esc_attr_e( 'Vorheriges Event', 'churchtools-suite' ); ?>"><span class="dashicons dashicons-arrow-left-alt2"></span></button>
 		<button class="cts-carousel-nav cts-carousel-nav-next" aria-label="<?php esc_attr_e( 'Nächstes Event', 'churchtools-suite' ); ?>"><span class="dashicons dashicons-arrow-right-alt2"></span></button>
+		<?php endif; ?>
 		<div class="cts-carousel-pagination"></div>
 	<?php endif; ?>
 </div>

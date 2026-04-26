@@ -110,6 +110,7 @@ if ( ! function_exists( 'cts_carousel_get_image_url' ) ) {
 	<?php if ( empty( $events ) ) : ?>
 		<p class="cts-no-events"><?php esc_html_e( 'Keine Events gefunden.', 'churchtools-suite' ); ?></p>
 	<?php else : ?>
+		<?php $has_multiple_events = count( $events ) > 1; ?>
 		
 		<!-- Carousel Container -->
 		<div class="cts-carousel-container">
@@ -322,6 +323,7 @@ if ( ! function_exists( 'cts_carousel_get_image_url' ) ) {
 			</div>
 		</div>
 		
+		<?php if ( $has_multiple_events ) : ?>
 		<!-- Navigation Buttons -->
 		<button class="cts-carousel-nav cts-carousel-nav-prev" aria-label="<?php esc_attr_e( 'Vorheriges Event', 'churchtools-suite' ); ?>">
 			<span class="dashicons dashicons-arrow-left-alt2"></span>
@@ -329,6 +331,7 @@ if ( ! function_exists( 'cts_carousel_get_image_url' ) ) {
 		<button class="cts-carousel-nav cts-carousel-nav-next" aria-label="<?php esc_attr_e( 'Nächstes Event', 'churchtools-suite' ); ?>">
 			<span class="dashicons dashicons-arrow-right-alt2"></span>
 		</button>
+		<?php endif; ?>
 		
 		<!-- Pagination Dots -->
 		<div class="cts-carousel-pagination"></div>

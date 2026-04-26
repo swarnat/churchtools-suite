@@ -1219,6 +1219,13 @@
 			
 			// Calculate max index
 			const getMaxIndex = () => Math.max(0, $slides.length - slidesPerView);
+
+			const updateNavigationVisibility = () => {
+				const hasNavigation = getMaxIndex() > 0;
+				$prevBtn.toggle(hasNavigation);
+				$nextBtn.toggle(hasNavigation);
+				$pagination.toggle(hasNavigation);
+			};
 			
 			// Update slide position
 			const updateSlidePosition = (animated = true) => {
@@ -1273,6 +1280,7 @@
 						.on('click', () => goToSlide(i));
 					$pagination.append($dot);
 				}
+				updateNavigationVisibility();
 			};
 			createPagination();
 			
@@ -1346,11 +1354,13 @@
 					updateSlidesPerView();
 					createPagination();
 					updateSlidePosition(false);
+					updateNavigationVisibility();
 				}, 150);
 			});
 			
 			// Initialize
 			updateSlidePosition(false);
+			updateNavigationVisibility();
 			startAutoplay();
 			
 			// Mark as initialized
