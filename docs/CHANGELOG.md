@@ -1,5 +1,17 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.26 - Posts Sync für Produktivumgebungen freigegeben (27. April 2026)
+
+### ?? Neu / Freigabe
+- **Posts Sync Addon** ist jetzt für alle Umgebungen freigegeben (kein "coming soon" mehr).
+- Entfernt: automatische Deaktivierung in Nicht-Lokalen-Umgebungen.
+- Entfernt: "coming soon"-Hinweis in Admin-Bereichen.
+
+### ?? Release-Artefakte
+- `churchtools-suite-1.2.0.26.zip`
+- `churchtools-suite-elementor-0.6.24.zip`
+- `churchtools-suite-posts-sync-0.1.6.zip`
+
 ## v1.2.0.25 - Image Deduplication fÃ¼r wiederkehrende Events (27. April 2026)
 
 ### ðŸš€ Performance-Optimierung

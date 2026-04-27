@@ -22,7 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define constants
-define( 'CTS_POSTS_SYNC_VERSION', '0.1.4' );
+define( 'CTS_POSTS_SYNC_VERSION', '0.1.5' );
 define( 'CTS_POSTS_SYNC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CTS_POSTS_SYNC_URL', plugin_dir_url( __FILE__ ) );
 define( 'CTS_POSTS_SYNC_CPT', 'ct_post' );
@@ -79,11 +79,6 @@ class ChurchTools_Suite_Posts_Sync {
 	 * Initialize the addon
 	 */
 	public static function init() {
-		if ( ! self::is_allowed_environment() ) {
-			self::deactivate_if_not_allowed_environment();
-			return;
-		}
-
 		// Check if main plugin is active
 		if ( ! self::is_main_plugin_active() ) {
 			add_action( 'admin_notices', [ __CLASS__, 'admin_notice_missing_main_plugin' ] );
@@ -277,62 +272,12 @@ class ChurchTools_Suite_Posts_Sync {
 	}
 
 	/**
-	 * Allow this addon only in local environments while under development.
-	 */
-	private static function is_allowed_environment() {
-		if ( defined( 'CTS_POSTS_SYNC_FORCE_ENABLE' ) && CTS_POSTS_SYNC_FORCE_ENABLE ) {
-			return true;
-		}
-
-		$env_type = '';
-		if ( function_exists( 'wp_get_environment_type' ) ) {
-			$env_type = (string) wp_get_environment_type();
-			if ( in_array( $env_type, [ 'local', 'development', 'staging' ], true ) ) {
-				return true;
-			}
-		}
-
-		$host = parse_url( home_url(), PHP_URL_HOST );
-		$host = is_string( $host ) ? strtolower( $host ) : '';
-
-		$is_allowed = false;
-
-		if ( $host !== '' ) {
-			if ( in_array( $host, [ 'localhost', '127.0.0.1', '::1' ], true ) ) {
-				$is_allowed = true;
-			}
-
-			if ( ! $is_allowed && preg_match( '/\.(test|local|localhost)$/', $host ) ) {
-				$is_allowed = true;
-			}
-		}
-
-		/**
-		 * Filter whether Posts Sync is allowed in current environment.
-		 *
-		 * @param bool   $is_allowed Default decision.
-		 * @param string $env_type   WordPress environment type.
-		 * @param string $host       Current host.
-		 */
-		return (bool) apply_filters( 'cts_posts_sync_is_allowed_environment', $is_allowed, $env_type, $host );
-	}
-
-	/**
 	 * Deactivate addon outside allowed environments and show notice.
+	 *
+	 * @deprecated 0.1.5 Umgebungseinschränkung entfernt – Plugin ist jetzt für alle Umgebungen freigegeben.
 	 */
 	private static function deactivate_if_not_allowed_environment() {
-		if ( is_admin() ) {
-			if ( ! function_exists( 'is_plugin_active' ) || ! function_exists( 'deactivate_plugins' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
-			}
-
-			$plugin_file = plugin_basename( __FILE__ );
-			if ( function_exists( 'is_plugin_active' ) && is_plugin_active( $plugin_file ) ) {
-				deactivate_plugins( $plugin_file, true );
-			}
-
-			add_action( 'admin_notices', [ __CLASS__, 'admin_notice_coming_soon' ] );
-		}
+		// No longer used – kept for backward compatibility only
 	}
 
 	/**
@@ -349,19 +294,7 @@ class ChurchTools_Suite_Posts_Sync {
 		<?php
 	}
 
-	/**
-	 * Show notice that addon is not yet released for non-local environments.
-	 */
-	public static function admin_notice_coming_soon() {
-		?>
-		<div class="notice notice-warning is-dismissible">
-			<p>
-				<strong><?php esc_html_e( 'ChurchTools Suite – Posts Sync:', 'churchtools-suite-posts-sync' ); ?></strong>
-				<?php esc_html_e( 'Dieses Addon ist in dieser Umgebung deaktiviert und wird noch ausgerollt (coming soon).', 'churchtools-suite-posts-sync' ); ?>
-			</p>
-		</div>
-		<?php
-	}
+
 
 	/**
 	 * Handle the sync_posts hook from main plugin
