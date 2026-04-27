@@ -880,29 +880,46 @@ class ChurchTools_Suite_Event_Sync_Service {
 
         if (!empty($external_image_url) && filter_var($external_image_url, FILTER_VALIDATE_URL)) {
             require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-image-importer.php';
-            if ($existing_event && !empty($existing_event->image_attachment_id)) {
-                $this->delete_previous_cts_image((int) $existing_event->image_attachment_id, (string) $event['id']);
-            }
-
-            $import_result = ChurchTools_Suite_Image_Importer::import_image(
-                $external_image_url,
-                $external_image_name ?? $event['name'] ?? $event['designation'] ?? 'Event Image',
-                (string) $event['id']
-            );
-            if (!is_wp_error($import_result)) {
-                $image_attachment_id = $import_result;
-                $image_url = ChurchTools_Suite_Image_Importer::get_image_url($import_result);
+            
+            // Check if image with this URL already exists (avoid duplicates for recurring events)
+            $existing_image_id = ChurchTools_Suite_Image_Importer::find_existing_image_by_url($external_image_url);
+            
+            if ($existing_image_id > 0) {
+                // Image with this URL already exists - reuse it
+                $image_attachment_id = $existing_image_id;
+                $image_url = ChurchTools_Suite_Image_Importer::get_image_url($existing_image_id);
+                
                 ChurchTools_Suite_Logger::debug(
                     'event_sync',
-                    sprintf('Image recreated for event %s: attachment_id=%d', $event['id'], $import_result),
+                    sprintf('Image reused for event %s: attachment_id=%d (existing for URL)', $event['id'], $existing_image_id),
                     ['external_url' => $external_image_url]
                 );
             } else {
-                ChurchTools_Suite_Logger::warning(
-                    'event_sync',
-                    sprintf('Failed to recreate image for event %s: %s', $event['id'], $import_result->get_error_message()),
-                    ['external_url' => $external_image_url, 'error_code' => $import_result->get_error_code()]
+                // Image with this URL does not exist - import it
+                if ($existing_event && !empty($existing_event->image_attachment_id)) {
+                    $this->delete_previous_cts_image((int) $existing_event->image_attachment_id, (string) $event['id']);
+                }
+
+                $import_result = ChurchTools_Suite_Image_Importer::import_image(
+                    $external_image_url,
+                    $external_image_name ?? $event['name'] ?? $event['designation'] ?? 'Event Image',
+                    (string) $event['id']
                 );
+                if (!is_wp_error($import_result)) {
+                    $image_attachment_id = $import_result;
+                    $image_url = ChurchTools_Suite_Image_Importer::get_image_url($import_result);
+                    ChurchTools_Suite_Logger::debug(
+                        'event_sync',
+                        sprintf('Image recreated for event %s: attachment_id=%d', $event['id'], $import_result),
+                        ['external_url' => $external_image_url]
+                    );
+                } else {
+                    ChurchTools_Suite_Logger::warning(
+                        'event_sync',
+                        sprintf('Failed to recreate image for event %s: %s', $event['id'], $import_result->get_error_message()),
+                        ['external_url' => $external_image_url, 'error_code' => $import_result->get_error_code()]
+                    );
+                }
             }
         }
         
@@ -1120,32 +1137,49 @@ class ChurchTools_Suite_Event_Sync_Service {
             if (!empty($start_datetime)) {
                 $existing_appointment = $this->events_repo->get_by_appointment_id((string) $appointment_id, $start_datetime);
             }
-            if ($existing_appointment && !empty($existing_appointment->image_attachment_id)) {
-                $this->delete_previous_cts_image((int) $existing_appointment->image_attachment_id, (string) $appointment_id);
-            }
 
-            // Beim Re-Sync immer neu importieren
-            $import_result = ChurchTools_Suite_Image_Importer::import_image(
-                $external_image_url,
-                $external_image_name ?? $title,
-                (string) $appointment_id
-            );
-
-            if (!is_wp_error($import_result)) {
-                $image_attachment_id = $import_result;
-                $image_url = ChurchTools_Suite_Image_Importer::get_image_url($import_result);
-
+            // Check if image with this URL already exists (avoid duplicates for recurring appointments)
+            $existing_image_id = ChurchTools_Suite_Image_Importer::find_existing_image_by_url($external_image_url);
+            
+            if ($existing_image_id > 0) {
+                // Image with this URL already exists - reuse it
+                $image_attachment_id = $existing_image_id;
+                $image_url = ChurchTools_Suite_Image_Importer::get_image_url($existing_image_id);
+                
                 ChurchTools_Suite_Logger::debug(
                     'event_sync',
-                    sprintf('Image recreated for appointment %s: attachment_id=%d', $appointment_id, $import_result),
+                    sprintf('Image reused for appointment %s: attachment_id=%d (existing for URL)', $appointment_id, $existing_image_id),
                     ['external_url' => $external_image_url]
                 );
             } else {
-                ChurchTools_Suite_Logger::warning(
-                    'event_sync',
-                    sprintf('Failed to recreate image for appointment %s: %s', $appointment_id, $import_result->get_error_message()),
-                    ['external_url' => $external_image_url]
+                // Image with this URL does not exist - import it
+                if ($existing_appointment && !empty($existing_appointment->image_attachment_id)) {
+                    $this->delete_previous_cts_image((int) $existing_appointment->image_attachment_id, (string) $appointment_id);
+                }
+
+                // Beim Re-Sync immer neu importieren
+                $import_result = ChurchTools_Suite_Image_Importer::import_image(
+                    $external_image_url,
+                    $external_image_name ?? $title,
+                    (string) $appointment_id
                 );
+
+                if (!is_wp_error($import_result)) {
+                    $image_attachment_id = $import_result;
+                    $image_url = ChurchTools_Suite_Image_Importer::get_image_url($import_result);
+
+                    ChurchTools_Suite_Logger::debug(
+                        'event_sync',
+                        sprintf('Image recreated for appointment %s: attachment_id=%d', $appointment_id, $import_result),
+                        ['external_url' => $external_image_url]
+                    );
+                } else {
+                    ChurchTools_Suite_Logger::warning(
+                        'event_sync',
+                        sprintf('Failed to recreate image for appointment %s: %s', $appointment_id, $import_result->get_error_message()),
+                        ['external_url' => $external_image_url]
+                    );
+                }
             }
         }
         

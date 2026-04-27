@@ -3,7 +3,7 @@
  * Plugin Name: ChurchTools Suite – Posts Sync Addon
  * Plugin URI: https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-posts-sync
  * Description: Synchronisiert ChurchTools-Posts in WordPress-Posts/Seiten. Benötigt ChurchTools Suite v1.2.0.0+
- * Version: 0.1.4
+ * Version: 0.1.5
  * Author: FEG Aschaffenburg
  * Author URI: https://www.feg-aschaffenburg.de
  * License: GPL v2 or later

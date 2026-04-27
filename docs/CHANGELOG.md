@@ -1,5 +1,23 @@
 # ChurchTools Suite - Changelog
 
+## v1.2.0.25 - Image Deduplication für wiederkehrende Events (27. April 2026)
+
+### 🚀 Performance-Optimierung
+- Bilder werden bei wiederkehrenden Events nicht mehr mehrfach heruntergeladen.
+- Neue `find_existing_image_by_url()` Methode prüft, ob ein Bild mit derselben URL bereits importiert wurde.
+- Beim Sync wird das bestehende Bild wiederverwendet statt es erneut zu importieren.
+- Signifikant schnellere Syncs für wiederkehrende Events und Termine.
+
+### 💾 Weitere Verbesserungen
+- Optimierte Datenbank-Abfragen für Bildsuche
+- Besseres Logging beim Bildwiederverwendung für Debugging
+- Reduzierte Bandbreitennutzung und Speicherplatzverbrauch
+
+### 📦 Release-Artefakte
+- `churchtools-suite-1.2.0.25.zip`
+- `churchtools-suite-elementor-0.6.23.zip`
+- `churchtools-suite-posts-sync-0.1.5.zip`
+
 ## v1.2.0.24 - Carousel Navigation UX Fix (26. April 2026)
 
 ### 🛠️ Fixes

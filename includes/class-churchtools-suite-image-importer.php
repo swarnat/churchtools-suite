@@ -186,6 +186,35 @@ class ChurchTools_Suite_Image_Importer {
     public static function get_image_url(int $attachment_id) {
         return wp_get_attachment_url($attachment_id);
     }
+
+    /**
+     * Find existing image by URL to avoid duplicate imports for recurring events
+     *
+     * Searches for an attachment that was previously imported from the same URL
+     * (identified by _cts_imported_from meta key).
+     *
+     * @param string $image_url The external image URL to search for
+     * @return int Attachment ID if found, 0 otherwise
+     * @since 1.2.0.25
+     */
+    public static function find_existing_image_by_url(string $image_url): int {
+        if (empty($image_url)) {
+            return 0;
+        }
+
+        global $wpdb;
+
+        // Search for attachment with same _cts_imported_from URL
+        $query = $wpdb->prepare(
+            "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value = %s LIMIT 1",
+            '_cts_imported_from',
+            $image_url
+        );
+
+        $attachment_id = $wpdb->get_var($query);
+
+        return $attachment_id ? (int) $attachment_id : 0;
+    }
     
     /**
      * Delete imported image
