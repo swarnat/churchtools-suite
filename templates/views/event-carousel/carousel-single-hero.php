@@ -260,7 +260,16 @@ if ( $hero_layout_preset === 'compact' ) {
 		<div class="cts-carousel-container">
 			<div class="cts-carousel-track">
 				<?php foreach ( $events as $event ) :
-					$start_ts = ! empty( $event['start_datetime'] ) ? strtotime( get_date_from_gmt( $event['start_datetime'] ) ) : current_time( 'timestamp' );
+					$start_ts = current_time( 'timestamp' );
+					if ( ! empty( $event['start_datetime'] ) ) {
+						try {
+							$dt = new DateTime( $event['start_datetime'], new DateTimeZone( 'UTC' ) );
+							$dt->setTimezone( $wp_timezone );
+							$start_ts = $dt->getTimestamp();
+						} catch ( Exception $e ) {
+							$start_ts = current_time( 'timestamp' );
+						}
+					}
 					$time_format = get_option( 'time_format' );
 					$has_ampm = ( strpos( $time_format, 'a' ) !== false || strpos( $time_format, 'A' ) !== false );
 					$start_time_display = wp_date( $time_format, $start_ts, $wp_timezone );
@@ -269,10 +278,16 @@ if ( $hero_layout_preset === 'compact' ) {
 					}
 					$end_time_display = '';
 					if ( ! empty( $event['end_datetime'] ) ) {
-						$end_ts = strtotime( get_date_from_gmt( $event['end_datetime'] ) );
-						$end_time_display = wp_date( $time_format, $end_ts, $wp_timezone );
-						if ( ! $has_ampm ) {
-							$end_time_display .= ' Uhr';
+						try {
+							$dt_end = new DateTime( $event['end_datetime'], new DateTimeZone( 'UTC' ) );
+							$dt_end->setTimezone( $wp_timezone );
+							$end_ts = $dt_end->getTimestamp();
+							$end_time_display = wp_date( $time_format, $end_ts, $wp_timezone );
+							if ( ! $has_ampm ) {
+								$end_time_display .= ' Uhr';
+							}
+						} catch ( Exception $e ) {
+							$end_time_display = '';
 						}
 					}
 					$calendar_color = $event['calendar_color'] ?? '#2563eb';
