@@ -386,13 +386,11 @@ $posts_sync_installed = isset( $all_plugins[ $posts_sync_plugin_file ] );
 				<?php esc_html_e( 'Synchronisiere ChurchTools-Posts (Berichte) automatisch nach WordPress. Das Addon muss separat installiert werden.', 'churchtools-suite' ); ?>
 			</p>
 			<p>
-				<a href="<?php echo esc_url( admin_url( 'plugin-install.php?tab=upload' ) ); ?>" class="button button-primary">
-					<?php esc_html_e( '⬆ Plugin hochladen & installieren', 'churchtools-suite' ); ?>
-				</a>
-				<a href="https://github.com/FEGAschaffenburg/churchtools-suite/releases" class="button" target="_blank" rel="noopener noreferrer">
-					<?php esc_html_e( '⬇ ZIP herunterladen (GitHub)', 'churchtools-suite' ); ?>
-				</a>
+				<button type="button" class="button button-primary cts-install-addon" data-addon-slug="churchtools-suite-posts-sync">
+					<?php esc_html_e( '⚡ Jetzt installieren', 'churchtools-suite' ); ?>
+				</button>
 			</p>
+			<div class="cts-install-result" style="display:none; margin-top:10px;"></div>
 		</div>
 	<?php endif; ?>
 
@@ -460,11 +458,10 @@ $posts_sync_installed = isset( $all_plugins[ $posts_sync_plugin_file ] );
 						if ( $is_coming_soon ) {
 							$actions[] = esc_html__( 'Kommt bald', 'churchtools-suite' );
 						} elseif ( $is_virtual ) {
-							// Not installed but available – show install link
-							$upload_url = admin_url( 'plugin-install.php?tab=upload' );
+							// Not installed but available – install directly via AJAX
 							$actions[] = sprintf(
-								'<a href="%s">%s</a>',
-								esc_url( $upload_url ),
+								'<button type="button" class="button-link cts-install-addon" data-addon-slug="%s">%s</button>',
+								esc_attr( (string) $addon['plugin_slug'] ),
 								esc_html__( 'Installieren', 'churchtools-suite' )
 							);
 						} elseif ( $addon['is_active'] ) {
@@ -559,7 +556,14 @@ jQuery(document).ready(function($) {
 		
 		const $btn = $(this);
 		const addonSlug = $btn.data('addon-slug');
-		const $resultDiv = $btn.closest('.cts-addon-card, .notice').find('.cts-install-result');
+		let $resultDiv = $btn.closest('.cts-addon-card, .notice').find('.cts-install-result');
+		if (!$resultDiv.length) {
+			const $row = $btn.closest('tr');
+			if ($row.length) {
+				$resultDiv = $('<div class="cts-install-result notice" style="margin:8px 0;"></div>');
+				$row.find('td').eq(2).append($resultDiv);
+			}
+		}
 		
 		// Disable button and show loading
 		$btn.prop('disabled', true);
@@ -567,7 +571,7 @@ jQuery(document).ready(function($) {
 		$btn.html('<span class="dashicons dashicons-update spin"></span> <?php esc_html_e( 'Installiere...', 'churchtools-suite' ); ?>');
 		
 		// Hide previous result
-		$resultDiv.hide().removeClass('notice-success notice-error');
+		$resultDiv.hide().removeClass('notice-success notice-error').empty();
 		
 		// AJAX request
 		$.ajax({

@@ -3421,11 +3421,6 @@ class ChurchTools_Suite_Admin {
 			wp_send_json_error( [ 'message' => __( 'Addon-Slug fehlt.', 'churchtools-suite' ) ] );
 			return;
 		}
-
-		if ( $addon_slug === 'churchtools-suite-posts-sync' ) {
-			wp_send_json_error( [ 'message' => __( 'Das Posts Sync Addon ist aktuell deaktiviert (comming soon) und noch nicht zur Installation freigegeben.', 'churchtools-suite' ) ] );
-			return;
-		}
 		
 		// Map known addons to their release ZIP name prefixes (monorepo assets)
 		$addon_asset_prefixes = [
