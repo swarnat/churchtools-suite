@@ -3433,6 +3433,13 @@ class ChurchTools_Suite_Admin {
 			return;
 		}
 
+		// Primary path: install directly from current plugin tag source archive (no GitHub API calls).
+		$direct_install = $this->install_addon_from_current_tag( $addon_slug );
+		if ( ! is_wp_error( $direct_install ) ) {
+			wp_send_json_success( $direct_install );
+			return;
+		}
+
 		$repo = 'FEGAschaffenburg/churchtools-suite';
 		$asset_prefix = $addon_asset_prefixes[ $addon_slug ];
 		$cache_key = 'cts_install_addon_release_' . sanitize_key( $addon_slug );
@@ -3662,6 +3669,129 @@ class ChurchTools_Suite_Admin {
 				'message' => __( 'Fehler bei der Installation: ', 'churchtools-suite' ) . $e->getMessage()
 			] );
 		}
+	}
+
+	/**
+	 * Install addon directly from current monorepo tag source ZIP.
+	 *
+	 * This avoids GitHub API calls during install and therefore prevents
+	 * abuse-detection/rate-limit errors for repeated installs.
+	 *
+	 * @param string $addon_slug Addon slug.
+	 * @return array|WP_Error
+	 */
+	private function install_addon_from_current_tag( string $addon_slug ) {
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+
+		$allowed = [
+			'churchtools-suite-elementor',
+			'churchtools-suite-posts-sync',
+		];
+
+		if ( ! in_array( $addon_slug, $allowed, true ) ) {
+			return new WP_Error( 'invalid_addon', __( 'Unbekanntes Addon.', 'churchtools-suite' ) );
+		}
+
+		$target_plugin_file = $addon_slug . '/' . $addon_slug . '.php';
+		if ( file_exists( WP_PLUGIN_DIR . '/' . $target_plugin_file ) ) {
+			return new WP_Error( 'already_installed', __( 'Addon ist bereits installiert.', 'churchtools-suite' ) );
+		}
+
+		$tag = 'v' . CHURCHTOOLS_SUITE_VERSION;
+		$source_zip_url = 'https://codeload.github.com/FEGAschaffenburg/churchtools-suite/zip/refs/tags/' . rawurlencode( $tag );
+
+		$temp_zip = download_url( $source_zip_url, 60 );
+		if ( is_wp_error( $temp_zip ) ) {
+			return $temp_zip;
+		}
+
+		$extract_dir = trailingslashit( get_temp_dir() ) . 'cts-addon-src-' . wp_generate_password( 8, false, false );
+		wp_mkdir_p( $extract_dir );
+
+		$unzip_result = unzip_file( $temp_zip, $extract_dir );
+		@unlink( $temp_zip );
+		if ( is_wp_error( $unzip_result ) ) {
+			$this->cts_delete_dir_safe( $extract_dir );
+			return $unzip_result;
+		}
+
+		$entries = glob( trailingslashit( $extract_dir ) . '*', GLOB_ONLYDIR );
+		$repo_root = ( is_array( $entries ) && ! empty( $entries ) ) ? (string) $entries[0] : '';
+		if ( $repo_root === '' ) {
+			$this->cts_delete_dir_safe( $extract_dir );
+			return new WP_Error( 'extract_failed', __( 'Quellarchiv konnte nicht gelesen werden.', 'churchtools-suite' ) );
+		}
+
+		$addon_source_dir = trailingslashit( $repo_root ) . 'addons/' . $addon_slug;
+		if ( ! is_dir( $addon_source_dir ) ) {
+			$this->cts_delete_dir_safe( $extract_dir );
+			return new WP_Error( 'addon_missing_in_tag', __( 'Addon im Tag-Archiv nicht gefunden.', 'churchtools-suite' ) );
+		}
+
+		$destination_dir = WP_PLUGIN_DIR . '/' . $addon_slug;
+		$copy_result = copy_dir( $addon_source_dir, $destination_dir );
+		$this->cts_delete_dir_safe( $extract_dir );
+
+		if ( is_wp_error( $copy_result ) ) {
+			return $copy_result;
+		}
+
+		$activation_result = activate_plugin( $target_plugin_file );
+		if ( is_wp_error( $activation_result ) ) {
+			return [
+				'message' => sprintf(
+					__( '%s wurde installiert, aber konnte nicht automatisch aktiviert werden: %s', 'churchtools-suite' ),
+					$addon_slug,
+					$activation_result->get_error_message()
+				),
+				'plugin_file' => $target_plugin_file,
+				'activated' => false,
+				'version' => CHURCHTOOLS_SUITE_VERSION,
+			];
+		}
+
+		return [
+			'message' => sprintf(
+				__( '✅ %s erfolgreich installiert und aktiviert!', 'churchtools-suite' ),
+				$addon_slug
+			),
+			'plugin_file' => $target_plugin_file,
+			'activated' => true,
+			'version' => CHURCHTOOLS_SUITE_VERSION,
+		];
+	}
+
+	/**
+	 * Recursively delete a directory safely.
+	 *
+	 * @param string $dir Directory path.
+	 * @return void
+	 */
+	private function cts_delete_dir_safe( string $dir ): void {
+		if ( $dir === '' || ! is_dir( $dir ) ) {
+			return;
+		}
+
+		$items = scandir( $dir );
+		if ( ! is_array( $items ) ) {
+			return;
+		}
+
+		foreach ( $items as $item ) {
+			if ( $item === '.' || $item === '..' ) {
+				continue;
+			}
+
+			$path = $dir . DIRECTORY_SEPARATOR . $item;
+			if ( is_dir( $path ) ) {
+				$this->cts_delete_dir_safe( $path );
+			} else {
+				@unlink( $path );
+			}
+		}
+
+		@rmdir( $dir );
 	}
 	
 	/**
