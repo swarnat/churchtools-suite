@@ -3,7 +3,7 @@
  * Plugin Name: ChurchTools Suite – Posts Sync Addon
  * Plugin URI: https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-posts-sync
  * Description: Synchronisiert ChurchTools-Posts in WordPress-Posts/Seiten. Benötigt ChurchTools Suite v1.2.0.0+
- * Version: 0.1.5
+ * Version: 0.1.6
  * Author: FEG Aschaffenburg
  * Author URI: https://www.feg-aschaffenburg.de
  * License: GPL v2 or later
@@ -22,10 +22,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Define constants
-define( 'CTS_POSTS_SYNC_VERSION', '0.1.5' );
+define( 'CTS_POSTS_SYNC_VERSION', '0.1.6' );
 define( 'CTS_POSTS_SYNC_PATH', plugin_dir_path( __FILE__ ) );
 define( 'CTS_POSTS_SYNC_URL', plugin_dir_url( __FILE__ ) );
+define( 'CTS_POSTS_SYNC_BASENAME', plugin_basename( __FILE__ ) );
 define( 'CTS_POSTS_SYNC_CPT', 'ct_post' );
+
+require_once CTS_POSTS_SYNC_PATH . 'includes/class-cts-posts-sync-auto-updater.php';
+CTS_Posts_Sync_Auto_Updater::init();
 
 class ChurchTools_Suite_Posts_Sync {
 
@@ -274,7 +278,7 @@ class ChurchTools_Suite_Posts_Sync {
 	/**
 	 * Deactivate addon outside allowed environments and show notice.
 	 *
-	 * @deprecated 0.1.5 Umgebungseinschränkung entfernt – Plugin ist jetzt für alle Umgebungen freigegeben.
+	 * @deprecated 0.1.6 Umgebungseinschränkung entfernt – Plugin ist jetzt für alle Umgebungen freigegeben.
 	 */
 	private static function deactivate_if_not_allowed_environment() {
 		// No longer used – kept for backward compatibility only

@@ -105,7 +105,122 @@ class ChurchTools_Suite_Update_Checker {
             }
         }
 
+        // Also inject addon updates so WordPress can detect them in Plugins list.
+        self::inject_addon_updates( $transient, $release['assets'] ?? [] );
+
         return $transient;
+    }
+
+    /**
+     * Inject update information for known addons from release assets.
+     *
+     * @param object $transient
+     * @param array  $assets
+     * @return void
+     */
+    private static function inject_addon_updates( $transient, array $assets ): void {
+        if ( ! is_object( $transient ) || empty( $transient->checked ) || ! is_array( $transient->checked ) ) {
+            return;
+        }
+
+        $addon_map = [
+            'churchtools-suite-elementor/churchtools-suite-elementor.php' => [
+                'slug' => 'churchtools-suite-elementor',
+                'prefix' => 'churchtools-suite-elementor-',
+            ],
+            'churchtools-suite-posts-sync/churchtools-suite-posts-sync.php' => [
+                'slug' => 'churchtools-suite-posts-sync',
+                'prefix' => 'churchtools-suite-posts-sync-',
+            ],
+        ];
+
+        foreach ( $addon_map as $default_plugin_file => $meta ) {
+            $plugin_file = self::resolve_addon_plugin_file( $transient->checked, $default_plugin_file );
+            if ( $plugin_file === '' ) {
+                continue;
+            }
+
+            $current_version = ltrim( trim( (string) $transient->checked[ $plugin_file ] ), 'vV' );
+            $asset_info = self::find_asset_version_and_url( $assets, (string) $meta['prefix'], (string) $meta['slug'] );
+            if ( empty( $asset_info['version'] ) || empty( $asset_info['url'] ) ) {
+                continue;
+            }
+
+            $latest_version = ltrim( trim( (string) $asset_info['version'] ), 'vV' );
+            if ( $latest_version === '' ) {
+                continue;
+            }
+
+            if ( version_compare( $latest_version, $current_version, '>' ) ) {
+                $transient->response[ $plugin_file ] = (object) [
+                    'id' => 0,
+                    'slug' => (string) $meta['slug'],
+                    'plugin' => $plugin_file,
+                    'new_version' => $latest_version,
+                    'url' => 'https://github.com/FEGAschaffenburg/churchtools-suite/releases',
+                    'package' => (string) $asset_info['url'],
+                ];
+                unset( $transient->no_update[ $plugin_file ] );
+            }
+        }
+    }
+
+    /**
+     * Resolve addon plugin file key from transient->checked.
+     *
+     * @param array  $checked
+     * @param string $default_plugin_file
+     * @return string
+     */
+    private static function resolve_addon_plugin_file( array $checked, string $default_plugin_file ): string {
+        if ( isset( $checked[ $default_plugin_file ] ) ) {
+            return $default_plugin_file;
+        }
+
+        $needle = basename( $default_plugin_file );
+        foreach ( array_keys( $checked ) as $plugin_file ) {
+            if ( is_string( $plugin_file ) && str_ends_with( $plugin_file, '/' . $needle ) ) {
+                return $plugin_file;
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Find addon asset URL and version by prefix.
+     *
+     * @param array  $assets
+     * @param string $asset_prefix
+     * @param string $slug
+     * @return array{version:string,url:string}
+     */
+    private static function find_asset_version_and_url( array $assets, string $asset_prefix, string $slug ): array {
+        foreach ( $assets as $asset ) {
+            if ( empty( $asset['name'] ) || empty( $asset['browser_download_url'] ) ) {
+                continue;
+            }
+
+            $name = (string) $asset['name'];
+            if ( strpos( $name, $asset_prefix ) !== 0 || ! str_ends_with( $name, '.zip' ) ) {
+                continue;
+            }
+
+            $version = '';
+            if ( preg_match( '/^' . preg_quote( $slug, '/' ) . '-(.+)\.zip$/i', $name, $matches ) ) {
+                $version = ltrim( (string) $matches[1], 'vV' );
+            }
+
+            return [
+                'version' => $version,
+                'url' => (string) $asset['browser_download_url'],
+            ];
+        }
+
+        return [
+            'version' => '',
+            'url' => '',
+        ];
     }
 
     /**

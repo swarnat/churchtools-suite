@@ -3,7 +3,7 @@
  * Plugin Name:       ChurchTools Suite - Elementor Integration
  * Plugin URI:        https://github.com/FEGAschaffenburg/churchtools-suite/tree/main/addons/churchtools-suite-elementor
  * Description:       Elementor Page Builder Widget für ChurchTools Suite Events. Zeigt Events in Listen-, Raster- oder Kalender-Ansicht mit 28+ Anpassungsoptionen.
- * Version: 0.6.27
+ * Version: 0.6.28
  * Requires at least: 6.0
  * Requires PHP:      8.0
  * Requires Plugins:  churchtools-suite, elementor
