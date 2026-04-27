@@ -3435,8 +3435,21 @@ class ChurchTools_Suite_Admin {
 
 		$repo = 'FEGAschaffenburg/churchtools-suite';
 		$asset_prefix = $addon_asset_prefixes[ $addon_slug ];
+		$cache_key = 'cts_install_addon_release_' . sanitize_key( $addon_slug );
 		
 		try {
+			$cached_release = get_transient( $cache_key );
+			$zip_url = null;
+			$data = [];
+
+			if ( is_array( $cached_release ) && ! empty( $cached_release['zip_url'] ) ) {
+				$zip_url = (string) $cached_release['zip_url'];
+				$data = [
+					'name' => (string) ( $cached_release['name'] ?? $addon_slug ),
+					'tag_name' => (string) ( $cached_release['tag_name'] ?? '' ),
+				];
+			}
+
 			$headers = [
 				'User-Agent' => 'ChurchTools-Suite-WordPress-Plugin',
 				'Accept' => 'application/vnd.github.v3+json',
@@ -3450,59 +3463,11 @@ class ChurchTools_Suite_Admin {
 				$headers['Authorization'] = 'token ' . $token;
 			}
 
-			// Prefer full releases list and choose highest stable release containing addon ZIP
-			$api_url = "https://api.github.com/repos/{$repo}/releases?per_page=30";
-			$response = wp_remote_get( $api_url, [
-				'timeout' => 20,
-				'headers' => $headers,
-			] );
-
-			$zip_url = null;
-			$data = [];
-			$best_version = '0.0.0';
-
-			if ( ! is_wp_error( $response ) && (int) wp_remote_retrieve_response_code( $response ) === 200 ) {
-				$body = wp_remote_retrieve_body( $response );
-				$releases = json_decode( $body, true );
-
-				if ( is_array( $releases ) ) {
-					foreach ( $releases as $release ) {
-						if ( ! is_array( $release ) || ! empty( $release['draft'] ) || ! empty( $release['prerelease'] ) ) {
-							continue;
-						}
-
-						$release_version = ltrim( (string) ( $release['tag_name'] ?? '' ), 'vV' );
-						if ( $release_version === '' || ! preg_match( '/^\d+(?:\.\d+)+$/', $release_version ) ) {
-							continue;
-						}
-
-						$release_zip_url = null;
-						$assets = $release['assets'] ?? [];
-						if ( is_array( $assets ) ) {
-							foreach ( $assets as $asset ) {
-								if ( ! empty( $asset['name'] ) && ! empty( $asset['browser_download_url'] )
-									&& strpos( (string) $asset['name'], $asset_prefix ) === 0
-									&& str_ends_with( (string) $asset['name'], '.zip' ) ) {
-									$release_zip_url = (string) $asset['browser_download_url'];
-									break;
-								}
-							}
-						}
-
-						if ( $release_zip_url && version_compare( $release_version, $best_version, '>' ) ) {
-							$best_version = $release_version;
-							$zip_url = $release_zip_url;
-							$data = $release;
-						}
-					}
-				}
-			}
-
-			// Fallback to /latest (legacy behavior)
+			// Prefer cache + /latest endpoint to minimize GitHub API load.
 			if ( ! $zip_url ) {
 				$latest_url = "https://api.github.com/repos/{$repo}/releases/latest";
 				$response = wp_remote_get( $latest_url, [
-					'timeout' => 20,
+					'timeout' => 12,
 					'headers' => $headers,
 				] );
 
@@ -3516,6 +3481,9 @@ class ChurchTools_Suite_Admin {
 
 				if ( $code === 403 || $code === 429 ) {
 					$message = is_array( $data ) && ! empty( $data['message'] ) ? (string) $data['message'] : __( 'GitHub API Rate Limit erreicht.', 'churchtools-suite' );
+					if ( stripos( $message, 'abuse detection' ) !== false ) {
+						$message = __( 'GitHub Abuse-Schutz wurde ausgelöst. Bitte kurz warten und erneut versuchen. Optional: GitHub Token in den Plugin-Einstellungen hinterlegen.', 'churchtools-suite' );
+					}
 					throw new Exception( $message );
 				}
 
@@ -3530,10 +3498,63 @@ class ChurchTools_Suite_Admin {
 					}
 				}
 			}
+
+			// Final fallback: full releases list only when /latest did not contain asset.
+			if ( ! $zip_url ) {
+				$api_url = "https://api.github.com/repos/{$repo}/releases?per_page=15";
+				$response = wp_remote_get( $api_url, [
+					'timeout' => 20,
+					'headers' => $headers,
+				] );
+
+				$best_version = '0.0.0';
+				if ( ! is_wp_error( $response ) && (int) wp_remote_retrieve_response_code( $response ) === 200 ) {
+					$body = wp_remote_retrieve_body( $response );
+					$releases = json_decode( $body, true );
+
+					if ( is_array( $releases ) ) {
+						foreach ( $releases as $release ) {
+							if ( ! is_array( $release ) || ! empty( $release['draft'] ) || ! empty( $release['prerelease'] ) ) {
+								continue;
+							}
+
+							$release_version = ltrim( (string) ( $release['tag_name'] ?? '' ), 'vV' );
+							if ( $release_version === '' || ! preg_match( '/^\d+(?:\.\d+)+$/', $release_version ) ) {
+								continue;
+							}
+
+							$release_zip_url = null;
+							$assets = $release['assets'] ?? [];
+							if ( is_array( $assets ) ) {
+								foreach ( $assets as $asset ) {
+									if ( ! empty( $asset['name'] ) && ! empty( $asset['browser_download_url'] )
+										&& strpos( (string) $asset['name'], $asset_prefix ) === 0
+										&& str_ends_with( (string) $asset['name'], '.zip' ) ) {
+										$release_zip_url = (string) $asset['browser_download_url'];
+										break;
+									}
+								}
+							}
+
+							if ( $release_zip_url && version_compare( $release_version, $best_version, '>' ) ) {
+								$best_version = $release_version;
+								$zip_url = $release_zip_url;
+								$data = $release;
+							}
+						}
+					}
+				}
+			}
 			
 			if ( ! $zip_url ) {
 				throw new Exception( __( 'Keine passende Addon-ZIP-Datei in den Releases gefunden.', 'churchtools-suite' ) );
 			}
+
+			set_transient( $cache_key, [
+				'zip_url' => $zip_url,
+				'tag_name' => (string) ( $data['tag_name'] ?? '' ),
+				'name' => (string) ( $data['name'] ?? $addon_slug ),
+			], 15 * MINUTE_IN_SECONDS );
 			
 			// Download ZIP
 			$temp_file = download_url( $zip_url );
