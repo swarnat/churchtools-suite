@@ -66,9 +66,9 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 		}
 
 		add_submenu_page(
-			null,
+			'churchtools-suite',
 			__( 'Übersicht Berichte', 'churchtools-suite-posts-sync' ),
-			__( 'Übersicht Berichte', 'churchtools-suite-posts-sync' ),
+			__( '📝 Berichte', 'churchtools-suite-posts-sync' ),
 			'manage_churchtools_suite',
 			'churchtools-suite-posts-overview',
 			[ $this, 'render_overview_page' ]
