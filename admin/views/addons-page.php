@@ -420,7 +420,7 @@ $posts_sync_installed = isset( $all_plugins[ $posts_sync_plugin_file ] );
 					<?php foreach ( $addons as $plugin_file => $addon ) : ?>
 						<?php
 						$status_icon = $addon['is_active'] ? '✅' : '⚪';
-						$is_coming_soon = in_array( (string) $addon['plugin_slug'], [ 'churchtools-suite-posts-sync', 'churchtools-suite-presentations' ], true );
+						$is_coming_soon = in_array( (string) $addon['plugin_slug'], [ 'churchtools-suite-presentations' ], true );
 						$is_virtual = ! empty( $addon['is_virtual'] );
 						if ( $is_coming_soon ) {
 							$status_icon = '⏳';
