@@ -3695,7 +3695,32 @@ class ChurchTools_Suite_Admin {
 
 		$target_plugin_file = $addon_slug . '/' . $addon_slug . '.php';
 		if ( file_exists( WP_PLUGIN_DIR . '/' . $target_plugin_file ) ) {
-			return new WP_Error( 'already_installed', __( 'Addon ist bereits installiert.', 'churchtools-suite' ) );
+			if ( is_plugin_active( $target_plugin_file ) ) {
+				return [
+					'message' => sprintf(
+						__( '✅ %s ist bereits installiert und aktiv.', 'churchtools-suite' ),
+						$addon_slug
+					),
+					'plugin_file' => $target_plugin_file,
+					'activated' => true,
+					'version' => CHURCHTOOLS_SUITE_VERSION,
+				];
+			}
+
+			$activation_result = activate_plugin( $target_plugin_file );
+			if ( is_wp_error( $activation_result ) ) {
+				return $activation_result;
+			}
+
+			return [
+				'message' => sprintf(
+					__( '✅ %s war bereits installiert und wurde jetzt aktiviert.', 'churchtools-suite' ),
+					$addon_slug
+				),
+				'plugin_file' => $target_plugin_file,
+				'activated' => true,
+				'version' => CHURCHTOOLS_SUITE_VERSION,
+			];
 		}
 
 		$tag = 'v' . CHURCHTOOLS_SUITE_VERSION;
