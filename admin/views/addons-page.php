@@ -378,7 +378,24 @@ $posts_sync_installed = isset( $all_plugins[ $posts_sync_plugin_file ] );
 			<?php endif; ?>
 		</div>
 	<?php endif; ?>
-	
+
+	<?php if ( ! $posts_sync_installed ) : ?>
+		<div class="notice notice-info" style="margin: 20px 0;">
+			<p>
+				<strong><?php esc_html_e( 'ChurchTools Suite – Posts Sync Addon', 'churchtools-suite' ); ?></strong><br>
+				<?php esc_html_e( 'Synchronisiere ChurchTools-Posts (Berichte) automatisch nach WordPress. Das Addon muss separat installiert werden.', 'churchtools-suite' ); ?>
+			</p>
+			<p>
+				<a href="<?php echo esc_url( admin_url( 'plugin-install.php?tab=upload' ) ); ?>" class="button button-primary">
+					<?php esc_html_e( '⬆ Plugin hochladen & installieren', 'churchtools-suite' ); ?>
+				</a>
+				<a href="https://github.com/FEGAschaffenburg/churchtools-suite/releases" class="button" target="_blank" rel="noopener noreferrer">
+					<?php esc_html_e( '⬇ ZIP herunterladen (GitHub)', 'churchtools-suite' ); ?>
+				</a>
+			</p>
+		</div>
+	<?php endif; ?>
+
 	<?php if ( ! $has_addons ) : ?>
 		<div class="notice notice-info inline">
 			<p>
@@ -440,8 +457,16 @@ $posts_sync_installed = isset( $all_plugins[ $posts_sync_plugin_file ] );
 						
 						// Generate action links
 						$actions = [];
-						if ( $is_virtual || $is_coming_soon ) {
+						if ( $is_coming_soon ) {
 							$actions[] = esc_html__( 'Kommt bald', 'churchtools-suite' );
+						} elseif ( $is_virtual ) {
+							// Not installed but available – show install link
+							$upload_url = admin_url( 'plugin-install.php?tab=upload' );
+							$actions[] = sprintf(
+								'<a href="%s">%s</a>',
+								esc_url( $upload_url ),
+								esc_html__( 'Installieren', 'churchtools-suite' )
+							);
 						} elseif ( $addon['is_active'] ) {
 							$deactivate_url = wp_nonce_url(
 								admin_url( 'plugins.php?action=deactivate&plugin=' . urlencode( $plugin_file ) . '&plugin_status=all&paged=1' ),
