@@ -381,9 +381,18 @@ class ChurchTools_Suite_Event_Sync_Service {
             );
             
             // Collect appointment IDs for Phase 2
-            // API structure: event.appointmentId (not event.appointment.id)
-            if (isset($event['appointmentId']) && $event['appointmentId']) {
-                $imported_appointment_ids[] = (string) $event['appointmentId'];
+            // API structure: event.appointmentId (direct), or nested event.appointment.base.id/event.appointment.id
+            $event_appointment_id = '';
+            if (!empty($event['appointmentId'])) {
+                $event_appointment_id = (string) $event['appointmentId'];
+            } elseif (!empty($event['appointment']['base']['id'])) {
+                $event_appointment_id = (string) $event['appointment']['base']['id'];
+            } elseif (!empty($event['appointment']['id'])) {
+                $event_appointment_id = (string) $event['appointment']['id'];
+            }
+
+            if ($event_appointment_id !== '') {
+                $imported_appointment_ids[] = $event_appointment_id;
             }
             
             $result = $this->process_event($event, $calendar_id);
@@ -420,7 +429,15 @@ class ChurchTools_Suite_Event_Sync_Service {
             }
 
             // Track composite keys from Phase 1 (must match Phase 2/cleanup key format)
-            $appointment_id = isset($event['appointmentId']) ? (string) $event['appointmentId'] : '';
+            $appointment_id = '';
+            if (!empty($event['appointmentId'])) {
+                $appointment_id = (string) $event['appointmentId'];
+            } elseif (!empty($event['appointment']['base']['id'])) {
+                $appointment_id = (string) $event['appointment']['base']['id'];
+            } elseif (!empty($event['appointment']['id'])) {
+                $appointment_id = (string) $event['appointment']['id'];
+            }
+
             if ($appointment_id !== '') {
                 $composite_key = $this->build_appointment_composite_key(
                     $appointment_id,
@@ -828,8 +845,12 @@ class ChurchTools_Suite_Event_Sync_Service {
         
         // API structure: event.appointmentId (direct field, not nested)
         $appointment_id = null;
-        if (isset($event['appointmentId']) && $event['appointmentId']) {
+        if (!empty($event['appointmentId'])) {
             $appointment_id = (string) $event['appointmentId'];
+        } elseif (!empty($event['appointment']['base']['id'])) {
+            $appointment_id = (string) $event['appointment']['base']['id'];
+        } elseif (!empty($event['appointment']['id'])) {
+            $appointment_id = (string) $event['appointment']['id'];
         }
         
         // Extract last_modified timestamp (v0.7.1.0)
@@ -1566,7 +1587,7 @@ class ChurchTools_Suite_Event_Sync_Service {
      */
     private function format_datetime(string $datetime): string {
         if (empty($datetime)) {
-            return current_time('mysql');
+            return '';
         }
         
         $timestamp = strtotime($datetime);
@@ -1578,7 +1599,7 @@ class ChurchTools_Suite_Event_Sync_Service {
                 'Invalid datetime format',
                 ['datetime_input' => $datetime]
             );
-            return current_time('mysql');
+            return '';
         }
         
         return date('Y-m-d H:i:s', $timestamp);
