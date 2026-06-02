@@ -217,6 +217,7 @@ class ChurchTools_Suite_Event_Sync_Service {
                 'calendars_processed' => $stats['calendars_processed'],
                 'events_inserted' => $stats['events_inserted'],
                 'events_updated' => $stats['events_updated'],
+                'events_deleted' => $stats['events_deleted'],
                 'events_skipped' => $stats['events_skipped'],
                 'services_imported' => $stats['services_imported'],
                 'errors' => $stats['errors'],
@@ -358,6 +359,7 @@ class ChurchTools_Suite_Event_Sync_Service {
         ];
         
         $imported_appointment_ids = [];
+        $phase1_api_keys = [];
         
         // Log Phase 1 start
         ChurchTools_Suite_Logger::log(
@@ -416,6 +418,18 @@ class ChurchTools_Suite_Event_Sync_Service {
             if (isset($result['services_imported'])) {
                 $stats['services_imported'] += $result['services_imported'];
             }
+
+            // Track composite keys from Phase 1 (must match Phase 2/cleanup key format)
+            $appointment_id = isset($event['appointmentId']) ? (string) $event['appointmentId'] : '';
+            if ($appointment_id !== '') {
+                $composite_key = $this->build_appointment_composite_key(
+                    $appointment_id,
+                    $this->get_appointment_start_date_from_event($event)
+                );
+                if ($composite_key !== '') {
+                    $phase1_api_keys[] = $composite_key;
+                }
+            }
         }
         
         // Log Phase 1 complete
@@ -450,10 +464,13 @@ class ChurchTools_Suite_Event_Sync_Service {
             );
         }
         
-        // Phase 3: Detect deleted events/appointments (FULL sync only)
+        // Phase 3: Detect deleted events/appointments
         $deleted_count = 0;
-        if (!$is_incremental && $phase2_success) {
-            $api_appointment_keys = $appointments_result['api_appointment_keys'] ?? [];
+        if ($phase2_success) {
+            $api_appointment_keys = array_values(array_unique(array_merge(
+                $phase1_api_keys,
+                $appointments_result['api_appointment_keys'] ?? []
+            )));
             $deleted_count = $this->detect_deleted_events($calendar_id, $args, $api_appointment_keys);
             ChurchTools_Suite_Logger::debug(
                 'event_sync',
@@ -464,11 +481,6 @@ class ChurchTools_Suite_Event_Sync_Service {
                 'event_sync',
                 sprintf('Calendar %s - Skipping deleted events check (phase 2 failed)', $calendar_id)
             );
-        } else {
-            ChurchTools_Suite_Logger::debug(
-                'event_sync',
-                sprintf('Calendar %s - Skipping deleted events check (incremental sync)', $calendar_id)
-            );
         }
         $stats['events_deleted'] = $deleted_count;
         
@@ -478,8 +490,9 @@ class ChurchTools_Suite_Event_Sync_Service {
     /**
      * Detect and remove events that were deleted in ChurchTools (v0.7.1.0)
      * 
-     * Compares local event_ids in date range with API event_ids.
-     * Missing events are assumed deleted and removed from local DB.
+     * Compares local rows (appointment_id|start_datetime) in the sync date range with
+     * composite keys from Phase 1 + Phase 2 (Appointments API). Missing rows are removed.
+     * Skipped when Phase 2 fails (no stale deletes on partial API outage).
      *
      * @param string $calendar_id ChurchTools calendar ID
      * @param array $args Sync parameters
@@ -640,8 +653,8 @@ class ChurchTools_Suite_Event_Sync_Service {
             }
             
             // v0.7.3.3: Skip if outside date range
-            $start_date = $appointment['calculated']['startDate'] ?? $appointment['base']['startDate'] ?? null;
-            if ($start_date) {
+            $start_date = $this->get_appointment_start_date_from_appointment_array($appointment);
+            if ($start_date !== '') {
                 $apt_timestamp = strtotime($start_date);
                 if ($apt_timestamp !== false && ($apt_timestamp < $from_timestamp || $apt_timestamp > $to_timestamp)) {
                     $skipped_outside_range++;
@@ -649,9 +662,9 @@ class ChurchTools_Suite_Event_Sync_Service {
                 }
             }
 
-            $start_datetime = $this->format_datetime((string) $start_date);
-            if (!empty($appointment_id) && !empty($start_datetime)) {
-                $stats['api_appointment_keys'][] = (string) $appointment_id . '|' . $start_datetime;
+            $composite_key = $this->build_appointment_composite_key((string) $appointment_id, $start_date);
+            if ($composite_key !== '') {
+                $stats['api_appointment_keys'][] = $composite_key;
             }
             
             // v0.9.0.0: Simplified - just upsert ALL appointments
@@ -931,7 +944,7 @@ class ChurchTools_Suite_Event_Sync_Service {
             'description' => null, // v0.10.4.10: Removed combined field - use event_description/appointment_description
             'event_description' => $event_description, // v0.9.1.0: Event-level
             'appointment_description' => $appointment_description, // v0.9.1.0: Appointment-level
-            'start_datetime' => $this->format_datetime($event['startDate'] ?? ''),
+            'start_datetime' => $this->format_datetime($this->get_appointment_start_date_from_event($event)),
             'end_datetime' => $this->format_datetime($event['endDate'] ?? ''),
             'location_name' => $event['location'] ?? $event['address'] ?? '',
             'address_name' => $address_name, // v0.9.2.0
@@ -1112,8 +1125,8 @@ class ChurchTools_Suite_Event_Sync_Service {
             ]
         );
         
-        // Dates (prefer calculated, fallback to base)
-        $start_date = $calc['startDate'] ?? $base['startDate'] ?? '';
+        // Dates (prefer calculated, fallback to base) — same source as cleanup composite keys
+        $start_date = $this->get_appointment_start_date_from_appointment_array($appointment);
         $end_date = $calc['endDate'] ?? $base['endDate'] ?? '';
         
         // v0.10.5.0: Import image from ChurchTools (also for appointments!)
@@ -1495,6 +1508,56 @@ class ChurchTools_Suite_Event_Sync_Service {
         });
     }
     
+    /**
+     * Canonical start date from an appointment object (calculated → base).
+     *
+     * @param array $appointment Appointment node from ChurchTools API
+     * @return string Raw start date string or empty
+     */
+    private function get_appointment_start_date_from_appointment_array(array $appointment): string {
+        $calc = $appointment['calculated'] ?? [];
+        $base = $appointment['base'] ?? [];
+
+        return (string) ($calc['startDate'] ?? $base['startDate'] ?? '');
+    }
+
+    /**
+     * Canonical start date for an event row (appointment dates before event.startDate).
+     *
+     * @param array $event Event payload from Events API
+     * @return string Raw start date string or empty
+     */
+    private function get_appointment_start_date_from_event(array $event): string {
+        if (!empty($event['appointment']) && is_array($event['appointment'])) {
+            $from_appointment = $this->get_appointment_start_date_from_appointment_array($event['appointment']);
+            if ($from_appointment !== '') {
+                return $from_appointment;
+            }
+        }
+
+        return (string) ($event['startDate'] ?? '');
+    }
+
+    /**
+     * Composite key used for upsert and sync cleanup (appointment_id|Y-m-d H:i:s).
+     *
+     * @param string $appointment_id ChurchTools appointment ID
+     * @param string $start_date_raw Raw date from API
+     * @return string Composite key or empty when invalid
+     */
+    private function build_appointment_composite_key(string $appointment_id, string $start_date_raw): string {
+        if ($appointment_id === '' || $start_date_raw === '') {
+            return '';
+        }
+
+        $start_datetime = $this->format_datetime($start_date_raw);
+        if ($start_datetime === '') {
+            return '';
+        }
+
+        return $appointment_id . '|' . $start_datetime;
+    }
+
     /**
      * Format datetime for database
      *
