@@ -183,6 +183,8 @@ class ChurchTools_Suite_Template_Loader {
 			// Bereits im neuen Format
 			return $view;
 		}
+		// Backward-Compatibility: Ent ferne nur Präfix (grid- / list- / calendar- / countdown- / carousel-)
+		$view = preg_replace( '/^(grid|list|calendar|countdown|carousel|search)-/', '', $view );
 		
 		// Fallback: Gebe View-ID unverändert zurück (für alte Shortcodes)
 		return $view;
