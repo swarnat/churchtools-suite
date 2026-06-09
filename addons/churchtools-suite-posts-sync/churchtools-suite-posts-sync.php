@@ -28,8 +28,8 @@ define( 'CTS_POSTS_SYNC_URL', plugin_dir_url( __FILE__ ) );
 define( 'CTS_POSTS_SYNC_BASENAME', plugin_basename( __FILE__ ) );
 define( 'CTS_POSTS_SYNC_CPT', 'ct_post' );
 
-require_once CTS_POSTS_SYNC_PATH . 'includes/class-cts-posts-sync-auto-updater.php';
-CTS_Posts_Sync_Auto_Updater::init();
+// require_once CTS_POSTS_SYNC_PATH . 'includes/class-cts-posts-sync-auto-updater.php';
+// CTS_Posts_Sync_Auto_Updater::init();
 
 class ChurchTools_Suite_Posts_Sync {
 

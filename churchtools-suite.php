@@ -72,12 +72,5 @@ function run_churchtools_suite() {
 }
 run_churchtools_suite();
 
-
-
-
-
-
-
-
-
-
+# Integrate Posts sync per default
+require_once CHURCHTOOLS_SUITE_PATH . "addons/churchtools-suite-posts-sync/churchtools-suite-posts-sync.php";
