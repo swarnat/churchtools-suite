@@ -1,0 +1,2732 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: ChurchTools Suite\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-02-22 13:48+0000\n"
+"PO-Revision-Date: 2026-02-22 13:49+0000\n"
+"Last-Translator: \n"
+"Language-Team: Deutsch\n"
+"Language: de_DE\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.8.1; wp-6.9.1; php-8.2.27\n"
+"X-Domain: churchtools-suite"
+
+#: admin/views/addons-page.php:285
+msgid "%d Addon(s) installiert, davon %d aktiv"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:356
+msgid "%d Termin geplant"
+msgid_plural "%d Termine geplant"
+msgstr[0] ""
+msgstr[1] ""
+
+#: admin/views/tab-events.php:157
+msgid "%d Termine"
+msgstr ""
+
+#: admin/views/tab-events.php:499
+msgid "%d Zeichen JSON"
+msgstr ""
+
+#: admin/views/tab-services.php:40
+msgid ""
+"3-Schritt-Prozess: 1) Service-Gruppen synchronisieren → 2) Gruppen auswählen "
+"→ 3) Services synchronisieren & auswählen"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:436
+#: admin/views/settings/subtab-advanced.php:179
+msgid "Abbrechen"
+msgstr ""
+
+#: admin/views/tab-events.php:366 admin/views/tab-events.php:404
+msgid "Abgesagt"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:526
+msgid "Abstände"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:167
+msgid ""
+"ACHTUNG: Wirklich ALLE Daten löschen (Events, Kalender, Services, Sync-"
+"Historie)?\\n\\nDiese Aktion kann nicht rückgängig gemacht werden!"
+"\\n\\nEinstellungen bleiben erhalten."
+msgstr ""
+
+#: admin/views/addons-page.php:191
+msgid "Addons"
+msgstr ""
+
+#: admin/views/tab-events.php:415
+msgid "Adresse Name"
+msgstr ""
+
+#: admin/views/settings/subtab-benutzer.php:35
+msgid "Aktion"
+msgstr ""
+
+#: admin/views/addons-page.php:304
+msgid "Aktionen"
+msgstr ""
+
+#: admin/views/addons-page.php:312 admin/views/tab-events.php:368
+#: admin/views/tab-events.php:404
+msgid "Aktiv"
+msgstr ""
+
+#: admin/views/tab-events.php:163
+msgid "Aktive Filter:"
+msgstr ""
+
+#: admin/views/addons-page.php:342
+msgid "Aktivieren"
+msgstr ""
+
+#: admin/views/addons-page.php:511
+msgid "Aktualisiere..."
+msgstr ""
+
+#: admin/views/addons-page.php:388
+msgid "Aktuell"
+msgstr ""
+
+#: admin/views/tab-events.php:407
+msgid "All Day"
+msgstr ""
+
+#: includes/class-churchtools-suite-cron.php:39
+#: admin/views/tab-dashboard.php:294 admin/views/settings/subtab-sync.php:131
+msgid "Alle 2 Tage"
+msgstr ""
+
+#: includes/class-churchtools-suite-cron.php:57
+#: admin/views/tab-dashboard.php:297 admin/views/settings/subtab-sync.php:134
+msgid "Alle 2 Wochen"
+msgstr ""
+
+#: includes/class-churchtools-suite-cron.php:45
+#: admin/views/tab-dashboard.php:295 admin/views/settings/subtab-sync.php:132
+msgid "Alle 3 Tage"
+msgstr ""
+
+#: admin/views/tab-services.php:97 admin/views/tab-services.php:220
+msgid "Alle abwählen"
+msgstr ""
+
+#: admin/views/tab-services.php:94 admin/views/tab-services.php:217
+msgid "Alle auswählen"
+msgstr ""
+
+#: admin/views/settings/subtab-benutzer.php:71
+msgid "Alle Benutzer verwalten"
+msgstr ""
+
+#: admin/views/addons-page.php:251
+msgid "Alle ChurchTools Suite View-Typen (List, Grid, Calendar)"
+msgstr ""
+
+#: admin/views/tab-events.php:133
+msgid "Alle Kalender"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:213
+msgid "Alle Kategorien"
+msgstr ""
+
+#: admin/views/debug/subtab-manuelle-trigger.php:166
+#: admin/views/debug/subtab-logs.php:71
+#: admin/views/settings/subtab-advanced.php:249
+msgid "Alle Plugin-Logs unwiderruflich löschen?"
+msgstr ""
+
+#: admin/views/tab-events.php:111
+msgid "Alle synchronisierten Termine aus ChurchTools"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:92
+msgid "Alle Updates"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:140
+msgid "Alle Updates (inkl. Patch)"
+msgstr ""
+
+#: admin/views/shortcode-demo-simplified.php:162
+msgid "Alle Varianten werden mit echten Daten gerendert"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:275
+msgid "Als Preset"
+msgstr ""
+
+#: admin/views/settings/subtab-benutzer.php:34
+msgid "Angemeldet"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:57
+msgid "Anmeldemethode"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:87
+msgid "Ansichtstyp"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:185
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:266
+msgid "Anzahl Events"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:286
+msgid "Anzeigeoptionen"
+msgstr ""
+
+#: admin/views/tab-settings.php:22
+msgid "API & Verbindung"
+msgstr ""
+
+#: includes/class-churchtools-suite-ct-client.php:408
+msgid "API lieferte keine Antwort"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:27
+msgid "API-Einstellungen gespeichert."
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:66
+#: admin/views/settings/subtab-api.php:120
+msgid "API-Token"
+msgstr ""
+
+#: includes/class-churchtools-suite-ct-client.php:304
+msgid "API-Token oder ChurchTools-URL fehlen."
+msgstr ""
+
+#: includes/services/class-churchtools-suite-event-sync-service.php:919
+msgid "Appointment hat keine ID"
+msgstr ""
+
+#: admin/views/tab-events.php:402
+msgid "Appointment ID"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-event-sync-service.php:734
+msgid "Appointment konnte nicht gespeichert werden"
+msgstr ""
+
+#: admin/views/tab-events.php:409
+msgid "Appointment Modified"
+msgstr ""
+
+#: admin/views/addons-page.php:219
+msgid "Auf GitHub ansehen"
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:71
+msgid "Aufgabe"
+msgstr ""
+
+#: admin/views/tab-calendars.php:212 admin/views/tab-services.php:143
+#: admin/views/tab-services.php:277
+msgid "Auswahl speichern"
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:106
+msgid "Auto-Sync aktivieren"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:230
+msgid "Auto-Update aktivieren"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:203
+#, php-format
+msgid "Auto-Update ist deaktiviert. %sJetzt aktivieren%s"
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:101
+msgid "Automatische Synchronisation"
+msgstr ""
+
+#: admin/views/tab-sync.php:63 admin/views/tab-sync.php:73
+#: admin/views/tab-sync.php:77
+msgid "Automatischer Sync ist aktiviert"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:100
+msgid "Auto‑Update Intervall"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:133
+msgid "Auto‑Update Stufe"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:114
+msgid "Auto‑Updates erlauben"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:353
+#: admin/views/settings/subtab-benutzer.php:61
+msgid "Bearbeiten"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:71
+msgid "Bei Event-Klick"
+msgstr ""
+
+#: admin/views/tab-settings.php:40
+msgid "Benutzer"
+msgstr ""
+
+#: admin/views/settings/subtab-benutzer.php:21
+msgid "Benutzer mit Zugriff auf die ChurchTools Suite Plugin-Verwaltung."
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:92
+#: admin/views/settings/subtab-benutzer.php:32
+msgid "Benutzername"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:62
+msgid "Benutzername & Passwort"
+msgstr ""
+
+#: admin/views/addons-page.php:301 admin/views/shortcode-manager.php:392
+#: admin/views/tab-events.php:196
+msgid "Beschreibung"
+msgstr ""
+
+#: admin/views/tab-events.php:455 admin/views/tab-events.php:486
+msgid "Bild"
+msgstr ""
+
+#: admin/views/tab-events.php:424
+msgid "Bild (Attachment ID)"
+msgstr ""
+
+#: admin/views/tab-calendars.php:199
+msgid "Bild wählen"
+msgstr ""
+
+#: admin/views/tab-events.php:434
+msgid "Bild-URL (Fallback)"
+msgstr ""
+
+#: includes/class-churchtools-suite-image-importer.php:27
+msgid "Bild-URL ist leer"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:355
+msgid "Bilder"
+msgstr ""
+
+#: admin/views/tab-events.php:126
+msgid "Bis"
+msgstr ""
+
+#: admin/views/tab-events.php:168
+msgid "Bis:"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:270
+msgid "Bitte ChurchTools-Zugangsdaten eingeben"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:963
+msgid "Bitte fülle alle Pflichtfelder aus"
+msgstr ""
+
+#: admin/views/tab-sync.php:54
+msgid "Bitte synchronisieren Sie zuerst die Kalender, bevor Sie Termine laden."
+msgstr ""
+
+#: admin/views/tab-sync.php:58
+msgid "Bitte wählen Sie im Kalender-Tab mindestens einen Kalender aus."
+msgstr ""
+
+#: admin/views/shortcode-manager.php:407
+msgid "Bitte wählen..."
+msgstr ""
+
+#: admin/views/settings/subtab-templates.php:126
+msgid "Block-Parameter:"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:481
+msgid "Border Radius"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:162
+msgid "Bugfixes und kleinere Verbesserungen"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:142
+msgid "Build Update"
+msgstr ""
+
+#: admin/views/demos/demo-calendar.php:17
+msgid "Calendar Views"
+msgstr ""
+
+#: admin/views/demos/demo-carousel.php:17
+msgid "Carousel Views"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:246
+msgid "ChurchTools"
+msgstr ""
+
+#: includes/class-churchtools-suite-ct-client.php:453
+msgid "ChurchTools API lieferte HTML statt JSON (auch nach erneuter Anmeldung)"
+msgstr ""
+
+#: includes/class-churchtools-suite-ct-client.php:428
+msgid ""
+"ChurchTools API lieferte HTML statt JSON (HTTP %d). Mögliche Ursachen: "
+"Session abgelaufen, Server-Fehler, falsche URL."
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:50
+msgid "ChurchTools API-Verbindung"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:32
+msgid "ChurchTools Events"
+msgstr ""
+
+#. Name of the plugin
+#: includes/class-churchtools-suite-blocks.php:103
+#: admin/views/admin-page.php:22
+msgid "ChurchTools Suite"
+msgstr ""
+
+#: admin/views/addons-page.php:199
+msgid "ChurchTools Suite - Elementor Integration"
+msgstr ""
+
+#: admin/views/settings/subtab-benutzer.php:19
+msgid "ChurchTools Suite Manager"
+msgstr ""
+
+#: includes/class-churchtools-suite-admin-dashboard.php:42
+msgid "ChurchTools Suite Status:"
+msgstr ""
+
+#: includes/class-churchtools-suite-auto-updater.php:43
+msgid "ChurchTools Suite: Update-Pr\\u00fcfung"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:73
+msgid "ChurchTools Tenant"
+msgstr ""
+
+#: admin/views/tab-calendars.php:138 admin/views/tab-services.php:111
+#: admin/views/tab-services.php:234
+msgid "ChurchTools-ID"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:479
+#, php-format
+msgid ""
+"ChurchTools-URL und Zugangsdaten (API-Token oder Benutzername/Passwort) in "
+"den %sEinstellungen%s hinterlegen"
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:57
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:93
+msgid "Countdown"
+msgstr ""
+
+#: admin/views/demos/demo-countdown.php:17
+msgid "Countdown Views"
+msgstr ""
+
+#: admin/views/demos/demo-cover.php:17
+msgid "Cover Views"
+msgstr ""
+
+#: admin/views/tab-events.php:410
+msgid "Created"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:304
+msgid "Cronjobs"
+msgstr ""
+
+#: admin/views/addons-page.php:202
+msgid ""
+"Das ChurchTools Suite - Elementor Integration Plugin ist installiert aber "
+"nicht aktiv."
+msgstr ""
+
+#: admin/views/settings/subtab-templates.php:122
+msgid ""
+"Das Verhalten beim Event-Klick wird jetzt im Block konfiguriert, nicht hier!"
+msgstr ""
+
+#: admin/views/admin-page.php:30 admin/views/tab-dashboard.php:94
+msgid "Dashboard"
+msgstr ""
+
+#: templates/views/event-modal/professional.php:91
+msgid "DATE"
+msgstr "Datum"
+
+#: admin/views/tab-data.php:21 admin/views/tab-data.php:49
+msgid "Daten"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:168
+msgid "Daten erfolgreich zurückgesetzt!"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:69
+msgid "Daten zurücksetzen"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:184
+msgid "Datenbank erfolgreich neu aufgebaut! Bitte Daten neu synchronisieren."
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:86
+msgid "Datenbank neu aufbauen"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:84
+msgid "Datenbank neu aufbauen (Debug)"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:76
+msgid "Datenbank-Tabellen fehlen"
+msgstr ""
+
+#: admin/views/tab-events.php:194
+#: templates/views/event-single/professional.php:152
+msgid "Datum & Zeit"
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:132
+msgid "Dauer"
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:46
+msgid "DB-Version"
+msgstr ""
+
+#: admin/views/addons-page.php:332
+msgid "Deaktivieren"
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:21
+msgid "Debug"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:454
+msgid "Debug-Info"
+msgstr ""
+
+#: admin/views/shortcode-demo-simplified.php:190
+msgid "Demo für diesen Typ wird noch erstellt..."
+msgstr ""
+
+#: admin/views/admin-page.php:35
+msgid "Demo Konfig"
+msgstr ""
+
+#: admin/views/tab-sync.php:109
+msgid ""
+"Den Zeitraum für die Termin-Synchronisation können Sie im Einstellungen-Tab "
+"anpassen."
+msgstr ""
+
+#: admin/views/tab-sync.php:64
+msgid ""
+"Der manuelle Sync ist deaktiviert, da der automatische Sync in den "
+"Einstellungen aktiviert ist. Termine werden automatisch im konfigurierten "
+"Intervall synchronisiert."
+msgstr ""
+
+#: admin/views/addons-page.php:351 admin/views/tab-events.php:204
+msgid "Details"
+msgstr ""
+
+#: templates/views/event-grid/classic.php:234
+#: templates/views/event-grid/classic.php:238
+#: templates/views/event-grid/classic.php:242
+msgid "Details ansehen"
+msgstr ""
+
+#: templates/views/event-list/classic-modern.php:140
+#: templates/views/event-list/modern.php:148
+#: templates/views/event-list/classic.php:129
+#: templates/views/event-list/classic-with-images.php:135
+#: templates/views/event-grid/background-images.php:86
+#: templates/views/event-countdown/classic.php:63
+#, php-format
+msgid "Details für %s anzeigen"
+msgstr ""
+
+#: includes/class-churchtools-suite-shortcodes.php:1121
+msgid "Di"
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:161
+msgid ""
+"Die automatische Synchronisation funktioniert nur mit einem System-Cron."
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:168
+msgid "Die automatische Synchronisation ist einsatzbereit."
+msgstr ""
+
+#: admin/views/tab-dashboard.php:466
+msgid ""
+"Die automatische Synchronisation ist nicht aktiv, da WP-Cron in Ihrer "
+"Konfiguration deaktiviert wurde. Bitte richten Sie einen System-Cron ein "
+"oder aktivieren Sie WP-Cron."
+msgstr ""
+
+#: admin/views/tab-events.php:43
+msgid ""
+"Die Events-Tabelle existiert noch nicht. Bitte laden Sie die Seite neu oder "
+"bauen Sie die Datenbank im Debug-Tab neu auf."
+msgstr ""
+
+#: admin/views/tab-sync.php:106
+msgid ""
+"Die Kalender-Synchronisation lädt die verfügbaren Kalender aus ChurchTools."
+msgstr ""
+
+#: admin/views/tab-dashboard.php:77
+msgid ""
+"Die Plugin-Tabellen existieren noch nicht. Bitte laden Sie die Seite neu, "
+"damit die Datenbank korrekt initialisiert wird."
+msgstr ""
+
+#: admin/views/tab-sync.php:108
+msgid ""
+"Die Termin-Synchronisation lädt nur Termine aus den im Kalender-Tab "
+"ausgewählten Kalendern."
+msgstr ""
+
+#: templates/views/event-grid/simple.php:274
+#: templates/views/event-carousel/classic.php:307
+msgid "Dienste:"
+msgstr ""
+
+#: admin/views/settings/subtab-templates.php:67
+msgid ""
+"Diese Einstellung legt fest, welches Template verwendet wird, wenn ein Event "
+"auf einer eigenen Seite angezeigt wird (über URL-Parameter ?event_id=123 "
+"oder Shortcode [cts_event id=\"123\"])."
+msgstr ""
+
+#: admin/views/settings/subtab-templates.php:94
+msgid ""
+"Diese Einstellung legt fest, welches Template verwendet wird, wenn ein Event "
+"im Modal-Overlay angezeigt wird (im Block konfigurierbar via "
+"click_action=\"modal\")."
+msgstr ""
+
+#: includes/class-churchtools-suite-blocks.php:152
+msgid "Dieser Ansichtstyp ist derzeit deaktiviert."
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:95
+msgid "Dieser Zeitraum wird bei der nächsten Synchronisation verwendet."
+msgstr ""
+
+#: admin/views/tab-dashboard.php:213
+#, php-format
+msgid ""
+"Dieses Update wird nicht automatisch installiert (Stufe: %s). "
+"%sEinstellungen ändern%s"
+msgstr ""
+
+#: includes/class-churchtools-suite-shortcodes.php:1123
+msgid "Do"
+msgstr ""
+
+#: admin/views/addons-page.php:269
+msgid "Dokumentation"
+msgstr ""
+
+#: admin/views/addons-page.php:249
+msgid "Drag & Drop Event-Widget für Elementor"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:388
+msgid ""
+"Eindeutiger Name für dein Preset (wird als view=\"name\" im Shortcode "
+"verwendet)"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:496
+msgid "Einen manuellen Sync jetzt starten? Dies kann einige Zeit dauern."
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:137
+msgid ""
+"Einen Namen vergeben, benötigte Rechte freigeben (Kalender/Events), Token "
+"kopieren."
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:92
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:127
+msgid "Einfach (Alle Details)"
+msgstr ""
+
+#: admin/views/admin-page.php:40 admin/views/tab-dashboard.php:236
+#: admin/views/tab-dashboard.php:275
+msgid "Einstellungen"
+msgstr ""
+
+#: admin/views/settings/subtab-templates.php:142
+msgid "Einstellungen speichern"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:434
+msgid "Elementor"
+msgstr ""
+
+#: admin/views/addons-page.php:243
+msgid ""
+"Elementor Page Builder Widget für ChurchTools Suite Events. Erstelle moderne "
+"Event-Seiten mit dem beliebten Elementor Page Builder."
+msgstr ""
+
+#: admin/views/addons-page.php:204
+msgid ""
+"Elementor wurde erkannt! Installiere das ChurchTools Suite - Elementor "
+"Integration Plugin für erweiterte Funktionen."
+msgstr ""
+
+#: admin/views/settings/subtab-benutzer.php:33
+msgid "Email"
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:137
+msgid "Empfohlen: Täglich oder alle 2-3 Tage für regelmäßige Termine"
+msgstr ""
+
+#: admin/views/tab-events.php:406
+msgid "Ende"
+msgstr ""
+
+#: admin/views/tab-calendars.php:200
+msgid "Entfernen"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:127
+msgid "Erneut löschen"
+msgstr ""
+
+#: templates/views/event-modal/professional.php:43
+msgid "Error Loading Event"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:292
+msgid "Erstelle dein erstes Preset basierend auf einem Standard-Shortcode"
+msgstr ""
+
+#: admin/views/addons-page.php:238
+msgid "Erweitere ChurchTools Suite mit offiziellen Addons:"
+msgstr ""
+
+#: admin/views/addons-page.php:193
+msgid "Erweitere ChurchTools Suite mit zusätzlichen Plugins"
+msgstr ""
+
+#: admin/views/admin-page.php:51 admin/views/tab-settings.php:37
+msgid "Erweitert"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:35
+msgid "Erweiterte Einstellungen gespeichert."
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:63
+msgid "Erweiterte Optionen"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:68
+msgid "Erweiteter Modus"
+msgstr ""
+
+#: templates/views/event-list/classic-modern.php:105
+#: templates/views/event-list/classic.php:98
+#: templates/views/event-list/classic-with-images.php:103
+#: templates/views/event-grid/background-images.php:64
+msgid "Es gibt aktuell keine Termine in diesem Zeitraum."
+msgstr ""
+
+#: admin/views/addons-page.php:232
+msgid "Es sind derzeit keine Erweiterungen für ChurchTools Suite installiert."
+msgstr ""
+
+#: admin/views/tab-imported-services.php:93 admin/views/tab-events.php:234
+#: templates/views/event-single/professional.php:124
+msgid "Event"
+msgstr ""
+
+#: templates/views/event-modal/professional.php:24
+#: templates/views/event-modal/professional.php:72
+msgid "Event Details"
+msgstr ""
+
+#: admin/views/tab-imported-services.php:125
+msgid "Event gelöscht"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-event-sync-service.php:770
+msgid "Event hat keine ID"
+msgstr ""
+
+#: admin/views/tab-events.php:401
+msgid "Event ID"
+msgstr ""
+
+#: admin/views/settings/subtab-templates.php:134
+msgid "Event in Modal-Overlay anzeigen"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-event-sync-service.php:677
+msgid "Event konnte nicht gespeichert werden"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:295
+msgid "Event-Beschreibung"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:75
+msgid "Event-Seite öffnen"
+msgstr ""
+
+#: includes/class-churchtools-suite-cron-display.php:26
+msgid "Event-Synchronisation"
+msgstr ""
+
+#: admin/views/admin-page.php:45 admin/views/tab-debug-minimal.php:130
+msgid "Events"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:136
+msgid "Events erfolgreich gelöscht!"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:20
+#: admin/views/debug/subtab-reset-cleanup.php:25
+msgid "Events löschen"
+msgstr ""
+
+#: admin/views/tab-imported-services.php:72
+msgid "Events mit Services"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:481
+msgid "Events per Shortcode im Frontend anzeigen"
+msgstr ""
+
+#: admin/views/tab-calendars.php:141
+msgid "Fallback-Bild"
+msgstr ""
+
+#: admin/views/tab-calendars.php:140
+msgid "Farbe"
+msgstr ""
+
+#: admin/views/addons-page.php:246
+msgid "Features:"
+msgstr ""
+
+#. Author of the plugin
+msgid "FEG Aschaffenburg"
+msgstr ""
+
+#: includes/class-churchtools-suite-image-importer.php:76
+#, php-format
+msgid "Fehler beim Herunterladen von %s: %s"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:124
+msgid "Fehler beim Löschen"
+msgstr ""
+
+#: admin/views/addons-page.php:488
+msgid "Fehler beim Prüfen der Updates"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:567
+msgid "Fehler beim Update"
+msgstr ""
+
+#: includes/class-churchtools-suite-image-importer.php:145
+msgid "Fehler beim Verschieben der Datei"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:120
+msgid "Fehler:"
+msgstr ""
+
+#: includes/shortcodes/class-churchtools-suite-single-event-shortcode.php:64
+msgid "Fehler: Event nicht gefunden."
+msgstr ""
+
+#: includes/shortcodes/class-churchtools-suite-single-event-shortcode.php:52
+msgid "Fehler: Keine Event-ID angegeben."
+msgstr ""
+
+#: includes/shortcodes/class-churchtools-suite-single-event-shortcode.php:176
+#, php-format
+msgid "Fehler: Template \"%s\" nicht gefunden."
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:219
+msgid "Filter & Anzahl"
+msgstr ""
+
+#: admin/views/tab-events.php:152
+msgid "Filter zurücksetzen"
+msgstr ""
+
+#: admin/views/addons-page.php:252
+msgid "Filter, Gruppierung und erweiterte Optionen"
+msgstr ""
+
+#: admin/views/tab-events.php:146
+msgid "Filtern"
+msgstr ""
+
+#: includes/class-churchtools-suite-shortcodes.php:1124
+msgid "Fr"
+msgstr ""
+
+#: admin/views/tab-imported-services.php:82
+msgid ""
+"Führen Sie eine Event-Synchronisation durch, um Services zu importieren."
+msgstr ""
+
+#: admin/views/tab-events.php:201 admin/views/tab-events.php:260
+msgid "Ganztägig"
+msgstr ""
+
+#: admin/views/settings/subtab-benutzer.php:82
+msgid "Gehe zu Benutzer → Alle Benutzer"
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:56
+msgid "Geplante Aufgaben (Cron Jobs)"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:91
+msgid "Gitter"
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:55
+msgid "Grid"
+msgstr ""
+
+#: admin/views/demos/demo-grid.php:17
+msgid "Grid Views"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:150
+msgid "Große neue Features, möglicherweise Breaking Changes"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:469
+msgid "Hintergrundfarbe"
+msgstr ""
+
+#: admin/views/tab-sync.php:102
+msgid "Hinweise zur Synchronisation"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:58
+msgid "Historie löschen"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:177
+msgid "Horizontales Karussell mit Touch/Swipe-Navigation"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "https://github.com/FEGAschaffenburg"
+msgstr ""
+
+#. URI of the plugin
+msgid "https://github.com/FEGAschaffenburg/churchtools-suite"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:114
+msgid "Ihr ChurchTools Passwort"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:115
+msgid "Ihr Passwort für ChurchTools"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:101
+msgid "Ihre E-Mail-Adresse für ChurchTools"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:100
+msgid "ihre.email@gemeinde.de"
+msgstr ""
+
+#: admin/views/tab-imported-services.php:95
+msgid "Importiert"
+msgstr ""
+
+#: admin/views/tab-imported-services.php:41
+msgid "Importierte Event Services"
+msgstr ""
+
+#: admin/views/tab-data.php:36
+msgid "Importierte Services"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:135
+msgid "In ChurchTools oben rechts auf Ihr Profilbild klicken."
+msgstr ""
+
+#: admin/views/tab-events.php:316
+msgid "In Google Maps öffnen"
+msgstr ""
+
+#: admin/views/addons-page.php:313
+msgid "Inaktiv"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:421
+msgid "Individuelle Styles"
+msgstr ""
+
+#: admin/views/tab-events.php:396
+msgid "Infos"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:62
+msgid "Inhalt"
+msgstr ""
+
+#: admin/views/tab-sync.php:110
+msgid "Inkrementelle Synchronisation (v0.7.1.0):"
+msgstr ""
+
+#: admin/views/addons-page.php:417 admin/views/tab-dashboard.php:546
+msgid "Installiere..."
+msgstr ""
+
+#: admin/views/addons-page.php:282
+msgid "Installierte Addons"
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:73
+msgid "Intervall"
+msgstr ""
+
+#: admin/views/tab-events.php:361
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:256
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:297
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:309
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:321
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:333
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:345
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:357
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:369
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:381
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:393
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:433
+msgid "Ja"
+msgstr ""
+
+#: admin/views/addons-page.php:384
+msgid "Jetzt aktualisieren"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:225
+msgid "Jetzt installieren"
+msgstr ""
+
+#: admin/views/tab-data.php:55 admin/views/tab-dashboard.php:100
+msgid "Jetzt synchronisieren"
+msgstr ""
+
+#: includes/class-churchtools-suite-ct-client.php:498
+#, php-format
+msgid "JSON-Parsing fehlgeschlagen: %s"
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:56
+#: admin/views/tab-calendars.php:137 admin/views/tab-debug-minimal.php:129
+#: admin/views/tab-settings.php:28 admin/views/tab-events.php:131
+#: admin/views/tab-events.php:197 admin/views/tab-events.php:403
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:92
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:241
+#: templates/views/event-single/professional.php:100
+msgid "Kalender"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:480
+msgid "Kalender auswählen und synchronisieren"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:144
+msgid "Kalender erfolgreich gelöscht!"
+msgstr ""
+
+#: admin/views/tab-calendars.php:69
+msgid "Kalender jetzt mit ChurchTools synchronisieren?"
+msgstr ""
+
+#: admin/views/tab-calendars.php:47
+msgid "Kalender jetzt synchronisieren"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-calendar-sync-service.php:136
+msgid "Kalender konnte nicht gespeichert werden"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:31
+#: admin/views/debug/subtab-reset-cleanup.php:36
+msgid "Kalender löschen"
+msgstr ""
+
+#: admin/views/tab-calendars.php:30
+msgid "Kalender synchronisieren"
+msgstr ""
+
+#: templates/views/event-single/professional.php:104
+msgid "Kalender-ID"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-calendar-sync-service.php:102
+msgid "Kalender-ID fehlt"
+msgstr ""
+
+#: admin/views/tab-events.php:173
+msgid "Kalender:"
+msgstr ""
+
+#: admin/views/tab-calendars.php:59
+msgid "Kalenderauswahl"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:431
+msgid "Kalenderfarben verwenden"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:367
+msgid "Kalendername"
+msgstr ""
+
+#: admin/views/tab-events.php:317
+msgid "Karte"
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:58
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:94
+msgid "Karussell"
+msgstr ""
+
+#: admin/views/tab-calendars.php:194
+msgid "Kein Bild"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:374
+msgid "Kein manueller Trigger verfügbar."
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:204
+msgid "Kein Paket verfügbar"
+msgstr ""
+
+#: admin/views/tab-services.php:264
+msgid "Keine"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:137
+msgid "Keine (Deaktiviert)"
+msgstr ""
+
+#: admin/views/addons-page.php:231
+msgid "Keine Addons installiert"
+msgstr ""
+
+#: templates/views/event-countdown/classic.php:44
+msgid "Keine anstehenden Events"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:325
+msgid "Keine automatischen Cron-Jobs für dieses Plugin gefunden."
+msgstr ""
+
+#: templates/views/event-grid/simple.php:107
+#: templates/views/event-grid/classic.php:89
+#: templates/views/event-grid/minimal.php:69
+#: templates/views/event-carousel/classic.php:109
+msgid "Keine Events gefunden."
+msgstr ""
+
+#: includes/services/class-churchtools-suite-event-sync-service.php:130
+msgid "Keine Kalender ausgewählt."
+msgstr ""
+
+#: admin/views/tab-calendars.php:113
+msgid ""
+"Keine Kalender vorhanden. Bitte synchronisieren Sie zuerst die Kalender von "
+"ChurchTools."
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:199
+msgid "Keine neuere Version verfügbar."
+msgstr ""
+
+#: admin/views/tab-services.php:76
+msgid ""
+"Keine Service-Gruppen vorhanden. Bitte synchronisieren Sie zuerst die "
+"Service-Gruppen von ChurchTools."
+msgstr ""
+
+#: admin/views/tab-imported-services.php:81
+msgid "Keine Services gefunden"
+msgstr ""
+
+#: admin/views/tab-services.php:199
+msgid ""
+"Keine Services vorhanden. Bitte synchronisieren Sie zuerst die Services."
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:123
+msgid "Keine Sync-Historie vorhanden"
+msgstr ""
+
+#: admin/views/tab-events.php:185
+#: templates/views/event-list/classic-modern.php:104
+#: templates/views/event-list/classic.php:97
+#: templates/views/event-list/minimal.php:95
+#: templates/views/event-list/classic-with-images.php:102
+#: templates/views/event-grid/background-images.php:63
+msgid "Keine Termine gefunden"
+msgstr ""
+
+#: templates/views/event-grid/modern.php:118
+msgid "Keine Termine gefunden."
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:85
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:108
+msgid "Klassisch"
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:91
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:126
+msgid "Klassisch (Hero-Bild)"
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:100
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:158
+msgid "Klassisch (Split-Layout)"
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:103
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:173
+msgid "Klassisch (Swipe)"
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:86
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:110
+msgid "Klassisch mit Bildern"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:109
+msgid "Klassisch Modernisiert (Grid + BEM)"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:133
+msgid ""
+"Klassisch: Hero-Bild + Buttons | Einfach: Alle Details sichtbar | Minimal: "
+"Nur Essentials + Info-Icon | Modern: Card-Style"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:143
+msgid "Kleinste Änderungen, Bugfixes oder technische Verbesserungen"
+msgstr ""
+
+#: admin/views/shortcode-demo-simplified.php:158
+msgid "Klicke auf eine der Karten oben"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:64
+msgid "Kompletter Reset (Daten)"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:336
+msgid "Konfiguration"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:382
+msgid "Konfigurieren"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:261
+msgid "Konfiguriert"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:272 admin/views/shortcode-manager.php:350
+msgid "Kopieren"
+msgstr ""
+
+#: templates/views/event-modal/professional.php:109
+msgid "LABELS"
+msgstr ""
+
+#: admin/views/tab-events.php:408
+msgid "Last Modified"
+msgstr ""
+
+#: admin/views/tab-events.php:418
+msgid "Lat"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:246
+msgid "Leer = alle ausgewählten Kalender"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:233
+msgid "Leer = alle Tags"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:108
+msgid "Legt fest, wie oft das Plugin automatisch nach Releases sucht."
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:143
+msgid "Letzte Auto-Sync"
+msgstr ""
+
+#: admin/views/tab-sync.php:47 admin/views/tab-calendars.php:39
+msgid "Letzte Synchronisation:"
+msgstr ""
+
+#: admin/views/tab-services.php:47 admin/views/tab-services.php:170
+#, php-format
+msgid "Letzte Synchronisation: %s"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:256
+#, php-format
+msgid "Letzter Login: %s"
+msgstr ""
+
+#: admin/views/tab-events.php:448
+msgid "Link"
+msgstr ""
+
+#: admin/views/demos/demo-list.php:17
+msgid "List Views"
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:54
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:90
+msgid "Liste"
+msgstr ""
+
+#: admin/views/shortcode-demo-simplified.php:161
+msgid "Live-Demo ansehen"
+msgstr ""
+
+#: admin/views/addons-page.php:250
+msgid "Live-Vorschau im Elementor Editor"
+msgstr ""
+
+#: admin/views/tab-events.php:419
+msgid "Lng"
+msgstr ""
+
+#: templates/views/event-modal/professional.php:36
+msgid "Loading event details..."
+msgstr ""
+
+#: templates/views/event-modal/professional.php:120
+msgid "LOCATION"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:264
+msgid "Log löschen"
+msgstr ""
+
+#: admin/views/admin-page.php:90
+msgid "Logs"
+msgstr ""
+
+#: admin/views/debug/subtab-logs.php:87
+msgid "Logs löschen"
+msgstr ""
+
+#: admin/views/debug/subtab-logs.php:79
+#: admin/views/settings/subtab-advanced.php:257
+msgid "Logs wurden gelöscht."
+msgstr ""
+
+#: admin/views/tab-events.php:490
+msgid "Lokales Bild (importiert)"
+msgstr ""
+
+#: admin/views/tab-calendars.php:34
+msgid ""
+"Lädt die Kalenderliste aus ChurchTools und aktualisiert die verfügbaren "
+"Kalender in der Datenbank."
+msgstr ""
+
+#: admin/views/tab-sync.php:38
+msgid ""
+"Lädt Termine und Events aus den ausgewählten Kalendern. Zeitraum: %d Tage "
+"zurück bis %d Tage voraus. Termine ohne Event verwenden Appointmentdaten, "
+"Termine mit Events die Eventdaten (1:X)."
+msgstr ""
+
+#: admin/views/debug/subtab-logs.php:73
+msgid "Lösche..."
+msgstr ""
+
+#: admin/views/shortcode-manager.php:355 admin/views/shortcode-manager.php:1155
+#: admin/views/shortcode-manager.php:1161
+msgid "Löschen"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:66
+msgid ""
+"Löscht ALLE Daten (Events, Kalender, Services, Sync-Historie). Einstellungen "
+"bleiben erhalten."
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:22
+msgid "Löscht alle Events aus der Datenbank."
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:33
+msgid "Löscht alle Kalender aus der Datenbank."
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:44
+msgid "Löscht alle Services und Service-Gruppen."
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:88
+msgid ""
+"Löscht ALLE Tabellen und erstellt sie neu. Alle Daten gehen verloren, aber "
+"DB-Strukturprobleme werden behoben."
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:77
+msgid ""
+"Löscht ALLES: Daten, Einstellungen, Cookies, Logindaten. Plugin wird "
+"komplett zurückgesetzt."
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:55
+msgid "Löscht die gesamte Sync-Historie."
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:91
+msgid "Major + Minor"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:139
+msgid "Major + Minor‑Updates"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:149
+msgid "Major Update"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:92
+msgid "Major, Minor oder Patch (z.B. 1.2.3 → 1.2.4, 1.3.0, 2.0.0)."
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:91
+msgid "Major‑ oder Minor‑Sprünge (z.B. 1.2.3 → 1.3.0 oder 2.0.0)."
+msgstr ""
+
+#: admin/views/admin-page.php:89
+msgid "Manuelle Trigger"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:369
+#, php-format
+msgid "Manueller Trigger im %sDebug-Tab%s verfügbar"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:215
+msgid "Manuelles Update prüfen"
+msgstr ""
+
+#: admin/views/demos/demo-map.php:17
+msgid "Map Views"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:274
+msgid "Maximale Anzahl nach Filterung durch Tags und Kalender"
+msgstr ""
+
+#: templates/views/event-calendar/monthly-simple.php:266
+msgid "mehr"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:191
+msgid "Meine Presets"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:136
+msgid "Menüpunkt „API-Token“ öffnen und „Neues Token“ wählen."
+msgstr ""
+
+#: includes/class-churchtools-suite-shortcodes.php:1122
+msgid "Mi"
+msgstr ""
+
+#: templates/views/event-countdown/classic.php:314
+msgid "MIN"
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:87
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:111
+msgid "Minimal"
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:93
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:128
+msgid "Minimal (Kompakt)"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:155
+msgid "Minor Update"
+msgstr ""
+
+#: includes/class-churchtools-suite-shortcodes.php:1120
+msgid "Mo"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:79
+msgid "Modal = Popup-Fenster, Event-Seite = Eigene Seite mit URL-Parameter"
+msgstr ""
+
+#: admin/views/settings/subtab-templates.php:92
+msgid "Modal Templates"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:74
+msgid "Modal öffnen"
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:88
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:112
+msgid "Modern"
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:94
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:129
+msgid "Modern (Card-Style)"
+msgstr ""
+
+#: includes/class-churchtools-suite-cron.php:63
+#: admin/views/tab-dashboard.php:298 admin/views/settings/subtab-sync.php:135
+msgid "Monatlich"
+msgstr ""
+
+#: includes/class-churchtools-suite-template-loader.php:97
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:144
+msgid "Monatlich (Einfach)"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:379
+msgid "Monatstrenner"
+msgstr ""
+
+#: admin/views/addons-page.php:505
+msgid "Möchten Sie dieses Addon wirklich aktualisieren?"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:1115
+msgid "Möchtest du dieses Preset wirklich löschen?"
+msgstr ""
+
+#: admin/views/tab-sync.php:110
+msgid ""
+"Nach dem ersten Sync werden nur noch geänderte Termine abgerufen (80-95% "
+"weniger API-Anfragen). Ein vollständiger Sync kann mit dem \"Vollständigen "
+"Sync erzwingen\"-Button ausgelöst werden."
+msgstr ""
+
+#: admin/views/tab-sync.php:107
+msgid ""
+"Nach der Kalender-Synchronisation können Sie im Kalender-Tab auswählen, "
+"welche Kalender synchronisiert werden sollen."
+msgstr ""
+
+#: admin/views/addons-page.php:292
+msgid "Nach Updates suchen"
+msgstr ""
+
+#: admin/views/addons-page.php:300
+msgid "Name"
+msgstr ""
+
+#: admin/views/tab-events.php:361
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:257
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:298
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:310
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:322
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:334
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:346
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:358
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:370
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:382
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:394
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:434
+msgid "Nein"
+msgstr ""
+
+#: admin/views/addons-page.php:363
+msgid "Netzwerk"
+msgstr ""
+
+#: admin/views/addons-page.php:544
+msgid "Netzwerkfehler"
+msgstr ""
+
+#: admin/views/addons-page.php:455
+msgid "Netzwerkfehler bei der Installation"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:156
+msgid "Neue Features, keine Breaking Changes"
+msgstr ""
+
+#: admin/views/settings/subtab-benutzer.php:77
+msgid "Neuen Manager hinzufügen"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:195 admin/views/shortcode-manager.php:371
+#: admin/views/shortcode-manager.php:511 admin/views/shortcode-manager.php:513
+msgid "Neues Preset erstellen"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:76
+msgid "Nicht anklickbar"
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:105
+msgid "Nicht geplant"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:268
+msgid "Nicht konfiguriert"
+msgstr ""
+
+#: admin/views/settings/subtab-benutzer.php:55
+msgid "Nie"
+msgstr ""
+
+#: admin/views/settings/subtab-benutzer.php:26
+msgid "Noch kein CTS Manager zugewiesen."
+msgstr ""
+
+#: admin/views/shortcode-manager.php:291
+msgid "Noch keine Presets"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:87
+msgid ""
+"Nur der Name Ihrer ChurchTools-Instanz (ohne https:// und .church.tools)"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:90
+msgid "Nur Major"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:138
+msgid "Nur Major‑Updates"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:90
+msgid "Nur wenn sich die Major‑Version erhöht (z.B. 1.2.3 → 2.0.0)."
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:72
+msgid "Nächste Ausführung"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:350
+msgid "Nächste Ausführung:"
+msgstr ""
+
+#: includes/class-churchtools-suite-blocks.php:187
+msgid "Nächster Event (automatisch)"
+msgstr ""
+
+#: templates/views/event-carousel/classic.php:328
+msgid "Nächstes Event"
+msgstr ""
+
+#: templates/views/event-grid/simple.php:279
+#: templates/views/event-carousel/classic.php:312
+msgid "Offen"
+msgstr ""
+
+#: admin/views/settings/subtab-templates.php:131
+msgid "Optionen:"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:319
+#: templates/views/event-single/minimal.php:95
+#: templates/views/event-single/professional.php:191
+msgid "Ort"
+msgstr ""
+
+#: admin/views/tab-events.php:198
+msgid "Ort / Adresse"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:511
+msgid "Padding"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:204
+msgid "Paket"
+msgstr ""
+
+#: admin/views/shortcode-demo-simplified.php:130
+#: admin/views/shortcode-manager.php:259
+msgid "Parameter"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:419
+msgid "Parameter konfigurieren"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:106
+msgid "Passwort"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:161
+msgid "Patch Update"
+msgstr ""
+
+#: admin/views/tab-imported-services.php:92
+msgid "Person"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:130
+msgid ""
+"Persönliches API-Token aus ChurchTools. Keine Ablaufzeit, jederzeit "
+"widerrufbar."
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:38 admin/views/tab-dashboard.php:430
+msgid "PHP-Version"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:176
+msgid "Plugin komplett zurückgesetzt! Bitte neu konfigurieren."
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:419
+msgid "Plugin-Styles"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:424
+msgid ""
+"Plugin-Styles = eigene Farbpalette, Theme-Styles = Theme-Farben (inherit), "
+"Individuelle Styles = eigene Farben definieren"
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:34 admin/views/tab-dashboard.php:422
+msgid "Plugin-Version"
+msgstr ""
+
+#: admin/views/tab-events.php:417
+msgid "PLZ/Ort"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:1028
+#: admin/views/shortcode-manager.php:1036
+#: admin/views/shortcode-manager.php:1095
+msgid "Preset aktualisieren"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:1053
+#: admin/views/shortcode-manager.php:1055
+#: admin/views/shortcode-manager.php:1093
+msgid "Preset bearbeiten"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:294
+msgid "Preset erstellen"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:433 admin/views/shortcode-manager.php:515
+#: admin/views/shortcode-manager.php:1028
+#: admin/views/shortcode-manager.php:1036
+msgid "Preset speichern"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:378
+msgid "Preset-Name"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:445
+msgid "Primärfarbe"
+msgstr ""
+
+#: admin/views/tab-calendars.php:177
+msgid "Privat"
+msgstr ""
+
+#. Description of the plugin
+msgid ""
+"Professionelle ChurchTools-Integration für WordPress. Synchronisiert Events, "
+"Termine und Dienste aus ChurchTools. ✅ Repository Factory für erweiterbare "
+"Architektur (Multi-User, Caching, Add-Ons)."
+msgstr ""
+
+#: admin/views/addons-page.php:472 admin/views/settings/subtab-advanced.php:175
+msgid "Prüfe..."
+msgstr ""
+
+#: includes/class-churchtools-suite-cron-display.php:44
+msgid "Prüft auf neue Plugin-Versionen und installiert Updates automatisch."
+msgstr ""
+
+#: admin/views/tab-dashboard.php:477
+msgid "Quick Start"
+msgstr ""
+
+#: admin/views/tab-events.php:498
+msgid "Raw Payload"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:203
+msgid "Release"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:197
+msgid "Release Notes anzeigen"
+msgstr ""
+
+#: admin/views/admin-page.php:91
+msgid "Reset & Cleanup"
+msgstr ""
+
+#: includes/class-churchtools-suite-shortcodes.php:1125
+msgid "Sa"
+msgstr ""
+
+#: templates/views/event-modal/professional.php:26
+msgid "Schließen"
+msgstr ""
+
+#: admin/views/shortcode-demo-simplified.php:152
+msgid "Schnellstart"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:496
+msgid "Schriftgröße"
+msgstr ""
+
+#: admin/views/tab-services.php:35
+msgid "Schritt 1: Service-Gruppen synchronisieren"
+msgstr ""
+
+#: admin/views/tab-services.php:69
+msgid "Schritt 2: Service-Gruppen auswählen"
+msgstr ""
+
+#: admin/views/tab-services.php:159
+msgid "Schritt 3: Services synchronisieren"
+msgstr ""
+
+#: admin/views/tab-services.php:192
+msgid "Schritt 4: Services auswählen"
+msgstr ""
+
+#: admin/views/demos/demo-search.php:17
+msgid "Search Views"
+msgstr ""
+
+#: admin/views/tab-imported-services.php:158 admin/views/tab-events.php:569
+msgid "Seite %d von %d"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:80
+msgid "Seite neu laden"
+msgstr ""
+
+#: templates/views/event-countdown/classic.php:318
+msgid "SEK"
+msgstr ""
+
+#: admin/views/tab-events.php:462
+msgid "Serie / Event:"
+msgstr ""
+
+#: admin/views/tab-imported-services.php:91 admin/views/tab-services.php:233
+msgid "Service"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-service-sync-service.php:206
+msgid "Service Group hat keine ID"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-service-sync-service.php:211
+msgid "Service Group hat keinen Namen"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-service-sync-service.php:228
+msgid "Service Group konnte nicht gespeichert werden"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-service-sync-service.php:62
+msgid "Service Groups Repository nicht verfügbar"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-service-sync-service.php:245
+msgid "Service hat keine ID"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-service-sync-service.php:250
+msgid "Service hat keinen Namen"
+msgstr ""
+
+#: admin/views/tab-imported-services.php:94
+msgid "Service ID"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-service-sync-service.php:268
+msgid "Service konnte nicht gespeichert werden"
+msgstr ""
+
+#: admin/views/tab-services.php:110 admin/views/tab-services.php:235
+msgid "Service-Gruppe"
+msgstr ""
+
+#: admin/views/tab-services.php:57
+msgid "Service-Gruppen synchronisieren"
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:131 admin/views/tab-settings.php:31
+#: admin/views/tab-events.php:203
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:391
+#: templates/views/event-modal/professional.php:78
+msgid "Services"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:152
+msgid "Services erfolgreich gelöscht!"
+msgstr ""
+
+#: admin/views/tab-imported-services.php:58
+msgid "Services gesamt"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:42
+#: admin/views/debug/subtab-reset-cleanup.php:47
+msgid "Services löschen"
+msgstr ""
+
+#: admin/views/tab-services.php:180
+msgid "Services synchronisieren"
+msgstr ""
+
+#: includes/class-churchtools-suite-cron-display.php:27
+msgid "Session aufrechterhalten"
+msgstr ""
+
+#: admin/views/shortcode-demo-simplified.php:96
+msgid "Shortcode Demo"
+msgstr ""
+
+#: admin/views/shortcode-demo-simplified.php:165
+msgid "Shortcode kopieren"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:178
+msgid "Shortcode Manager"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:207
+msgid "Shortcode suchen..."
+msgstr ""
+
+#: admin/views/shortcode-manager.php:404
+msgid "Shortcode-Typ"
+msgstr ""
+
+#: admin/views/shortcode-demo-simplified.php:118
+msgid "Shortcode-Typen"
+msgstr ""
+
+#: admin/views/tab-calendars.php:139
+msgid "Sichtbarkeit"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:153
+msgid "Sie sehen jetzt zusätzliche Tabs und Optionen in der Administration."
+msgstr ""
+
+#: admin/views/settings/subtab-templates.php:65
+msgid "Single Page Templates"
+msgstr ""
+
+#: admin/views/demos/demo-slider.php:17
+msgid "Slider Views"
+msgstr ""
+
+#: includes/class-churchtools-suite-shortcodes.php:1126
+msgid "So"
+msgstr ""
+
+#: admin/views/tab-services.php:112 admin/views/tab-services.php:236
+msgid "Sortierung"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:200
+msgid "Spalten"
+msgstr ""
+
+#: admin/views/settings/subtab-benutzer.php:85
+msgid "Speichere die Änderungen"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:149
+#: admin/views/settings/subtab-sync.php:177
+#: admin/views/settings/subtab-advanced.php:162
+msgid "Speichern"
+msgstr ""
+
+#: admin/views/settings/subtab-templates.php:100
+msgid "Standard Modal Template"
+msgstr ""
+
+#: admin/views/settings/subtab-templates.php:73
+msgid "Standard Single Template"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:187
+msgid "Standard-Shortcodes"
+msgstr ""
+
+#: admin/views/tab-events.php:405
+msgid "Start"
+msgstr ""
+
+#: admin/views/addons-page.php:299 admin/views/tab-debug-minimal.php:128
+#: admin/views/tab-events.php:202 admin/views/tab-events.php:404
+#: templates/views/event-single/professional.php:101
+msgid "Status"
+msgstr ""
+
+#: templates/views/event-countdown/classic.php:310
+msgid "STD"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:408
+msgid "Stil"
+msgstr ""
+
+#: admin/views/tab-events.php:416
+msgid "Straße"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:416
+msgid "Style-Modus"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:291
+#: admin/views/settings/subtab-advanced.php:104
+msgid "Stündlich"
+msgstr ""
+
+#: includes/repositories/class-churchtools-suite-sync-history-repository.php:191
+msgid "Sync wurde abgebrochen oder ist fehlgeschlagen (Timeout/Fatal Error)"
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:25
+msgid "Sync-Einstellungen gespeichert."
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:119
+msgid "Sync-Historie (letzte 10)"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:160
+msgid "Sync-Historie erfolgreich gelöscht!"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:53
+msgid "Sync-Historie löschen"
+msgstr ""
+
+#: admin/views/tab-data.php:58 admin/views/tab-dashboard.php:103
+msgid "Sync-Logs"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:391 admin/views/tab-settings.php:25
+msgid "Synchronisation"
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:122
+msgid "Synchronisations-Intervall"
+msgstr ""
+
+#: admin/views/tab-calendars.php:72 admin/views/tab-dashboard.php:502
+msgid "Synchronisiere..."
+msgstr ""
+
+#: admin/views/tab-services.php:163
+msgid "Synchronisieren Sie die Services aus den ausgewählten Service-Gruppen."
+msgstr ""
+
+#: admin/views/tab-services.php:39
+msgid ""
+"Synchronisieren Sie zuerst die verfügbaren Service-Gruppen aus ChurchTools."
+msgstr ""
+
+#: includes/class-churchtools-suite-cron-display.php:42
+msgid "Synchronisiert Events automatisch gemäß Zeitplan."
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:29 admin/views/tab-dashboard.php:417
+msgid "System"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:469
+msgid "System-Cron Anleitung anzeigen"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:91
+msgid "Tabellen neu erstellen"
+msgstr ""
+
+#: templates/views/event-countdown/classic.php:306
+msgid "TAGE"
+msgstr ""
+
+#: admin/views/tab-events.php:199
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:228
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:343
+msgid "Tags"
+msgstr ""
+
+#: templates/views/event-single/professional.php:221
+msgid "TBD"
+msgstr ""
+
+#: templates/views/event-grid/classic.php:227
+msgid "Teilen"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:105
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:123
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:141
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:155
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:170
+msgid "Template"
+msgstr ""
+
+#: admin/views/settings/subtab-templates.php:40
+msgid "Template-Einstellungen gespeichert."
+msgstr ""
+
+#: admin/views/tab-settings.php:34
+msgid "Templates"
+msgstr ""
+
+#: admin/views/tab-events.php:233
+msgid "Termin"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:307
+msgid "Termin-Beschreibung"
+msgstr ""
+
+#: admin/views/tab-events.php:468
+msgid "Termin-Details:"
+msgstr ""
+
+#: admin/views/tab-data.php:32
+msgid "Termine"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:406
+msgid "Termine anzeigen"
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:117
+msgid "Termine automatisch im Hintergrund synchronisieren"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:398
+#, php-format
+msgid "Termine gesamt, %s Kalender ausgewählt"
+msgstr ""
+
+#: admin/views/tab-sync.php:75 admin/views/tab-sync.php:86
+msgid "Termine jetzt synchronisieren"
+msgstr ""
+
+#: admin/views/tab-sync.php:32
+msgid "Termine synchronisieren"
+msgstr ""
+
+#: admin/views/tab-events.php:110
+msgid "Termine-Übersicht"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:457
+msgid "Textfarbe"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:420
+msgid "Theme-Styles"
+msgstr ""
+
+#: templates/views/event-modal/professional.php:100
+msgid "TIME"
+msgstr "Zeit"
+
+#: admin/views/demos/demo-timetable.php:17
+msgid "Timetable Views"
+msgstr ""
+
+#: admin/views/tab-events.php:195
+msgid "Titel"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:133
+msgid "Token anlegen:"
+msgstr ""
+
+#: admin/views/tab-events.php:200
+msgid "Typ"
+msgstr ""
+
+#: admin/views/shortcode-demo-simplified.php:157
+msgid "Typ auswählen"
+msgstr ""
+
+#: includes/class-churchtools-suite-cron.php:33
+#: admin/views/tab-dashboard.php:293
+#: admin/views/settings/subtab-advanced.php:105
+msgid "Täglich"
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:130
+msgid "Täglich (empfohlen)"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:331
+msgid "Uhrzeit"
+msgstr ""
+
+#: admin/views/settings/subtab-benutzer.php:79
+msgid "Um einen neuen ChurchTools Manager hinzuzufügen:"
+msgstr ""
+
+#: admin/views/tab-sync.php:66
+#, php-format
+msgid ""
+"Um einen Sync sofort auszuführen, nutzen Sie den %sManuellen Trigger im "
+"Debug-Tab%s."
+msgstr ""
+
+#: admin/views/addons-page.php:445
+msgid "Unbekannter Fehler"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-event-sync-service.php:874
+#: includes/services/class-churchtools-suite-event-sync-service.php:941
+#: includes/services/class-churchtools-suite-template-data.php:293
+msgid "Unbenannt"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-service-sync-service.php:78
+msgid "Ungültige API-Antwort für Service Groups"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-service-sync-service.php:155
+msgid "Ungültige API-Antwort für Services"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-calendar-sync-service.php:162
+msgid "Ungültige API-Antwort: data fehlt"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-calendar-sync-service.php:60
+msgid "Ungültige API-Antwort: data-Array fehlt"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-event-sync-service.php:553
+msgid "Ungültige Appointments API-Antwort"
+msgstr ""
+
+#: includes/class-churchtools-suite-image-importer.php:32
+msgid "Ungültige Bild-URL"
+msgstr ""
+
+#: includes/services/class-churchtools-suite-event-sync-service.php:300
+msgid "Ungültige Events API-Antwort"
+msgstr ""
+
+#: admin/views/settings/subtab-benutzer.php:84
+msgid "Unter \"Rolle\" wähle \"ChurchTools Suite Manager\""
+msgstr ""
+
+#: templates/views/event-list/minimal.php:143
+msgid "Untitled Event"
+msgstr ""
+
+#: admin/views/addons-page.php:303
+msgid "Update"
+msgstr ""
+
+#: admin/views/addons-page.php:534
+msgid "Update fehlgeschlagen"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:178
+#: admin/views/settings/subtab-advanced.php:242
+msgid "Update installieren"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:543
+#: admin/views/settings/subtab-advanced.php:224
+msgid "Update jetzt installieren? Dies überschreibt Plugin-Dateien."
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:173
+msgid "Update Verfügbar"
+msgstr ""
+
+#: includes/class-churchtools-suite-cron-display.php:28
+msgid "Update-Prüfung"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:232
+msgid "Update-Stufe anpassen"
+msgstr ""
+
+#: admin/views/tab-events.php:411
+msgid "Updated"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:88
+msgid "Update‑Kategorien (Beispiele)"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:264
+msgid "Verbindung noch nicht getestet"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:153
+msgid "Verbindung testen"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:252
+msgid "Verbunden"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:185
+msgid "verfügbar"
+msgstr ""
+
+#: admin/views/addons-page.php:237
+msgid "Verfügbare Addons"
+msgstr ""
+
+#: admin/views/settings/subtab-templates.php:84
+#: admin/views/settings/subtab-templates.php:111
+#, php-format
+msgid "Verfügbare Templates: %s"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:246
+msgid "Verfügbare Views"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:254
+msgid "Vergangene Events anzeigen"
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:48
+msgid "Vergangene Tage"
+msgstr ""
+
+#: includes/class-churchtools-suite-cron-display.php:43
+msgid "Verlängert die ChurchTools-Session."
+msgstr ""
+
+#: admin/views/tab-imported-services.php:65
+msgid "Verschiedene Services"
+msgstr ""
+
+#: admin/views/addons-page.php:302 admin/views/settings/subtab-advanced.php:202
+msgid "Version"
+msgstr ""
+
+#: admin/views/tab-events.php:186
+msgid ""
+"Versuchen Sie andere Filterwerte oder synchronisieren Sie die Termine im Tab "
+"\"Sync\"."
+msgstr ""
+
+#: admin/views/tab-data.php:23
+msgid "Verwalte importierte Termine und Services"
+msgstr ""
+
+#: admin/views/tab-data.php:50
+msgid "Verwalte importierte Termine und Services."
+msgstr ""
+
+#: admin/views/shortcode-manager.php:180
+msgid "Verwalte Standard-Shortcodes und erstelle eigene Presets"
+msgstr ""
+
+#: admin/views/shortcode-demo-simplified.php:166
+msgid "Verwende den Code in deinen Seiten oder Beiträgen"
+msgstr ""
+
+#: admin/views/shortcode-demo-simplified.php:124
+msgid "View-Varianten"
+msgstr ""
+
+#: templates/views/event-list/classic-modern.php:285
+#: templates/views/event-list/modern.php:340
+msgid "Vollständige Adresse anzeigen"
+msgstr ""
+
+#: admin/views/tab-sync.php:79 admin/views/tab-sync.php:90
+msgid "Vollständigen Sync erzwingen"
+msgstr ""
+
+#: admin/views/tab-events.php:121
+msgid "Von"
+msgstr ""
+
+#: admin/views/tab-events.php:165
+msgid "Von:"
+msgstr ""
+
+#: templates/views/event-carousel/classic.php:325
+msgid "Vorheriges Event"
+msgstr ""
+
+#: admin/views/shortcode-manager.php:426
+msgid "Vorschau"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:14
+msgid ""
+"Vorsicht: Diese Aktionen löschen Daten aus der Datenbank. Die Einstellungen "
+"(ChurchTools-Verbindung, Auswahlen) bleiben erhalten."
+msgstr ""
+
+#: admin/views/tab-imported-services.php:175 admin/views/tab-events.php:576
+msgid "Weiter"
+msgstr ""
+
+#: templates/views/event-single/professional.php:236
+msgid "Weitere Details"
+msgstr ""
+
+#: templates/views/event-list/minimal.php:216
+msgid "Weitere Informationen anzeigen"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:126
+msgid ""
+"Wenn aktiviert, werden Updates automatisch gemäß der gewählten Stufe "
+"installiert."
+msgstr ""
+
+#: admin/views/demos/demo-widget.php:17
+msgid "Widget Views"
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:59
+msgid ""
+"Wie viele Tage in der Vergangenheit sollen synchronisiert werden? (Standard: "
+"7)"
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:75
+msgid ""
+"Wie viele Tage in der Zukunft sollen synchronisiert werden? (Standard: 90)"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:113
+msgid "Wird gelöscht..."
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:135
+msgid ""
+"Wirklich alle Events löschen? Diese Aktion kann nicht rückgängig gemacht "
+"werden!"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:143
+msgid ""
+"Wirklich alle Kalender löschen? Diese Aktion kann nicht rückgängig gemacht "
+"werden!"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:151
+msgid ""
+"Wirklich alle Services löschen? Diese Aktion kann nicht rückgängig gemacht "
+"werden!"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:80
+msgid "WIRKLICH ALLES löschen"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:75
+msgid "WIRKLICH ALLES reseten"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:159
+msgid "Wirklich die gesamte Sync-Historie löschen?"
+msgstr ""
+
+#: admin/views/admin-page.php:24
+msgid "WordPress Integration für ChurchTools"
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:42 admin/views/tab-dashboard.php:426
+msgid "WordPress-Version"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:463 admin/views/settings/subtab-sync.php:158
+msgid "WP-Cron ist deaktiviert"
+msgstr ""
+
+#: admin/views/shortcode-demo-simplified.php:103
+msgid "Wähle einen Shortcode-Typ zum Testen"
+msgstr ""
+
+#: admin/views/settings/subtab-benutzer.php:83
+msgid "Wähle einen vorhandenen Benutzer oder erstelle einen neuen"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:97
+msgid ""
+"Wähle zwischen Listenansicht, Gitteransicht, Kalender, Countdown und "
+"Karussell"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:142
+msgid ""
+"Wählen Sie aus, welche Arten von Versionssprüngen automatisch installiert "
+"werden dürfen."
+msgstr ""
+
+#: admin/views/tab-calendars.php:121
+msgid ""
+"Wählen Sie die Kalender aus, deren Termine synchronisiert werden sollen. "
+"Aktuell ausgewählt: %d von %d"
+msgstr ""
+
+#: admin/views/tab-services.php:84
+msgid ""
+"Wählen Sie die Service-Gruppen aus, deren Services Sie synchronisieren "
+"möchten. Aktuell ausgewählt: %d von %d"
+msgstr ""
+
+#: admin/views/tab-services.php:207
+msgid ""
+"Wählen Sie die Services aus, die bei der Event-Synchronisation importiert "
+"werden sollen. Aktuell ausgewählt: %d von %d"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:68
+msgid ""
+"Wählen Sie, ob Sie sich per Login oder über ein persönliches API-Token "
+"verbinden möchten."
+msgstr ""
+
+#: includes/class-churchtools-suite-cron.php:51
+#: includes/class-churchtools-suite-auto-updater.php:53
+#: admin/views/tab-dashboard.php:296 admin/views/settings/subtab-sync.php:133
+#: admin/views/settings/subtab-advanced.php:106
+msgid "Wöchentlich"
+msgstr ""
+
+#: admin/views/settings/subtab-api.php:128
+msgid "z.B. eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:162
+msgid "Zeigt nächstes kommendes Event mit Live-Countdown-Timer"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:80
+msgid ""
+"Zeigt zusätzliche Funktionen wie Debug-Logs und erweiterte Statistiken in "
+"der Navigation an."
+msgstr ""
+
+#: admin/views/tab-debug-minimal.php:127
+msgid "Zeitpunkt"
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:149
+msgid "Zeitpunkt der letzten automatischen Synchronisation"
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:41
+msgid "Zeitraum"
+msgstr ""
+
+#: templates/views/event-single/professional.php:160
+#, php-format
+msgid "Zeitzone: %s"
+msgstr ""
+
+#: templates/views/event-list/classic-modern.php:156
+#: templates/views/event-list/modern.php:164
+#: templates/views/event-list/classic.php:145
+#: templates/views/event-list/classic-with-images.php:151
+#: templates/views/event-grid/background-images.php:102
+#: templates/views/event-countdown/classic.php:79
+#, php-format
+msgid "Zu %s navigieren"
+msgstr ""
+
+#: includes/class-churchtools-suite-ct-client.php:297
+msgid "Zu viele API-Anfragen. Bitte warten Sie einen Moment."
+msgstr ""
+
+#: admin/views/settings/subtab-sync.php:64
+msgid "Zukünftige Tage"
+msgstr ""
+
+#: admin/views/settings/subtab-templates.php:135
+msgid "Zur Single-Page navigieren"
+msgstr ""
+
+#: admin/views/tab-imported-services.php:168 admin/views/tab-events.php:564
+msgid "Zurück"
+msgstr ""
+
+#: includes/class-churchtools-suite-single-event-handler.php:81
+#: admin/views/shortcode-demo-simplified.php:179
+msgid "Zurück zur Übersicht"
+msgstr ""
+
+#: admin/views/tab-dashboard.php:292
+msgid "Zweimal täglich"
+msgstr ""
+
+#: admin/views/tab-calendars.php:173
+msgid "Öffentlich"
+msgstr ""
+
+#: admin/views/admin-page.php:88
+msgid "Übersicht"
+msgstr ""
+
+#: admin/views/tab-imported-services.php:45
+msgid ""
+"Übersicht aller importierten Services aus ChurchTools Events. Insgesamt %d "
+"Services in %d Events."
+msgstr ""
+
+#: admin/views/tab-dashboard.php:95
+msgid "Übersicht über den aktuellen Status der ChurchTools-Integration."
+msgstr ""
+
+#: admin/views/tab-dashboard.php:352
+#, php-format
+msgid "überfällig seit %s"
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:183
+msgid ""
+"⚠️ DATENBANK NEU AUFBAUEN ⚠️\\n\\nAlle Tabellen werden gelöscht und neu "
+"erstellt!\\n\\n- Alle Events gelöscht\\n- Alle Kalender gelöscht\\n- Alle "
+"Services gelöscht\\n- Alle Sync-Historie gelöscht\\n\\nEinstellungen bleiben "
+"erhalten.\\n\\nNützlich bei DB-Strukturproblemen nach Updates."
+"\\n\\nFortfahren?"
+msgstr ""
+
+#: admin/views/addons-page.php:215 admin/views/addons-page.php:261
+msgid "⚡ Jetzt installieren"
+msgstr ""
+
+#: admin/views/addons-page.php:211 admin/views/addons-page.php:257
+msgid "✅ Aktivieren"
+msgstr ""
+
+#: admin/views/addons-page.php:265
+msgid "✅ Installiert & Aktiv"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:360
+msgid "✅ Nur unterstützt: Classic-with-Images, Grid-Views (Simple & Modern)"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:384
+msgid "✅ Nur unterstützt: Listen-Views (nicht Grid/Kalender)"
+msgstr ""
+
+#: admin/views/settings/subtab-advanced.php:50
+msgid "✅ Update-Cache geleert. Updates werden neu geprüft..."
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:336
+msgid "✅ Wird von allen Views unterstützt"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:300
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:312
+msgid "❌ Nicht unterstützt: Kalender-Views"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:372
+msgid "❌ Nicht unterstützt: Minimal (nur Popup), Kalender-Views"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:348
+msgid "❌ Nicht unterstützt: Minimal, Grid-Simple, Kalender-Views"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:324
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:396
+msgid "❌ Nicht unterstützt: Minimal, Kalender-Views"
+msgstr ""
+
+#: admin/views/settings/subtab-templates.php:120
+msgid "💡 Event-Klick Verhalten"
+msgstr ""
+
+#: includes/elementor/class-churchtools-suite-elementor-events-widget.php:288
+msgid ""
+"💡 Hinweis: Nicht alle Optionen werden von jeder View unterstützt. Minimal-"
+"View unterstützt z.B. keine Bilder, Services oder inline Location-Anzeige."
+msgstr ""
+
+#: admin/views/debug/subtab-reset-cleanup.php:175
+msgid ""
+"🚨 KRITISCHE WARNUNG 🚨\\n\\nWirklich ALLES KOMPLETT LÖSCHEN?\\n\\n- Alle "
+"Daten (Events, Kalender, Services, etc.)\\n- Alle Einstellungen (ChurchTools "
+"URL, Login, Cookies)\\n- Kompletter Plugin-Reset\\n\\nSie müssen danach "
+"alles neu konfigurieren!\\n\\nDiese Aktion kann NICHT rückgängig gemacht "
+"werden!"
+msgstr ""
