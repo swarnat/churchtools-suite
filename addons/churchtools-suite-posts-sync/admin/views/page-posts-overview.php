@@ -9,8 +9,8 @@ $last_stats = is_array( $last_result ) ? (array) ( $last_result['stats'] ?? [] )
 
 <div class="wrap cts-wrap">
 	<div class="cts-header">
-		<h1><span>📝</span> <?php esc_html_e( 'Berichte Übersicht', 'churchtools-suite-posts-sync' ); ?></h1>
-		<p class="cts-subtitle"><?php esc_html_e( 'Übersicht synchronisierter ChurchTools-Berichte analog zur normalen Beitragsansicht.', 'churchtools-suite-posts-sync' ); ?></p>
+		<h1><span>📝</span> <?php esc_html_e( 'Posts Übersicht', 'churchtools-suite-posts-sync' ); ?></h1>
+		<p class="cts-subtitle"><?php esc_html_e( 'Übersicht synchronisierter ChurchTools-Posts analog zur normalen Beitragsansicht.', 'churchtools-suite-posts-sync' ); ?></p>
 	</div>
 
 	<div class="cts-card cts-posts-sync-overview-card">
@@ -34,7 +34,7 @@ $last_stats = is_array( $last_result ) ? (array) ( $last_result['stats'] ?? [] )
 				<?php if ( $is_local_environment ) : ?>
 					<button type="button" class="button button-primary" id="cts-posts-overview-run-sync" data-action="run-sync"><?php esc_html_e( 'Jetzt manuell synchronisieren', 'churchtools-suite-posts-sync' ); ?></button>
 				<?php endif; ?>
-				<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=churchtools-suite&tab=settings&subtab=posts' ) ); ?>"><?php esc_html_e( 'Zu Berichte-Einstellungen', 'churchtools-suite-posts-sync' ); ?></a>
+				<a class="button" href="<?php echo esc_url( admin_url( 'admin.php?page=churchtools-suite&tab=settings&subtab=posts' ) ); ?>"><?php esc_html_e( 'Zu Posts-Einstellungen', 'churchtools-suite-posts-sync' ); ?></a>
 			</p>
 
 			<div id="cts-posts-overview-result" class="cts-posts-sync-overview-result"></div>
@@ -83,7 +83,7 @@ $last_stats = is_array( $last_result ) ? (array) ( $last_result['stats'] ?? [] )
 							</tr>
 						<?php endforeach; ?>
 					<?php else : ?>
-						<tr><td colspan="10"><?php esc_html_e( 'Noch keine synchronisierten Berichte gefunden.', 'churchtools-suite-posts-sync' ); ?></td></tr>
+						<tr><td colspan="10"><?php esc_html_e( 'Noch keine synchronisierten Posts gefunden.', 'churchtools-suite-posts-sync' ); ?></td></tr>
 					<?php endif; ?>
 				</tbody>
 			</table>

@@ -43,11 +43,11 @@ class ChurchTools_Suite_Posts_Sync_Frontend {
 			self::BLOCK_NAME,
 			[
 				'api_version' => 2,
-				'title' => __( 'ChurchTools Berichte', 'churchtools-suite-posts-sync' ),
-				'description' => __( 'Zeigt synchronisierte ChurchTools-Berichte als Liste an.', 'churchtools-suite-posts-sync' ),
+				'title' => __( 'ChurchTools Posts', 'churchtools-suite-posts-sync' ),
+				'description' => __( 'Zeigt synchronisierte ChurchTools-Posts als Liste an.', 'churchtools-suite-posts-sync' ),
 				'category' => 'churchtools-suite',
 				'icon' => 'media-document',
-				'keywords' => [ 'churchtools', 'berichte', 'posts' ],
+				'keywords' => [ 'churchtools', 'posts', 'posts' ],
 				'editor_script' => self::BLOCK_EDITOR_SCRIPT_HANDLE,
 				'style' => self::FRONTEND_STYLE_HANDLE,
 				'render_callback' => [ __CLASS__, 'render_block' ],
@@ -149,11 +149,11 @@ class ChurchTools_Suite_Posts_Sync_Frontend {
 			. "  var options = Array.isArray(data.postTypeOptions) ? data.postTypeOptions.slice() : [];\n"
 			. "  options.unshift({ value: '', label: 'Standard aus Sync-Einstellungen' });\n"
 			. "  wp.blocks.registerBlockType(data.blockName, {\n"
-			. "    title: 'ChurchTools Berichte',\n"
-			. "    description: 'Zeigt synchronisierte ChurchTools-Berichte als Liste an.',\n"
+			. "    title: 'ChurchTools Posts',\n"
+			. "    description: 'Zeigt synchronisierte ChurchTools-Posts als Liste an.',\n"
 			. "    icon: 'media-document',\n"
 			. "    category: 'churchtools-suite',\n"
-			. "    keywords: ['churchtools', 'berichte', 'posts'],\n"
+			. "    keywords: ['churchtools', 'posts', 'posts'],\n"
 			. "    attributes: {\n"
 			. "      limit: { type: 'number', default: 10 },\n"
 			. "      postType: { type: 'string', default: '' },\n"
@@ -167,7 +167,7 @@ class ChurchTools_Suite_Posts_Sync_Frontend {
 			. "      var a = props.attributes;\n"
 			. "      return el(wp.element.Fragment, null,\n"
 			. "        el(InspectorControls, null,\n"
-			. "          el(PanelBody, { title: 'Berichte-Liste', initialOpen: true },\n"
+			. "          el(PanelBody, { title: 'Posts-Liste', initialOpen: true },\n"
 			. "            el(RangeControl, { label: 'Anzahl', value: a.limit, onChange: function(v){ props.setAttributes({ limit: v || 10 }); }, min: 1, max: 100 }),\n"
 			. "            el(SelectControl, { label: 'Post-Typ', value: a.postType, options: options, onChange: function(v){ props.setAttributes({ postType: v || '' }); } }),\n"
 			. "            el(ToggleControl, { label: 'Nur synchronisierte Inhalte', checked: !!a.onlySynced, onChange: function(v){ props.setAttributes({ onlySynced: !!v }); } }),\n"
@@ -177,7 +177,7 @@ class ChurchTools_Suite_Posts_Sync_Frontend {
 			. "            el(RangeControl, { label: 'Auszug-Wörter', value: a.excerptWords, onChange: function(v){ props.setAttributes({ excerptWords: v || 28 }); }, min: 8, max: 80, disabled: !a.showExcerpt })\n"
 			. "          )\n"
 			. "        ),\n"
-			. "        el(Placeholder, { icon: 'media-document', label: 'ChurchTools Berichte', instructions: 'Die Ausgabe wird im Frontend dynamisch gerendert.' },\n"
+			. "        el(Placeholder, { icon: 'media-document', label: 'ChurchTools Posts', instructions: 'Die Ausgabe wird im Frontend dynamisch gerendert.' },\n"
 			. "          el('p', null, 'Anzahl: ' + String(a.limit || 10)),\n"
 			. "          el('p', null, 'Post-Typ: ' + (a.postType || 'Standard')),\n"
 			. "          el('p', null, 'Nur synchronisiert: ' + (a.onlySynced ? 'Ja' : 'Nein')),\n"

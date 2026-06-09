@@ -47,17 +47,17 @@ class ChurchTools_Suite_Posts_Sync {
 	 */
 	public static function register_post_type(): void {
 		$labels = [
-			'name' => __( 'ChurchTools Berichte', 'churchtools-suite-posts-sync' ),
-			'singular_name' => __( 'ChurchTools Bericht', 'churchtools-suite-posts-sync' ),
-			'menu_name' => __( 'ChurchTools Berichte', 'churchtools-suite-posts-sync' ),
+			'name' => __( 'ChurchTools Posts', 'churchtools-suite-posts-sync' ),
+			'singular_name' => __( 'ChurchTools Post', 'churchtools-suite-posts-sync' ),
+			'menu_name' => __( 'ChurchTools Posts', 'churchtools-suite-posts-sync' ),
 			'add_new' => __( 'Neu hinzufügen', 'churchtools-suite-posts-sync' ),
-			'add_new_item' => __( 'Neuen ChurchTools Bericht hinzufügen', 'churchtools-suite-posts-sync' ),
-			'edit_item' => __( 'ChurchTools Bericht bearbeiten', 'churchtools-suite-posts-sync' ),
-			'new_item' => __( 'Neuer ChurchTools Bericht', 'churchtools-suite-posts-sync' ),
-			'view_item' => __( 'ChurchTools Bericht ansehen', 'churchtools-suite-posts-sync' ),
-			'search_items' => __( 'ChurchTools Berichte durchsuchen', 'churchtools-suite-posts-sync' ),
-			'not_found' => __( 'Keine ChurchTools Berichte gefunden.', 'churchtools-suite-posts-sync' ),
-			'not_found_in_trash' => __( 'Keine ChurchTools Berichte im Papierkorb gefunden.', 'churchtools-suite-posts-sync' ),
+			'add_new_item' => __( 'Neuen ChurchTools Post hinzufügen', 'churchtools-suite-posts-sync' ),
+			'edit_item' => __( 'ChurchTools Post bearbeiten', 'churchtools-suite-posts-sync' ),
+			'new_item' => __( 'Neuer ChurchTools Post', 'churchtools-suite-posts-sync' ),
+			'view_item' => __( 'ChurchTools Post ansehen', 'churchtools-suite-posts-sync' ),
+			'search_items' => __( 'ChurchTools Posts durchsuchen', 'churchtools-suite-posts-sync' ),
+			'not_found' => __( 'Keine ChurchTools Posts gefunden.', 'churchtools-suite-posts-sync' ),
+			'not_found_in_trash' => __( 'Keine ChurchTools Posts im Papierkorb gefunden.', 'churchtools-suite-posts-sync' ),
 		];
 
 		register_post_type(
@@ -123,7 +123,7 @@ class ChurchTools_Suite_Posts_Sync {
 	public static function register_sync_module( array $modules ): array {
 		$modules['posts'] = [
 			'id' => 'posts',
-			'label' => __( 'Berichte', 'churchtools-suite-posts-sync' ),
+			'label' => __( 'Posts', 'churchtools-suite-posts-sync' ),
 			'capability' => 'manage_churchtools_suite',
 			'dependencies' => [ 'ct_connection' ],
 			'callbacks' => [
@@ -201,7 +201,7 @@ class ChurchTools_Suite_Posts_Sync {
 		if ( ! self::is_enabled() ) {
 			$disabled_result = [
 				'status' => 'skipped',
-				'message' => __( 'Berichte-Sync ist deaktiviert.', 'churchtools-suite-posts-sync' ),
+				'message' => __( 'Posts-Sync ist deaktiviert.', 'churchtools-suite-posts-sync' ),
 			];
 
 			if ( class_exists( 'ChurchTools_Suite_Sync_Runtime' ) ) {

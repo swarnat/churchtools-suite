@@ -25,7 +25,7 @@ Synchronisiert ChurchTools-Posts in WordPress-Posts und -Seiten.
 - 📌 Flexible Veröffentlichungsstatus: Entwurf, Veröffentlicht, Privat
 - 🔐 Intelligente Änderungserkennung (verhindert unnötige Updates)
 - 📊 Sync-Statistiken im Admin-Dashboard
-- 🧩 Gutenberg-Block "ChurchTools Berichte"
+- 🧩 Gutenberg-Block "ChurchTools Posts"
 - 🏷️ Shortcode `[cts_posts]` für flexible Ausgaben
 
 == Installation ==
@@ -49,7 +49,7 @@ Die Synchronisation läuft automatisch mit der Häufigkeit, die für die Event-S
 
 Es stehen zwei Wege zur Verfügung:
 
-1. **Gutenberg-Block**: "ChurchTools Berichte" einfügen und im Inspector konfigurieren.
+1. **Gutenberg-Block**: "ChurchTools Posts" einfügen und im Inspector konfigurieren.
 2. **Shortcode**: `[cts_posts]`
 
 Beispiel:
@@ -92,4 +92,4 @@ Nein, derzeit werden nur Text-Inhalte synchronisiert. Bilder-Support ist für ei
 
 == Support ==
 
-Für Support und Fehlerberichte besuchen Sie: https://github.com/FEGAschaffenburg/churchtools-suite/issues
+Für Support und Fehlerposts besuchen Sie: https://github.com/FEGAschaffenburg/churchtools-suite/issues

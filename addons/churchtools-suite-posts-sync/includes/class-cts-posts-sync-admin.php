@@ -67,8 +67,8 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 
 		add_submenu_page(
 			'churchtools-suite',
-			__( 'Übersicht Berichte', 'churchtools-suite-posts-sync' ),
-			__( '📝 Berichte', 'churchtools-suite-posts-sync' ),
+			__( 'Übersicht Posts', 'churchtools-suite-posts-sync' ),
+			__( '📝 Posts', 'churchtools-suite-posts-sync' ),
 			'manage_churchtools_suite',
 			'churchtools-suite-posts-overview',
 			[ $this, 'render_overview_page' ]
@@ -299,26 +299,26 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 		echo '<div class="cts-card cts-mt-20">';
 		echo '<div class="cts-card-header">';
 		echo '<span class="cts-card-icon">📝</span>';
-		echo '<h3>' . esc_html__( 'Berichte Konfiguration (Addon)', 'churchtools-suite-posts-sync' ) . '</h3>';
+		echo '<h3>' . esc_html__( 'Posts Konfiguration (Addon)', 'churchtools-suite-posts-sync' ) . '</h3>';
 		echo '</div>';
-		echo '<div class="cts-posts-sync-settings-intro">' . esc_html__( 'Hier steuerst du den ChurchTools Berichte-Sync inklusive Zieltyp, Filter und API-Optionen.', 'churchtools-suite-posts-sync' ) . '</div>';
+		echo '<div class="cts-posts-sync-settings-intro">' . esc_html__( 'Hier steuerst du den ChurchTools Posts-Sync inklusive Zieltyp, Filter und API-Optionen.', 'churchtools-suite-posts-sync' ) . '</div>';
 
 		if ( ! $is_local_environment ) {
-			echo '<p class="cts-form-description cts-posts-sync-settings-notice">' . esc_html__( 'Berichte-Sync ist nur in lokaler Umgebung konfigurierbar.', 'churchtools-suite-posts-sync' ) . '</p>';
+			echo '<p class="cts-form-description cts-posts-sync-settings-notice">' . esc_html__( 'Posts-Sync ist nur in lokaler Umgebung konfigurierbar.', 'churchtools-suite-posts-sync' ) . '</p>';
 		}
 
 		echo '<table class="cts-form-table">';
 		echo '<tr class="cts-posts-sync-section-row"><th colspan="2">' . esc_html__( 'Allgemein', 'churchtools-suite-posts-sync' ) . '</th></tr>';
-		echo '<tr><th scope="row"><label for="ct_posts_sync_enabled">' . esc_html__( 'Berichte-Sync aktivieren', 'churchtools-suite-posts-sync' ) . '</label></th><td>';
+		echo '<tr><th scope="row"><label for="ct_posts_sync_enabled">' . esc_html__( 'Posts-Sync aktivieren', 'churchtools-suite-posts-sync' ) . '</label></th><td>';
 		echo '<label class="cts-toggle">';
 		echo '<input type="checkbox" id="ct_posts_sync_enabled" name="ct_posts_sync_enabled" value="1" ' . checked( $enabled, 1, false ) . disabled( ! $is_local_environment, true, false ) . ' />';
 		echo '<span class="cts-toggle-slider"></span></label>';
-		echo '<span class="cts-form-description">' . esc_html__( 'Synchronisiert ChurchTools-Berichte zusätzlich zur Event-Synchronisation.', 'churchtools-suite-posts-sync' ) . '</span></td></tr>';
+		echo '<span class="cts-form-description">' . esc_html__( 'Synchronisiert ChurchTools-Posts zusätzlich zur Event-Synchronisation.', 'churchtools-suite-posts-sync' ) . '</span></td></tr>';
 
 		echo '<tr><th scope="row"><label for="ct_posts_target_type">' . esc_html__( 'Ziel in WordPress', 'churchtools-suite-posts-sync' ) . '</label></th><td>';
 		echo '<select id="ct_posts_target_type" name="ct_posts_target_type" class="cts-form-input cts-posts-sync-field cts-posts-sync-field-medium" ' . disabled( ! $is_local_environment || ! $enabled, true, false ) . '>';
 		if ( in_array( defined( 'CTS_POSTS_SYNC_CPT' ) ? CTS_POSTS_SYNC_CPT : 'ct_post', $supported_target_types, true ) ) {
-			echo '<option value="' . esc_attr( defined( 'CTS_POSTS_SYNC_CPT' ) ? CTS_POSTS_SYNC_CPT : 'ct_post' ) . '" ' . selected( $target_type, defined( 'CTS_POSTS_SYNC_CPT' ) ? CTS_POSTS_SYNC_CPT : 'ct_post', false ) . '>' . esc_html__( 'ChurchTools Berichte (CPT)', 'churchtools-suite-posts-sync' ) . '</option>';
+			echo '<option value="' . esc_attr( defined( 'CTS_POSTS_SYNC_CPT' ) ? CTS_POSTS_SYNC_CPT : 'ct_post' ) . '" ' . selected( $target_type, defined( 'CTS_POSTS_SYNC_CPT' ) ? CTS_POSTS_SYNC_CPT : 'ct_post', false ) . '>' . esc_html__( 'ChurchTools Posts (CPT)', 'churchtools-suite-posts-sync' ) . '</option>';
 		}
 		echo '<option value="post" ' . selected( $target_type, 'post', false ) . '>' . esc_html__( 'Beiträge', 'churchtools-suite-posts-sync' ) . '</option>';
 		echo '<option value="page" ' . selected( $target_type, 'page', false ) . '>' . esc_html__( 'Seiten', 'churchtools-suite-posts-sync' ) . '</option>';
@@ -333,7 +333,7 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 
 		echo '<tr><th scope="row"><label for="ct_posts_sync_limit">' . esc_html__( 'Sync-Limit', 'churchtools-suite-posts-sync' ) . '</label></th><td>';
 		echo '<input type="number" min="1" max="1000" id="ct_posts_sync_limit" name="ct_posts_sync_limit" value="' . esc_attr( (string) $sync_limit ) . '" class="cts-form-input cts-posts-sync-field cts-posts-sync-field-small" ' . disabled( ! $is_local_environment || ! $enabled, true, false ) . ' />';
-		echo '<span class="cts-form-description">' . esc_html__( 'Maximale Anzahl ChurchTools-Berichte pro Sync-Lauf.', 'churchtools-suite-posts-sync' ) . '</span></td></tr>';
+		echo '<span class="cts-form-description">' . esc_html__( 'Maximale Anzahl ChurchTools-Posts pro Sync-Lauf.', 'churchtools-suite-posts-sync' ) . '</span></td></tr>';
 
 		echo '<tr class="cts-posts-sync-section-row"><th colspan="2">' . esc_html__( 'Filter', 'churchtools-suite-posts-sync' ) . '</th></tr>';
 		echo '<tr><th scope="row"><label for="ct_posts_after_date">' . esc_html__( 'Zeitraum ab (lokale Zeit)', 'churchtools-suite-posts-sync' ) . '</label></th><td>';
@@ -401,7 +401,7 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 		echo '<option value="public" ' . selected( $group_visibility, 'public', false ) . '>public</option>';
 		echo '</select></td></tr>';
 
-		echo '<tr><th scope="row"><label for="ct_posts_post_visibility">' . esc_html__( 'Bericht-Sichtbarkeit', 'churchtools-suite-posts-sync' ) . '</label></th><td>';
+		echo '<tr><th scope="row"><label for="ct_posts_post_visibility">' . esc_html__( 'Post-Sichtbarkeit', 'churchtools-suite-posts-sync' ) . '</label></th><td>';
 		echo '<select id="ct_posts_post_visibility" name="ct_posts_post_visibility" class="cts-form-input cts-posts-sync-field cts-posts-sync-field-medium" ' . disabled( ! $is_local_environment || ! $enabled, true, false ) . '>';
 		echo '<option value="" ' . selected( $post_visibility, '', false ) . '>' . esc_html__( 'Alle', 'churchtools-suite-posts-sync' ) . '</option>';
 		echo '<option value="group_visible" ' . selected( $post_visibility, 'group_visible', false ) . '>group_visible</option>';
@@ -461,7 +461,7 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 		}
 
 		if ( ! $this->is_local_environment() ) {
-			wp_send_json_error( [ 'message' => __( 'Berichte-Sync ist nur in lokaler Umgebung ausführbar.', 'churchtools-suite-posts-sync' ) ] );
+			wp_send_json_error( [ 'message' => __( 'Posts-Sync ist nur in lokaler Umgebung ausführbar.', 'churchtools-suite-posts-sync' ) ] );
 			return;
 		}
 
@@ -494,11 +494,11 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 			], false );
 
 			wp_send_json_success( [
-				'message' => __( 'Berichte-Sync erfolgreich ausgeführt.', 'churchtools-suite-posts-sync' ),
+				'message' => __( 'Posts-Sync erfolgreich ausgeführt.', 'churchtools-suite-posts-sync' ),
 				'stats' => $result,
 			] );
 		} catch ( Exception $e ) {
-			wp_send_json_error( [ 'message' => __( 'Fehler beim Berichte-Sync: ', 'churchtools-suite-posts-sync' ) . $e->getMessage() ] );
+			wp_send_json_error( [ 'message' => __( 'Fehler beim Posts-Sync: ', 'churchtools-suite-posts-sync' ) . $e->getMessage() ] );
 		}
 	}
 

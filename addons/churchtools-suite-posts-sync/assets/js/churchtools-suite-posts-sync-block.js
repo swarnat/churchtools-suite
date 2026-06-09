@@ -27,11 +27,11 @@
 	}
 
 	registerBlockType(blockName, {
-		title: __('ChurchTools Berichte', 'churchtools-suite-posts-sync'),
-		description: __('Zeigt synchronisierte ChurchTools-Berichte als Liste an.', 'churchtools-suite-posts-sync'),
+		title: __('ChurchTools Posts', 'churchtools-suite-posts-sync'),
+		description: __('Zeigt synchronisierte ChurchTools-Posts als Liste an.', 'churchtools-suite-posts-sync'),
 		icon: 'media-document',
 		category: 'churchtools-suite',
-		keywords: ['churchtools', 'berichte', 'posts'],
+		keywords: ['churchtools', 'posts', 'posts'],
 		attributes: {
 			limit: { type: 'number', default: 10 },
 			postType: { type: 'string', default: '' },
@@ -51,7 +51,7 @@
 					null,
 					el(
 						PanelBody,
-						{ title: __('Berichte-Liste', 'churchtools-suite-posts-sync'), initialOpen: true },
+						{ title: __('Posts-Liste', 'churchtools-suite-posts-sync'), initialOpen: true },
 						el(RangeControl, {
 							label: __('Anzahl', 'churchtools-suite-posts-sync'),
 							value: attrs.limit,
@@ -99,7 +99,7 @@
 					Placeholder,
 					{
 						icon: 'media-document',
-						label: __('ChurchTools Berichte', 'churchtools-suite-posts-sync'),
+						label: __('ChurchTools Posts', 'churchtools-suite-posts-sync'),
 						instructions: __('Die Ausgabe wird im Frontend dynamisch gerendert.', 'churchtools-suite-posts-sync')
 					},
 					el('p', null, __('Anzahl: ', 'churchtools-suite-posts-sync') + String(attrs.limit || 10)),
