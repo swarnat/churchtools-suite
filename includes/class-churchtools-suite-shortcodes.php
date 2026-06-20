@@ -311,7 +311,7 @@ class ChurchTools_Suite_Shortcodes {
 		
 		// Route to appropriate view handler based on view name prefix
 		$view = strtolower( $atts['view'] );
-		
+
 		// v1.0.1: Auto-extract view prefix and convert to old format for backward compatibility
 		if ( strpos( $view, 'list-' ) === 0 ) {
 			// list-classic → classic
@@ -420,9 +420,9 @@ class ChurchTools_Suite_Shortcodes {
 		
 		// Backward-Compatibility: Normalisiere View-ID (alte Namen → neue deutsche IDs)
 		$atts['view'] = ChurchTools_Suite_Template_Loader::normalize_view_id( 'list', $atts['view'] );
-		
+
 		// v0.9.7.0 - Erlaubte Views (deutsche IDs mit Präfix)
-		$allowed_views = [ 'list-einfach', 'list-klassisch', 'list-minimal', 'list-modern', 'list-klassisch-mit-bildern' ];
+		$allowed_views = [ 'list-einfach', 'list-klassisch', 'list-minimal', 'list-modern', 'list-modern-with-images', 'list-klassisch-mit-bildern' ];
 		$allowed_views = apply_filters( 'churchtools_suite_list_allowed_views', $allowed_views );
 
 		if ( ! in_array( $atts['view'], $allowed_views, true ) ) {

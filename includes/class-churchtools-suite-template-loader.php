@@ -213,6 +213,7 @@ class ChurchTools_Suite_Template_Loader {
 				'list-classic-modern' => 'list-klassisch-modern',
 				'list-minimal' => 'list-minimal',
 				'list-modern' => 'list-modern',
+				'list-modern-with-images' => 'list-modern-with-images',
 			],
 			'grid' => [
 				'grid-klassisch' => 'grid-klassisch',
