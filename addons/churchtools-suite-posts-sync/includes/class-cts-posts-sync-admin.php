@@ -22,7 +22,7 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 		$page = isset( $_GET['page'] ) ? sanitize_key( (string) $_GET['page'] ) : '';
 		$tab = isset( $_GET['tab'] ) ? sanitize_key( (string) $_GET['tab'] ) : '';
 		$subtab = isset( $_GET['subtab'] ) ? sanitize_key( (string) $_GET['subtab'] ) : '';
-
+		
 		$is_overview_page = ( $page === 'churchtools-suite-posts-overview' );
 		$is_posts_settings_tab = ( $page === 'churchtools-suite' && $tab === 'settings' && $subtab === 'posts' );
 
@@ -195,6 +195,7 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 		}
 		$group_visibility = isset( $post_data['ct_posts_group_visibility'] ) ? sanitize_key( wp_unslash( (string) $post_data['ct_posts_group_visibility'] ) ) : '';
 		$post_visibility = isset( $post_data['ct_posts_post_visibility'] ) ? sanitize_key( wp_unslash( (string) $post_data['ct_posts_post_visibility'] ) ) : '';
+		$img_orientation = isset( $post_data['ct_posts_img_orientation'] ) ? sanitize_key( wp_unslash( (string) $post_data['ct_posts_img_orientation'] ) ) : '';
 		$only_my_groups = isset( $post_data['ct_posts_only_my_groups'] ) ? 1 : 0;
 		$include_comments = isset( $post_data['ct_posts_include_comments'] ) ? 1 : 0;
 		$include_linkings = isset( $post_data['ct_posts_include_linkings'] ) ? 1 : 0;
@@ -233,6 +234,7 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 		update_option( 'churchtools_suite_ct_posts_group_ids', $group_ids, false );
 		update_option( 'churchtools_suite_ct_posts_group_visibility', $group_visibility, false );
 		update_option( 'churchtools_suite_ct_posts_post_visibility', $post_visibility, false );
+		update_option( 'churchtools_suite_post_img_orientation', $img_orientation, false );
 		update_option( 'churchtools_suite_ct_posts_only_my_groups', $only_my_groups, false );
 		update_option( 'churchtools_suite_ct_posts_include_comments', $include_comments, false );
 		update_option( 'churchtools_suite_ct_posts_include_linkings', $include_linkings, false );
@@ -285,6 +287,7 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 		$groups_last_sync = (string) get_option( 'churchtools_suite_ct_posts_groups_last_sync', '' );
 		$group_visibility = (string) get_option( 'churchtools_suite_ct_posts_group_visibility', '' );
 		$post_visibility = (string) get_option( 'churchtools_suite_ct_posts_post_visibility', '' );
+		$post_img_orientation = (string) get_option( 'churchtools_suite_post_img_orientation', '' );
 		$only_my_groups = (int) get_option( 'churchtools_suite_ct_posts_only_my_groups', 0 );
 		$include_comments = (int) get_option( 'churchtools_suite_ct_posts_include_comments', 0 );
 		$include_linkings = (int) get_option( 'churchtools_suite_ct_posts_include_linkings', 0 );
@@ -407,6 +410,12 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 		echo '<option value="group_visible" ' . selected( $post_visibility, 'group_visible', false ) . '>group_visible</option>';
 		echo '<option value="group_intern" ' . selected( $post_visibility, 'group_intern', false ) . '>group_intern</option>';
 		echo '<option value="public" ' . selected( $post_visibility, 'public', false ) . '>public</option>';
+		echo '</select></td></tr>';
+
+		echo '<tr><th scope="row"><label for="ct_posts_post_visibility">' . esc_html__( 'Post-Images Gallery', 'churchtools-suite-posts-sync' ) . '</label></th><td>';
+		echo '<select id="ct_posts_img_orientation" name="ct_posts_img_orientation" class="cts-form-input cts-posts-sync-field cts-posts-sync-field-medium" ' . disabled( ! $is_local_environment || ! $enabled, true, false ) . '>';
+		echo '<option value="horizontal" ' . selected( $post_img_orientation, 'horizontal', false ) . '>Horizontal</option>';
+		echo '<option value="vertical" ' . selected( $post_img_orientation, 'vertical', false ) . ' ' . selected( $post_img_orientation, '', false ) . '>Vertikal</option>';
 		echo '</select></td></tr>';
 
 		echo '<tr class="cts-posts-sync-section-row"><th colspan="2">' . esc_html__( 'API Includes', 'churchtools-suite-posts-sync' ) . '</th></tr>';
@@ -591,10 +600,8 @@ class ChurchTools_Suite_Posts_Sync_Admin {
 			require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-ct-client.php';
 			$client = new ChurchTools_Suite_CT_Client();
 
-			$response = $client->api_request( 'post/groups', 'GET', [] );
-			if ( is_wp_error( $response ) ) {
-				$response = $client->api_request( 'groups', 'GET', [ 'limit' => 1000 ] );
-			}
+			$response = $client->api_request( 'groups', 'GET', [ 'limit' => 200 ] );
+
 			if ( is_wp_error( $response ) ) {
 				return [
 					'status' => 'error',

@@ -452,6 +452,8 @@ class ChurchTools_Suite_Posts_Sync_Service {
 
 	private function normalize_content_with_images( string $content, array $images ): string {
 		$content = trim( $content );
+		
+		$post_image_orientation = sanitize_key( (string) get_option( 'churchtools_suite_post_img_orientation', 'vertical' ) );
 
 		if ( $content !== '' ) {
 			$content = preg_replace_callback(
@@ -472,6 +474,7 @@ class ChurchTools_Suite_Posts_Sync_Service {
 		}
 
 		$missing_images_markup = [];
+
 		foreach ( $images as $image_url ) {
 			$image_url = (string) $image_url;
 			if ( $image_url === '' ) {
@@ -482,11 +485,39 @@ class ChurchTools_Suite_Posts_Sync_Service {
 				continue;
 			}
 
-			$missing_images_markup[] = '<p><img src="' . esc_url( $image_url ) . '" alt="" /></p>';
+			$image_url = esc_url( $image_url );
+			$image_data = apply_filters("churchtools_suite_image_posts", [
+				"link_url" =>  $image_url . '?w=auto&h=1080&fm=webp&crop=original',
+				"img_src" => $image_url . '?w=auto&h=480&fm=webp&crop=original',
+
+				'link_class' => '',
+				'img_class' => '',
+			]);
+
+			$missing_images_markup[] = '<a href="' . $image_data["link_url"] .'" class="' . $image_data["link_class"] . '"><img src="' . $image_data["img_src"] .'" class="' . $image_data["img_class"] . '" alt="" /></a>';
 		}
 
 		if ( ! empty( $missing_images_markup ) ) {
-			$content = trim( $content . "\n\n" . implode( "\n", $missing_images_markup ) );
+
+			if ( $post_image_orientation == 'horizontal' ) {
+				$image_html = "<div style='display:flex;gap:10px;'>";
+			} else {
+				$image_html = "";
+			}
+
+			foreach($missing_images_markup as $image) {
+				if ( $post_image_orientation == 'horizontal') {
+					$image_html .= $image;
+				} else {
+					$image_html .= "<p>" . $image . "</p>\n";
+				}
+			}
+
+			if ( $post_image_orientation == 'horizontal' ) {
+				$image_html .= "</div>";
+			}
+
+			$content = trim( $content . "\n\n" . $image_html );
 		}
 
 		return wp_kses_post( $content );
