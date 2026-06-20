@@ -65,3 +65,16 @@ Zusaetzlich wurden alte Backup-Templates unter `templates-backup-20260222-211402
 1. Frontend-Filter in WordPress manuell mit echten Event-Daten pruefen
 2. Sync-Cleanup mit einem Vollsync gegen ein Testsystem verifizieren
 3. Danach Readme/Changelog pro Release fortschreiben und Release-ZIPs bauen
+
+## Beispiele:
+
+Moderne Liste von Events mit Bildern:
+
+```
+[cts_list view="list-modern-with-images" limit="20" link_search="false" show_location="true show_services="true" show_appointment_description="true" show_event_description="true" use_calendar_colors="true"]
+```
+
+Kalendar Ansicht:
+```
+[cts_calendar view="monthly-simple" use_calendar_colors="true"]
+```
