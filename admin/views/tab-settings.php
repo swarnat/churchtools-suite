@@ -25,7 +25,7 @@ $active_subtab = isset( $_GET['subtab'] ) ? sanitize_key( $_GET['subtab'] ) : 'a
 			<?php esc_html_e( 'Synchronisation', 'churchtools-suite' ); ?>
 		</a>
 		<a href="?page=churchtools-suite&tab=settings&subtab=posts" class="cts-sub-tab <?php echo $active_subtab === 'posts' ? 'active' : ''; ?>">
-			<?php esc_html_e( 'Berichte', 'churchtools-suite' ); ?>
+			<?php esc_html_e( 'Posts', 'churchtools-suite' ); ?>
 		</a>
 		<a href="?page=churchtools-suite&tab=settings&subtab=calendars" class="cts-sub-tab <?php echo $active_subtab === 'calendars' ? 'active' : ''; ?>">
 			<?php esc_html_e( 'Kalender', 'churchtools-suite' ); ?>

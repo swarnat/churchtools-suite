@@ -275,7 +275,7 @@ class ChurchTools_Suite_Admin {
 
 			var flyout = $("<ul class=\"cts-overviews-flyout\" />");
 			flyout.append("<li><a href=\"" + eventsUrl + "\">📋 Übersicht Termine</a></li>");
-			flyout.append("<li><a href=\"" + postsUrl + "\">📝 Übersicht Berichte</a></li>");
+			flyout.append("<li><a href=\"" + postsUrl + "\">📝 Übersicht Posts</a></li>");
 			parentItem.append(flyout);
 
 			var closeTimer = null;
@@ -636,7 +636,7 @@ class ChurchTools_Suite_Admin {
 		echo '<p>' . esc_html__( 'Bitte wählen Sie die gewünschte Übersicht:', 'churchtools-suite' ) . '</p>';
 		echo '<p>';
 		echo '<a class="button button-primary" href="' . esc_url( admin_url( 'admin.php?page=churchtools-suite-data&subtab=events' ) ) . '">📋 ' . esc_html__( 'Übersicht Termine', 'churchtools-suite' ) . '</a> ';
-		echo '<a class="button" href="' . esc_url( admin_url( 'admin.php?page=churchtools-suite-posts-overview' ) ) . '">📝 ' . esc_html__( 'Übersicht Berichte', 'churchtools-suite' ) . '</a>';
+		echo '<a class="button" href="' . esc_url( admin_url( 'admin.php?page=churchtools-suite-posts-overview' ) ) . '">📝 ' . esc_html__( 'Übersicht Posts', 'churchtools-suite' ) . '</a>';
 		echo '</p>';
 		echo '</div>';
 	}
