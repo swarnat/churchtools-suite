@@ -136,15 +136,16 @@ for ( $i = 0; $i < 7; $i++ ) {
 		</a>
 	</div>
 	
-	<!-- Weekday Header -->
-	<div class="cts-calendar-weekdays">
-		<?php foreach ( $weekdays as $weekday ) : ?>
-			<div class="cts-calendar-weekday"><?php echo esc_html( $weekday ); ?></div>
-		<?php endforeach; ?>
-	</div>
 	
 	<!-- Calendar Grid (dynamic weeks: 5–6 × 7 days) -->
 	<div class="cts-calendar-grid">
+		<!-- Weekday Header -->
+		<!-- <div class="cts-calendar-weekdays"> -->
+			<?php foreach ( $weekdays as $weekday ) : ?>
+				<div class="cts-calendar-weekday"><?php echo esc_html( $weekday ); ?></div>
+			<?php endforeach; ?>
+		<!-- </div> -->
+
 		<?php
 		$current_date = $grid_start;
 		$today = wp_date( 'Y-m-d' );

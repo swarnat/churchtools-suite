@@ -2345,8 +2345,10 @@
 /* Calendar Grid */
 .cts-calendar-grid {
 	display: grid;
-	grid-template-columns: repeat(7, 1fr);
-	grid-auto-rows: 1fr;
+	/* minmax(0, 1fr) statt 1fr: verhindert, dass lange Event-Titel
+	   (white-space: nowrap) eine Spalte breiter ziehen -> gleiche Spaltenbreite */
+	grid-template-columns: repeat(7, minmax(0, 1fr));
+	grid-auto-rows: minmax(50px, auto);
 }
 
 /* Day Cell */
