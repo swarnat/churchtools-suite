@@ -50,13 +50,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<!-- Main: Titel, Beschreibungen, Dienste -->
 				<div class="cts-modal-main">
-					<div id="cts-modal-image" class="cts-modal-image-container" style="display: none;">
-						<a id="cts-modal-image-link" class="cts-modal-image-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Bild in voller Groesse anzeigen', 'churchtools-suite' ); ?>">
-							<img id="cts-modal-image-img" src="" alt="" class="cts-modal-image" />
-							<span class="cts-modal-image-cta"><?php esc_html_e( 'Bild anzeigen', 'churchtools-suite' ); ?></span>
-						</a>
-					</div>
-
 					<h1 id="cts-modal-event-title" class="cts-modal-event-title"></h1>
 					<div id="cts-modal-calendar" class="cts-modal-calendar-badge"></div>
 
@@ -77,6 +70,13 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 				<!-- Sidebar: Allgemeine Infos rechts -->
 				<div class="cts-modal-sidebar">
+					<div id="cts-modal-image" class="cts-modal-image-container" style="display: none;">
+						<a id="cts-modal-image-link" class="cts-modal-image-link" href="#" target="_blank" rel="noopener noreferrer" aria-label="<?php esc_attr_e( 'Bild in voller Groesse anzeigen', 'churchtools-suite' ); ?>">
+							<img id="cts-modal-image-img" src="" alt="" class="cts-modal-image" />
+							<span class="cts-modal-image-cta"><?php esc_html_e( 'Bild anzeigen', 'churchtools-suite' ); ?></span>
+						</a>
+					</div>
+
 					<div id="cts-modal-date" class="cts-modal-sidebar-section" style="display: none;">
 						<div class="cts-modal-sidebar-header">
 							<span class="dashicons dashicons-calendar-alt"></span>
