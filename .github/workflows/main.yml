@@ -2,8 +2,13 @@ name: Build release zip
 
 on:
   push:
-    branches:
-    - main
+    tags:
+      # Matches version tags like 1.2.1.4, 1.2.1.4-01, v1.2.1.4, v1.2.1.4-01
+      - '[0-9]+.[0-9]+.[0-9]+*'
+      - 'v[0-9]+.[0-9]+.[0-9]+*'
+
+permissions:
+  contents: write
 
 jobs:
   build:
@@ -13,5 +18,25 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Generate zip
-      uses: 10up/action-wordpress-plugin-build-zip@stable
+    - name: Determine version
+      id: version
+      run: |
+        RAW="${GITHUB_REF_NAME}"
+        VERSION="${RAW#v}"        # strip leading "v"
+        VERSION="${VERSION%-*}"   # strip "-01" build suffix
+        echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+    - name: Bundle repo into churchtools-suite folder
+      run: |
+        VERSION="${{ steps.version.outputs.version }}"
+        STAGING="$RUNNER_TEMP/staging/churchtools-suite"
+        mkdir -p "$STAGING"
+        # Copy the complete repo into the churchtools-suite/ folder, excluding VCS internals
+        rsync -a --exclude='.git' ./ "$STAGING/"
+        ( cd "$RUNNER_TEMP/staging" && zip -r "$GITHUB_WORKSPACE/churchtools-suite-${VERSION}.zip" churchtools-suite )
+
+    - name: Create release and attach zip
+      uses: softprops/action-gh-release@v2
+      with:
+        name: ${{ steps.version.outputs.version }}
+        files: churchtools-suite-${{ steps.version.outputs.version }}.zip
