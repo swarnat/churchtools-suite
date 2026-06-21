@@ -80,6 +80,8 @@ View types: `list`, `grid`, `calendar`, `countdown`, `carousel`, `modal`, `singl
 
 Shortcodes support named presets (stored via `shortcode_presets` repository).
 
+**Whenever you change something on shortcodes, update docs/SHORTCODES.md.**
+
 ### Admin Interface
 Tab-based UI: Dashboard, Settings, Calendars, Events, Sync, Debug. Views in `admin/views/tab-*.php`. AJAX handlers are registered in `register_ajax_handlers()` — all prefixed `cts_` and require nonce `churchtools_suite_admin` + `manage_options` capability.
 
