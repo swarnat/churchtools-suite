@@ -17,6 +17,7 @@ add-ons, together with their parameters and the accepted values for each.
 | `[cts_calendar]` | Monthly calendar view | Core |
 | `[cts_countdown]` | Live countdown to the next (or a specific) event | Core |
 | `[cts_carousel]` | Horizontal swipeable event carousel | Core |
+| `[cts_next_event]` | The single next upcoming event, in a professional-modal-style card | Core |
 | `[cts_event_search]` | Event search form + results | Core |
 | `[cts_posts]` | List synced ChurchTools posts | Add-on: *Posts Sync* |
 | `[cts_presentation]` | Auto-rotating presentation slider for a page | Add-on: *Presentations* |
@@ -251,6 +252,53 @@ Always shows exactly **one** event (`limit` is forced to `1`).
 > Carousel defaults differ: `use_calendar_colors=true`, `custom_text_color=#111827`,
 > `custom_border_radius=0`, `custom_padding=16`, `custom_spacing=16`.
 > `show_tags` defaults to `false`.
+
+---
+
+## `[cts_next_event]` — Next upcoming event
+
+Shows the **single next upcoming event** from a list of calendar IDs (or all
+calendars selected in admin). The layout is modelled on the *professional modal*
+UI: a main area (title, calendar badge, descriptions, services) next to a
+sidebar (image, date, time, tags, location).
+
+```text
+[cts_next_event]
+[cts_next_event calendars="2,5,7"]
+[cts_next_event calendar="2" show_services="true"]
+[cts_next_event event_action="page"]
+```
+
+- Pass `calendars` (or `calendar`) with comma-separated IDs to restrict the
+  source calendars. Leave both empty to use **all** calendars selected in
+  **Admin → Calendars**.
+- Always renders exactly **one** event (`limit` is forced to `1`); when nothing
+  is upcoming, a friendly empty-state card is shown instead.
+
+**`view` options:**
+
+| Value | Alias(es) | Description |
+|-------|-----------|-------------|
+| `professional` | `classic` | Professional modal-style card *(default)* |
+| `main` | — | Horizontal feature card — image left, content right (from Claude Design). Best for main content areas. |
+| `sidebar` | — | Compact vertical card — image on top with overlay badge, stacked details (from Claude Design). Best for sidebars/widgets. |
+
+The `main` and `sidebar` cards include a "Mehr erfahren" call-to-action button
+that appears only when `event_action` is `modal` or `page`. They use a green
+accent by default; set `use_calendar_colors="true"` (the default) to tint the
+accent, badge, icons, and button with the event's calendar color.
+
+**Specific parameters** (also accepts the common data/display/style parameters):
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `event_action` | string | `none` | Click behaviour. Options: `none` (default — all details already shown), `modal`, `page`. |
+| `empty_message` | string | `''` | Custom text shown when there is no upcoming event. |
+| `use_calendar_colors` | boolean | `true` | Tint the title bar, badge, tags, and icons with the event's calendar color. |
+
+> Differs from other shortcodes: `event_action` defaults to `none` and
+> `use_calendar_colors` defaults to `true`. Style defaults: `custom_border_radius=12`,
+> `custom_padding=28`, `custom_spacing=16`.
 
 ---
 

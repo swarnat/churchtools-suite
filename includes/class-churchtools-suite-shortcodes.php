@@ -67,7 +67,10 @@ class ChurchTools_Suite_Shortcodes {
 		
 		// Carousel Views (v1.1.3.0)
 		add_shortcode( 'cts_event_search', [ __CLASS__, 'event_search_shortcode' ] );
-		
+
+		// Next-Event View (single upcoming event, professional-modal-style UI)
+		add_shortcode( 'cts_next_event', [ __CLASS__, 'next_event_shortcode' ] );
+
 	}
 	
 	/**
@@ -840,10 +843,103 @@ class ChurchTools_Suite_Shortcodes {
 	}
 	
 	/**
+	 * Next Event Shortcode
+	 *
+	 * Zeigt das nächste anstehende Event aus einer Liste von Kalender-IDs
+	 * (oder allen ausgewählten Kalendern) im Stil der Professional-Modal-UI.
+	 *
+	 * Usage:
+	 * [cts_next_event]
+	 * [cts_next_event calendars="2,5,7"]
+	 * [cts_next_event calendar="2" show_services="true"]
+	 *
+	 * @param array $atts Shortcode attributes
+	 * @return string HTML output
+	 */
+	public static function next_event_shortcode( $atts ): string {
+		$atts = shortcode_atts( [
+			'view' => 'professional',
+			'calendar' => '',
+			'calendars' => '',
+			'tags' => '',
+			'limit' => 1, // Always 1 event (next upcoming)
+			'from' => '',
+			'to' => '',
+			'class' => '',
+			'show_past_events' => false,
+			'show_event_description' => true,
+			'show_appointment_description' => true,
+			'show_location' => true,
+			'show_services' => false,
+			'show_time' => true,
+			'show_tags' => true,
+			'show_calendar_name' => true,
+			'show_images' => true,
+			'image_fit' => 'cover',
+			'event_action' => 'none',
+			'empty_message' => '',
+			// Style Management
+			'style_mode' => 'theme',
+			'use_calendar_colors' => true,
+			'custom_primary_color' => '#2563eb',
+			'custom_text_color' => '#1e293b',
+			'custom_background_color' => '#ffffff',
+			'custom_border_radius' => 12,
+			'custom_font_size' => 14,
+			'custom_padding' => 28,
+			'custom_spacing' => 16,
+
+			// Use existing search value
+			'link_search' => true,
+		], $atts, 'cts_next_event' );
+
+		// Map view IDs to template files (Claude-Design editions added in v1.2.2.0)
+		$view_templates = [
+			'professional' => 'professional.php',
+			'classic'      => 'professional.php', // alias
+			'main'         => 'main.php',          // Claude Design – Edition A (horizontal feature card)
+			'sidebar'      => 'sidebar.php',       // Claude Design – Edition B (compact sidebar card)
+		];
+		$view_templates = apply_filters( 'churchtools_suite_next_event_view_templates', $view_templates );
+
+		if ( ! isset( $view_templates[ $atts['view'] ] ) ) {
+			$atts['view'] = 'professional';
+		}
+
+		// Force limit to 1 (always shows only the next upcoming event)
+		$atts['limit'] = 1;
+
+		// Convert boolean values
+		$atts['show_past_events'] = self::parse_boolean( $atts['show_past_events'] );
+		$atts['use_calendar_colors'] = self::parse_boolean( $atts['use_calendar_colors'] );
+		$atts['show_event_description'] = self::parse_boolean( $atts['show_event_description'] );
+		$atts['show_appointment_description'] = self::parse_boolean( $atts['show_appointment_description'] );
+		$atts['show_location'] = self::parse_boolean( $atts['show_location'] );
+		$atts['show_services'] = self::parse_boolean( $atts['show_services'] );
+		$atts['show_time'] = self::parse_boolean( $atts['show_time'] );
+		$atts['show_tags'] = self::parse_boolean( $atts['show_tags'] );
+		$atts['show_calendar_name'] = self::parse_boolean( $atts['show_calendar_name'] );
+		$atts['show_images'] = self::parse_boolean( $atts['show_images'] );
+		$atts['image_fit'] = self::sanitize_image_fit( $atts['image_fit'] );
+		$atts['link_search'] = self::parse_boolean( $atts['link_search'] );
+
+		if ( $atts['link_search'] === true ) {
+			$atts['search'] = ChurchTools_Suite_Queryvars::getEventSearchQuery();
+		}
+
+		// Get events (next upcoming event from the given/selected calendars)
+		$events = self::get_events( $atts );
+
+		$template_path = 'views/event-next/' . $view_templates[ $atts['view'] ];
+
+		return self::render_template( $template_path, $events, $atts );
+	}
+
+	/**
 	 * Debug Shortcode (Developer Tool)
-	 * 
+	 *
 	 * Shows debug information about template loading
-	 * 
+	 *
 	 * @param array $atts Shortcode attributes
 	 * @return string HTML output
 	 */
