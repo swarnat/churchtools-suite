@@ -247,6 +247,7 @@ class ChurchTools_Suite_Posts_Sync_Frontend {
 				'post_type' => '',
 				'show_date' => 'true',
 				'show_excerpt' => 'true',
+				'show_content' => 'false',
 				'excerpt_words' => 28,
 				'only_new' => 'false',
 				'only_synced' => 'true',
@@ -261,6 +262,7 @@ class ChurchTools_Suite_Posts_Sync_Frontend {
 				'post_type' => (string) $atts['post_type'],
 				'show_date' => self::parse_bool( $atts['show_date'], true ),
 				'show_excerpt' => self::parse_bool( $atts['show_excerpt'], true ),
+				'show_content' => self::parse_bool( $atts['show_content'], false ),
 				'excerpt_words' => (int) $atts['excerpt_words'],
 				'only_new' => self::parse_bool( $atts['only_new'], false ),
 				'only_synced' => self::parse_bool( $atts['only_synced'], true ),
@@ -317,6 +319,9 @@ class ChurchTools_Suite_Posts_Sync_Frontend {
 
 		$show_date = ! empty( $config['show_date'] );
 		$show_excerpt = ! empty( $config['show_excerpt'] );
+		$show_content = ! empty( $config['show_content'] );
+		if ( $show_content ) $show_excerpt = false;
+
 		$only_new = ! empty( $config['only_new'] );
 		$only_synced = ! empty( $config['only_synced'] );
 		$excerpt_words = isset( $config['excerpt_words'] ) ? (int) $config['excerpt_words'] : 28;
@@ -382,12 +387,15 @@ class ChurchTools_Suite_Posts_Sync_Frontend {
 			$post_type_obj = get_post_type_object( (string) get_post_type( $post_id ) );
 			$allow_link = $post_type_obj && ! empty( $post_type_obj->publicly_queryable ) && ! empty( $post_type_obj->public );
 			$excerpt = '';
+
 			if ( $show_excerpt ) {
 				$raw_excerpt = get_the_excerpt( $post_id );
 				if ( $raw_excerpt === '' ) {
 					$raw_excerpt = get_post_field( 'post_content', $post_id );
 				}
 				$excerpt = wp_trim_words( wp_strip_all_tags( (string) $raw_excerpt ), $excerpt_words );
+			} elseif ( $show_content ) {
+				$excerpt = get_post_field( 'post_content', $post_id );
 			}
 			$date_display = get_the_date( get_option( 'date_format' ), $post_id );
 			?>
@@ -404,6 +412,9 @@ class ChurchTools_Suite_Posts_Sync_Frontend {
 				<?php endif; ?>
 				<?php if ( $show_excerpt && $excerpt !== '' ) : ?>
 					<p class="cts-posts-sync-excerpt"><?php echo esc_html( $excerpt ); ?></p>
+				<?php endif; ?>
+				<?php if ( $show_content && $excerpt !== '' ) : ?>
+					<p class="cts-posts-sync-excerpt"><?php echo  $excerpt ; ?></p>
 				<?php endif; ?>
 			</article>
 			<?php

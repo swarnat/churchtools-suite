@@ -1,5 +1,5 @@
 .cts-posts-sync-list {
-	display: grid;
+	/* display: grid; */
 	gap: 16px;
 	margin: 12px 0;
 }
@@ -9,6 +9,9 @@
 	border: 1px solid #dcdcde;
 	border-radius: 10px;
 	background: #fff;
+}
+.cts-posts-sync-item img {
+	max-width:100%;
 }
 
 .cts-posts-sync-title {

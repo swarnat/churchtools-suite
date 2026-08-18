@@ -47,6 +47,8 @@ class ChurchTools_Suite_Posts_Sync_Service {
 	}
 
 	public function sync_posts( array $args = [] ) {
+		require_once CHURCHTOOLS_SUITE_PATH . 'includes/class-churchtools-suite-parsedown.php';		
+
 		$target_type = get_option( 'churchtools_suite_ct_posts_target_type', 'post' );
 		$supported_target_types = $this->get_supported_target_types();
 		if ( ! in_array( $target_type, $supported_target_types, true ) ) {
@@ -248,8 +250,11 @@ class ChurchTools_Suite_Posts_Sync_Service {
 			$image_candidates[] = $item['imageUrl'];
 		}
 
+		$parseDown = new ChurchTools_Suite_Parsedown();
 		$images = $this->extract_image_urls( $image_candidates );
 		$content = $this->normalize_content_with_images( $content_raw, $images );
+		$content = $parseDown->text($content);
+
 		$publication_date = (string) ( $item['publicationDate'] ?? '' );
 		$expiration_date = (string) ( $item['expirationDate'] ?? '' );
 		$published_date = (string) ( $item['publishedDate'] ?? '' );
